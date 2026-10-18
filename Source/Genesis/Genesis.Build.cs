@@ -14,7 +14,9 @@ public class Genesis : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"AIModule",
-			"UMG"
+			"UMG",
+			"Json",
+			"JsonUtilities"
 		});
 	}
 }
