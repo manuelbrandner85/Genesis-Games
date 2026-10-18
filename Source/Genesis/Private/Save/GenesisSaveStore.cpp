@@ -158,6 +158,8 @@ EGenesisSaveResult FGenesisSaveStore::Decode(const TArray<uint8>& Bytes, FGenesi
 	{
 		GenesisSave::MigrateSchema1(*Root, Parsed);
 	}
+	// Schema 2 -> 3: neue Felder (Kausalgraph, NPC-Gedaechtnis) starten leer, keine Umrechnung noetig.
+	Parsed.SchemaVersion = FGenesisSaveBundle::CurrentSchemaVersion;
 
 	OutBundle = MoveTemp(Parsed);
 	return EGenesisSaveResult::Ok;

@@ -93,12 +93,30 @@ Bekannte Schwächen (nicht kaschiert):
 - Belichtungsstufen sind wie in der Nachtfotografie gewählt (Nachtbilder heller als das Auge sie sieht). Ob GENESIS nachts eher „Foto“ oder „Augenwahrnehmung“ zeigen soll, ist eine Gestaltungsentscheidung.
 - Sternkarte und Textur liegen nicht im Repo (Git-LFS-Kontingent): nach dem Klonen `Tools/Setup/Get-StarMap.ps1` ausführen.
 
+## WK-M03-001 – Kausalgraph und NPC-Gedächtnis (Verbesserung 1/17) · Status: GETESTET (lokal, ohne sichtbare NPCs)
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| Spielstand Schema 3 | `GenesisSaveTypes.h` | Welt: Ereignisse (`FGenesisCausalEvent`: Typ, Zeit, Ort, Leben, Handelnder, Betroffene, Zeugen, Ursachen, Bewertung, Bedeutung, Missions-/Szenenbezug), NPC-Zustände mit Erinnerungen und Haltungen. Leben: verdecktes Verhaltensprofil. Schema-2-Spielstände laden mit leerem Graphen |
+| Kausalgraph | `FGenesisCausality` (reine Funktionen), `UGenesisCausalitySubsystem` | Ereignis eintragen nur mit gültigem Typ, Handelndem und Ursachen, die existieren und nicht in der Zukunft liegen; Ursachenkette abfragbar (Grundlage für belegte Rückblenden C12/C16) |
+| NPC-Gedächtnis | Betroffene: volle Erinnerung, Zeugen: halbe, Gehörtes: abhängig vom Vertrauen in den Erzähler | Erinnerungen verblassen (Halbwertszeit 60 Tage bei Beiläufigem bis ca. 3 Jahre bei Lebensveränderndem); Ereignisse ab Bedeutung 0,8 werden nie vergessen; das Ereignis selbst bleibt im Graphen, auch wenn es niemand mehr erinnert |
+| Haltungen | Vertrauen und Zuneigung je Gegenüber; wer eine starke Meinung hat, ändert sie langsamer | grobe Stufe (feindselig … eng verbunden) für Verhalten/Dialog, **nie als Zahl im HUD** |
+| Neues Leben | Spieler-ID je Leben (`PLAYER_L<n>`) | Nach der Wiedergeburt ist der Spieler für alle ein Fremder, aber die Welt erinnert sich an das frühere Leben (Kanon: neue körperliche Identität) |
+| Verhaltensprofil | z. B. Empathy, Reliability, Courage | wird mitgeführt, aber nirgends angezeigt und nie als Strafe benutzt (Kanon: kein Karma-Gericht) |
+| Widerspruchsprüfung | `ValidateGraph` | erkennt doppelte IDs, fehlende oder spätere Ursachen, Zyklen, unbelegte Erinnerungen, Werte außerhalb −1…1 |
+| NPC-Komponente | `UGenesisNpcMemoryComponent` | Figuren im Level fragen Haltung zum Spieler und ihre präsentesten Erinnerungen ab (nur kompiliert, noch keine NPC im Level) |
+| Ereignistypen | `Config/DefaultGame.ini` (Projekteinstellungen > Genesis Causality): HELPED, GIFT, PROMISE_KEPT, PROMISE_BROKEN, IGNORED_REQUEST, HARMED, ARGUMENT, SAVED_LIFE | **Gestaltungs-Startwerte, kein Kanon** – bitte prüfen |
+| Absturztest | `docs/evidence/WK-M03-001/crash_test_schema3.csv` | 15/15 harte Abbrüche konsistent (Schema 3) |
+| Tests | `docs/evidence/WK-M03-001/automation_report.json` | **34/34 bestanden.** Neu: Typen geladen, Erinnerungen und Haltungen beim Eintragen, Ursachenkette + Ablehnung unbekannter/zukünftiger Ursachen, Verblassen, Gerücht abhängig vom Vertrauen (−0,05 vs. −0,01), neues Leben = Fremder, Widerspruchsprüfung, Speichern/Laden inkl. Gerüchtequelle und Schema-2-Spielstand |
+
+Noch nicht: Wahrnehmung (wer etwas sieht, wird noch von Hand übergeben), automatische Gerüchte zwischen NPCs, Dialoge, die Erinnerungen ansprechen, Haltungen, die sich ohne neue Ereignisse langsam erholen.
+
 ## Was noch NICHT existiert
-- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs, Missionen, Dialoge, UI.
+- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs im Level, Missionen, Dialoge, UI.
 - Wetter (Wolkenmenge, Regen) beeinflusst Licht und Belichtung noch nicht; die Belichtungstabelle gilt für klaren Himmel.
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M03-001: Kausalgraph und NPC-Gedächtnis (Verbesserung 1/17) – Ereignisse mit Ursache, Beteiligten und Zeit; NPCs erinnern sich, Vertrauen ändert sich; alles im Spielstand; Tests inkl. Speichern/Laden.
+WK-M03-002: NPC-Tagesablauf mit StateTree + Smart Objects – 3 Proxy-NPCs im Testlevel mit festen IDs, 24-h-Plan nach Weltuhr (schlafen, arbeiten, Markt), Wahrnehmung: wer in Sichtweite ist, wird automatisch Zeuge; Test per PIE ueber einen Spieltag.

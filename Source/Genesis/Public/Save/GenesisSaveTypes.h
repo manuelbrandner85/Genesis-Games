@@ -57,6 +57,129 @@ struct GENESIS_API FGenesisRelationship
 	float Trust = 0.f;
 };
 
+/**
+ * Ein tatsaechlich geschehenes Ereignis im Kausalgraphen (Ereignis-Wahrheit).
+ * Rueckblenden (z. B. C12/C16) duerfen nur zeigen, was hier mit einer EventId belegt ist.
+ */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisCausalEvent
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FName EventId;
+
+	/** Art des Ereignisses, z. B. HELPED, PROMISE_BROKEN (Definitionen in Projekteinstellungen > Genesis Causality). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FName EventType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FDateTime WorldTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FName LocationId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	int32 LifeIndex = 0;
+
+	/** Wer gehandelt hat (Figuren-ID oder Spieler-ID "PLAYER_L<Leben>"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FName ActorId;
+
+	/** Wen es direkt betraf. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	TArray<FName> TargetIds;
+
+	/** Wer es gesehen hat (ohne selbst betroffen zu sein). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	TArray<FName> WitnessIds;
+
+	/** Ereignisse, die dieses verursacht haben. Muessen existieren und frueher liegen. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	TArray<FName> CauseEventIds;
+
+	/** -1 (schadet den Betroffenen) .. +1 (hilft ihnen). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	float Valence = 0.f;
+
+	/** 0 (beilaeufig) .. 1 (lebensveraendernd). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	float Magnitude = 0.f;
+
+	/** Optionale Verknuepfung mit Mission, Szene oder Ort (z. B. "L08", "C08"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Causality")
+	FName ContextTag;
+};
+
+UENUM(BlueprintType)
+enum class EGenesisMemorySource : uint8
+{
+	/** Selbst betroffen. */
+	Experienced,
+	/** Mit angesehen. */
+	Witnessed,
+	/** Von jemandem erzaehlt bekommen. */
+	Heard
+};
+
+/** Subjektive Erinnerung einer Figur an ein Ereignis. Kann vom Kausalgraphen abweichen (wahrgenommene Bewertung). */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisNpcMemory
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	FName EventId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	EGenesisMemorySource Source = EGenesisMemorySource::Experienced;
+
+	/** Von wem sie es gehoert hat (nur bei Heard). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	FName HeardFrom;
+
+	/** Wie praesent die Erinnerung beim Entstehen war (0..1); verblasst danach mit der Zeit. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	float InitialSalience = 0.f;
+
+	/** Wie die Figur das Ereignis bewertet (-1..1). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	float PerceivedValence = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Memory")
+	FDateTime FormedAt;
+};
+
+/** Haltung einer Figur gegenueber einer anderen (oder dem Spieler eines bestimmten Lebens). */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisAttitude
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Relationship")
+	float Trust = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Relationship")
+	float Affinity = 0.f;
+};
+
+/** Dauerhafter Zustand einer Nicht-Spieler-Figur in der Welt; ueberdauert Leben des Spielers. */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisNpcState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|NPC")
+	FName NpcId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|NPC")
+	TArray<FGenesisNpcMemory> Memories;
+
+	/** Haltung je Gegenueber (Figuren-ID oder "PLAYER_L<Leben>"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|NPC")
+	TMap<FName, FGenesisAttitude> Attitudes;
+};
+
 /** Ueberdauert alle Leben: Identitaet der Seele, Echo-Erinnerungen, Enthuellungs-Guards. */
 USTRUCT(BlueprintType)
 struct GENESIS_API FGenesisSoulState
@@ -93,6 +216,16 @@ struct GENESIS_API FGenesisWorldState
 	/** Kausale Weltereignisse (EventID -> Zustand). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|World")
 	TMap<FName, int32> EventFlags;
+
+	/** Kausalgraph: alle tatsaechlich geschehenen Ereignisse, in zeitlicher Reihenfolge. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	TArray<FGenesisCausalEvent> CausalEvents;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	int64 NextEventSerial = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	TArray<FGenesisNpcState> Npcs;
 };
 
 /** Das aktuelle Leben: Koerper, Lebensdaten, Ort, Beziehungen, Besitz. Das Alter wird aus Weltzeit und Geburt berechnet. */
@@ -141,6 +274,13 @@ struct GENESIS_API FGenesisLifeState
 	/** Geld in Cent, um Rundungsfehler zu vermeiden. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
 	int64 MoneyCents = 0;
+
+	/**
+	 * Verdecktes Verhaltensprofil dieses Lebens (z. B. Empathy, Reliability). Wird nie als Zahl angezeigt und ist
+	 * keine Strafe (Kanon: kein Karma-Gericht); Figuren reagieren darauf nur ueber ihr eigenes Erleben.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Life")
+	TMap<FName, float> ConductProfile;
 };
 
 /**
@@ -152,8 +292,11 @@ struct GENESIS_API FGenesisSaveBundle
 {
 	GENERATED_BODY()
 
-	/** 1: Jahr/Tag/Uhrzeit + Alter als Zahl. 2: Weltdatum + Zeugung/Geburt (Migration 1 -> 2 beim Laden). */
-	static constexpr int32 CurrentSchemaVersion = 2;
+	/**
+	 * 1: Jahr/Tag/Uhrzeit + Alter als Zahl. 2: Weltdatum + Zeugung/Geburt (Migration 1 -> 2 beim Laden).
+	 * 3: Kausalgraph, NPC-Gedaechtnis, Verhaltensprofil (Schema 2 laedt mit leerem Graphen).
+	 */
+	static constexpr int32 CurrentSchemaVersion = 3;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Genesis|Save")
 	int32 SchemaVersion = CurrentSchemaVersion;
