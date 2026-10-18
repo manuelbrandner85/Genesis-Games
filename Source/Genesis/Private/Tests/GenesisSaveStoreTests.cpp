@@ -22,12 +22,14 @@ namespace GenesisSaveTests
 		B.Soul.SoulId = FGuid::NewGuid();
 		B.Soul.LivesLived = Marker;
 		B.Soul.UnlockedRevealGuards.Add(TEXT("TEST_GUARD"));
-		B.World.WorldYear = 2026 + Marker;
+		B.World.WorldDateTime = FDateTime(2026 + Marker, 6, 15, 10, 30, 15, 123);
 		B.World.EventFlags.Add(TEXT("EV_TEST"), Marker);
 		B.Life.LifeIndex = Marker;
 		B.Life.BodyAssetId = TEXT("CHR_TEST_BODY");
 		B.Life.Stage = EGenesisLifeStage::Adult;
-		B.Life.AgeYears = 30.5f;
+		B.Life.bBorn = true;
+		B.Life.BirthDateTime = FDateTime(1996, 2, 29, 4, 12, 0);
+		B.Life.ConceptionDateTime = FDateTime(1995, 6, 8);
 		B.Life.Inventory.Add(TEXT("ITEM_TEST"), 3);
 		B.Life.MoneyCents = 123456789012LL;
 		FGenesisMemoryRecord M;
@@ -63,7 +65,10 @@ bool FGenesisSaveRoundTripTest::RunTest(const FString&)
 	TestFalse(TEXT("Hauptdatei benutzt"), bBackup);
 	TestEqual(TEXT("Sequenz"), L.Sequence, int64(2));
 	TestEqual(TEXT("SoulId"), L.Soul.SoulId, B.Soul.SoulId);
-	TestEqual(TEXT("WorldYear"), L.World.WorldYear, 2033);
+	TestEqual(TEXT("Weltzeit exakt inkl. Millisekunden"), L.World.WorldDateTime, FDateTime(2033, 6, 15, 10, 30, 15, 123));
+	TestTrue(TEXT("Geboren"), L.Life.bBorn);
+	TestEqual(TEXT("Geburt exakt (Schalttag)"), L.Life.BirthDateTime, FDateTime(1996, 2, 29, 4, 12, 0));
+	TestEqual(TEXT("Zeugung exakt"), L.Life.ConceptionDateTime, FDateTime(1995, 6, 8));
 	TestEqual(TEXT("EventFlag"), L.World.EventFlags.FindRef(TEXT("EV_TEST")), 7);
 	TestTrue(TEXT("Stage"), L.Life.Stage == EGenesisLifeStage::Adult);
 	TestEqual(TEXT("Inventar"), L.Life.Inventory.FindRef(TEXT("ITEM_TEST")), 3);

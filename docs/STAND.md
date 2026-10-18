@@ -44,11 +44,30 @@ Nicht getestet: echte Bedienung mit physischem Controller und Maus durch einen M
 
 **Lizenz-Hinweis:** Das Mannequin ist Epic-Template-Inhalt. Weil das Repo öffentlich ist, liegt es **nicht** im Repo (`.gitignore`), sondern wird nach dem Klonen mit `Tools/Setup/Copy-EngineMannequin.ps1` aus der lokalen Engine kopiert.
 
+## WK-M02-004 – Weltzeit, Jahreszeiten, Alterung, Lebensabschnitte, Speichern von Position/Zeit · Status: GETESTET (lokal)
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| Spielstand Schema 2 | `GenesisSaveTypes.h` | Weltdatum (`WorldDateTime`) statt Jahr/Tag/Stunde; Leben mit Zeugungs- und Geburtszeitpunkt statt gespeicherter Alterszahl (Alter wird immer berechnet) |
+| Migration 1 → 2 | `GenesisSaveStore.cpp` | alte Spielstände werden beim Laden umgerechnet; Test mit echtem Schema-1-Spielstand bestanden |
+| Lebenszyklus | `FGenesisLifeCycle`, Einstellungen `UGenesisTimeSettings` (Projekteinstellungen > Genesis Time) | vor der Geburt nach Tagen ab Befruchtung: Befruchtung < 14 → Embryo < 56 → Fetus < 266 → Geburtszeitraum; **die Geburt selbst ist ein Spielereignis** (`CompleteBirth`), kein Automatismus. Danach: Säugling < 1 J → Kind < 12 → Jugend < 18 → Erwachsen < 65 → Alter; Echo bleibt Echo |
+| Jahreszeiten | `GetSeason` | meteorologisch, Nordhalbkugel (Annahme: Primärwelt Mitteleuropa) |
+| Weltuhr | `UGenesisWorldClockSubsystem` | läuft im Spiel mit 60× (1 echte Minute = 1 Spielstunde, einstellbar), pausierbar (z. B. für Filme), Zeitraffer `SkipTime`; meldet neuen Tag, neue Jahreszeit und jeden durchlaufenen Lebensabschnitt (auch mehrere bei einem Zeitraffer) |
+| Position/Ort speichern | `UGenesisSaveSubsystem::SaveToSlot/LoadFromSlot` | übernimmt Position, Blickrichtung und Karte der Figur; setzt sie beim Laden zurück (Laden in eine andere Karte ist noch nicht möglich und wird abgelehnt statt falsch teleportiert) |
+| Tests | `docs/evidence/WK-M02-004/automation_report.json` | **20/20 bestanden** (1 mit erwarteter Warnung). Neu: Lebensabschnitte vor/nach Geburt, Jahreszeiten, Tag-/Jahreszeitwechsel, 20-Jahre-Zeitraffer (Kind → Jugend → Erwachsen, Alter 20,0821 J), Befruchtung bis Geburt, Migration, **Rundlauf im echten Spiel (PIE):** Position 300/−200 exakt, Weltzeit-Abweichung 0, Alter und Abschnitt gleich, Uhr lief mit ~57 Spielsekunden pro Sekunde |
+| Absturztest erneut | `docs/evidence/WK-M02-004/crash_test_schema2.csv` | 15/15 harte Abbrüche konsistent |
+
+Unterwegs gefundener Fehler (betraf auch WK-M02-001): Unreals JSON-Standardexport kürzt Datumswerte auf ganze Sekunden. Jetzt wird ISO 8601 mit Millisekunden geschrieben, und die Weltuhr rechnet in ganzen Millisekunden mit Übertrag. Laden ist dadurch verlustfrei (Abweichung 0).
+
+Annahmen, die du prüfen solltest: Altersgrenzen nach der Geburt (1/12/18/65) sind Vorschläge, das Drehbuch nennt nur Szenenalter. Das Testlevel startet mit einem **Testprofil** (Erwachsener, 30 Jahre, 15.06.2026 10:00), das kein Kanon ist.
+
 ## Was noch NICHT existiert
 - Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs, Missionen, Dialoge, UI.
+- Sonne und Licht folgen der Weltuhr noch nicht (Tag/Nacht ist nur als Zeitwert vorhanden, nicht sichtbar).
+- Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
-- Speichern ist noch nicht an Figur/Welt angebunden (Position, Zeit).
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
-## Nächster Schritt (wartet auf Freigabe)
-WK-M02-004: WorldClock + LifeCycle (Weltzeit, Jahreszeiten, Alterung, Lebensabschnitte) an das Speichersystem anbinden, inkl. Position der Figur; Test: Speichern/Laden stellt Zeit, Alter und Ort exakt wieder her.
+## Nächster Schritt (Vorschlag, wartet auf Freigabe)
+WK-M02-005: Tag/Nacht und Jahreszeit sichtbar machen – Sonnenstand aus Weltzeit und Breitengrad, physikalisch korrekte Belichtung je Tageszeit (EV100 nach Lichtsituation), Test per Bildschirmfoto zu 4 Tageszeiten.
+Alternativ WK-M03-001: Kausalgraph und NPC-Gedächtnis (Verbesserung 1/17).

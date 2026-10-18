@@ -44,6 +44,8 @@ public:
 	void SetFaultForTesting(EGenesisSaveFault InFault) { Fault = InFault; }
 
 	static void Encode(const FGenesisSaveBundle& Bundle, TArray<uint8>& OutBytes);
+	/** Schreibt beliebige JSON-Nutzdaten mit Kopf und Pruefsumme (z. B. fuer Migrationstests alter Schemata). */
+	static void EncodeRaw(int32 SchemaVersion, int64 Sequence, const FString& Json, TArray<uint8>& OutBytes);
 	static EGenesisSaveResult Decode(const TArray<uint8>& Bytes, FGenesisSaveBundle& OutBundle);
 	static EGenesisSaveResult ReadFile(const FString& Path, FGenesisSaveBundle& OutBundle);
 

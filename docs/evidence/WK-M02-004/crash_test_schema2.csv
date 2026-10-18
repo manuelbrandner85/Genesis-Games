@@ -1,0 +1,16 @@
+iteration,kill_delay_ms,exit_code,result,seq,backup,consistent,memories
+1,1269,1,EGenesisSaveResult::Ok,38,0,1,3000
+2,337,1,EGenesisSaveResult::Ok,49,0,1,3000
+3,1344,1,EGenesisSaveResult::Ok,91,0,1,3000
+4,942,1,EGenesisSaveResult::Ok,121,0,1,3000
+5,759,1,EGenesisSaveResult::Ok,144,0,1,3000
+6,918,1,EGenesisSaveResult::Ok,173,0,1,3000
+7,427,1,EGenesisSaveResult::Ok,186,0,1,3000
+8,1425,1,EGenesisSaveResult::Ok,227,0,1,3000
+9,630,1,EGenesisSaveResult::Ok,246,0,1,3000
+10,221,1,EGenesisSaveResult::Ok,254,0,1,3000
+11,1109,1,EGenesisSaveResult::Ok,287,0,1,3000
+12,985,1,EGenesisSaveResult::Ok,317,0,1,3000
+13,1482,1,EGenesisSaveResult::Ok,362,0,1,3000
+14,1433,1,EGenesisSaveResult::Ok,405,0,1,3000
+15,142,1,EGenesisSaveResult::Ok,412,0,1,3000

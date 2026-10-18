@@ -83,14 +83,9 @@ struct GENESIS_API FGenesisWorldState
 {
 	GENERATED_BODY()
 
+	/** Massgebliche Weltzeit (Datum + Uhrzeit). Jahr, Tag, Uhrzeit und Jahreszeit werden daraus abgeleitet. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|World")
-	int32 WorldYear = 2026;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|World")
-	int32 DayOfYear = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|World")
-	float TimeOfDayHours = 8.f;
+	FDateTime WorldDateTime = FDateTime(2026, 1, 1, 8, 0, 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|World")
 	int64 WorldSeed = 0;
@@ -100,7 +95,7 @@ struct GENESIS_API FGenesisWorldState
 	TMap<FName, int32> EventFlags;
 };
 
-/** Das aktuelle Leben: Koerper, Alter, Ort, Beziehungen, Besitz. */
+/** Das aktuelle Leben: Koerper, Lebensdaten, Ort, Beziehungen, Besitz. Das Alter wird aus Weltzeit und Geburt berechnet. */
 USTRUCT(BlueprintType)
 struct GENESIS_API FGenesisLifeState
 {
@@ -116,8 +111,16 @@ struct GENESIS_API FGenesisLifeState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
 	EGenesisLifeStage Stage = EGenesisLifeStage::Conception;
 
+	/** Zeitpunkt der Befruchtung dieses Lebens (Beginn von Phase N01/N02). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
-	float AgeYears = 0.f;
+	FDateTime ConceptionDateTime = FDateTime(2026, 1, 1);
+
+	/** Erst nach abgeschlossener Geburt (N04) gesetzt. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
+	bool bBorn = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
+	FDateTime BirthDateTime = FDateTime(2026, 1, 1);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Genesis|Life")
 	FName LocationId;
@@ -149,7 +152,8 @@ struct GENESIS_API FGenesisSaveBundle
 {
 	GENERATED_BODY()
 
-	static constexpr int32 CurrentSchemaVersion = 1;
+	/** 1: Jahr/Tag/Uhrzeit + Alter als Zahl. 2: Weltdatum + Zeugung/Geburt (Migration 1 -> 2 beim Laden). */
+	static constexpr int32 CurrentSchemaVersion = 2;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Genesis|Save")
 	int32 SchemaVersion = CurrentSchemaVersion;

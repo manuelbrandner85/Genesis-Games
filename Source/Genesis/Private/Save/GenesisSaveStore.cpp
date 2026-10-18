@@ -3,10 +3,14 @@
 #include "Genesis.h"
 #include "HAL/FileManager.h"
 #include "HAL/PlatformFileManager.h"
+#include "Dom/JsonObject.h"
 #include "JsonObjectConverter.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Misc/SecureHash.h"
+#include "Time/GenesisTimeTypes.h"
 
 #if PLATFORM_WINDOWS
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -27,6 +31,35 @@ namespace GenesisSave
 		FSHA1::HashBuffer(Data, Num, Hash);
 		return BytesToHex(Hash, FSHA1::DigestSize);
 	}
+
+	/**
+	 * Schema 1 -> 2: Jahr/Tag/Uhrzeit werden zum Weltdatum, das gespeicherte Alter zu Geburts- und Zeugungsdatum.
+	 * Ein Leben mit Alter > 0 oder einem Lebensabschnitt ab Geburt gilt als geboren.
+	 */
+	static void MigrateSchema1(const FJsonObject& Root, FGenesisSaveBundle& Bundle)
+	{
+		const TSharedPtr<FJsonObject>* World = nullptr;
+		const TSharedPtr<FJsonObject>* Life = nullptr;
+		double Year = 2026.0, Day = 0.0, Hours = 8.0, AgeYears = 0.0;
+		if (Root.TryGetObjectField(TEXT("world"), World))
+		{
+			(*World)->TryGetNumberField(TEXT("worldYear"), Year);
+			(*World)->TryGetNumberField(TEXT("dayOfYear"), Day);
+			(*World)->TryGetNumberField(TEXT("timeOfDayHours"), Hours);
+		}
+		if (Root.TryGetObjectField(TEXT("life"), Life))
+		{
+			(*Life)->TryGetNumberField(TEXT("ageYears"), AgeYears);
+		}
+
+		Bundle.World.WorldDateTime = FGenesisLifeCycle::ToSavePrecision(FDateTime(int32(Year), 1, 1) + FTimespan::FromDays(Day) + FTimespan::FromHours(Hours));
+		Bundle.Life.bBorn = AgeYears > 0.0 || Bundle.Life.Stage >= EGenesisLifeStage::Infant;
+		Bundle.Life.BirthDateTime = FGenesisLifeCycle::ToSavePrecision(Bundle.World.WorldDateTime - FTimespan::FromDays(AgeYears * FGenesisLifeCycle::DaysPerYear));
+		Bundle.Life.ConceptionDateTime = Bundle.Life.BirthDateTime - FTimespan::FromDays(266.0);
+		Bundle.SchemaVersion = FGenesisSaveBundle::CurrentSchemaVersion;
+		UE_LOG(LogGenesis, Display, TEXT("Spielstand von Schema 1 auf %d migriert (Weltzeit %s)."),
+			Bundle.SchemaVersion, *Bundle.World.WorldDateTime.ToString());
+	}
 }
 
 FGenesisSaveStore::FGenesisSaveStore(const FString& InDirectory)
@@ -46,11 +79,16 @@ FString FGenesisSaveStore::GetBackupPath(const FString& Slot) const { return Dir
 void FGenesisSaveStore::Encode(const FGenesisSaveBundle& Bundle, TArray<uint8>& OutBytes)
 {
 	FString Json;
-	FJsonObjectConverter::UStructToJsonObjectString(Bundle, Json, 0, 0, 0, nullptr, false);
+	// ISO 8601 mit Millisekunden; der Standardexport wuerde Datumswerte auf ganze Sekunden kuerzen.
+	FJsonObjectConverter::UStructToJsonObjectString(Bundle, Json, 0, 0, 0, &FJsonObjectConverter::ExportCallback_WriteISO8601Dates, false);
+	EncodeRaw(Bundle.SchemaVersion, Bundle.Sequence, Json, OutBytes);
+}
 
+void FGenesisSaveStore::EncodeRaw(int32 SchemaVersion, int64 Sequence, const FString& Json, TArray<uint8>& OutBytes)
+{
 	const FTCHARToUTF8 Payload(*Json);
 	const FString Header = FString::Printf(TEXT("%hs\n%d\n%lld\n%s\n"),
-		GenesisSave::Magic, Bundle.SchemaVersion, Bundle.Sequence,
+		GenesisSave::Magic, SchemaVersion, Sequence,
 		*GenesisSave::Sha1Hex(reinterpret_cast<const uint8*>(Payload.Get()), Payload.Length()));
 	const FTCHARToUTF8 HeaderUtf8(*Header);
 
@@ -105,12 +143,20 @@ EGenesisSaveResult FGenesisSaveStore::Decode(const TArray<uint8>& Bytes, FGenesi
 	const FUTF8ToTCHAR PayloadConv(reinterpret_cast<const ANSICHAR*>(Bytes.GetData() + PayloadStart), PayloadLen);
 	const FString Json(PayloadConv.Length(), PayloadConv.Get());
 
+	TSharedPtr<FJsonObject> Root;
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Json);
 	FGenesisSaveBundle Parsed;
-	if (!FJsonObjectConverter::JsonObjectStringToUStruct(Json, &Parsed, 0, 0)
+	if (!FJsonSerializer::Deserialize(Reader, Root) || !Root.IsValid()
+		|| !FJsonObjectConverter::JsonObjectToUStruct(Root.ToSharedRef(), &Parsed, 0, 0)
 		|| Parsed.Sequence != HeaderSequence
 		|| Parsed.SchemaVersion != Schema)
 	{
 		return EGenesisSaveResult::Corrupt;
+	}
+
+	if (Schema == 1)
+	{
+		GenesisSave::MigrateSchema1(*Root, Parsed);
 	}
 
 	OutBundle = MoveTemp(Parsed);

@@ -8,6 +8,8 @@
 #include "HAL/PlatformMisc.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Paths.h"
+#include "Save/GenesisSaveSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "UnrealClient.h"
 
 AGenesisPlayerController::AGenesisPlayerController()
@@ -25,6 +27,15 @@ AGenesisGameMode::AGenesisGameMode()
 void AGenesisGameMode::StartPlay()
 {
 	Super::StartPlay();
+
+	if (UGenesisSaveSubsystem* Save = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisSaveSubsystem>() : nullptr)
+	{
+		if (!Save->HasActiveSoul())
+		{
+			// Testprofil fuer das Graubox-Level, kein Kanon: Erwachsener, 30 Jahre, Sommervormittag 2026.
+			Save->StartTestLife(TEXT("CHR_PLAYER_ADULT"), FDateTime(2026, 6, 15, 10, 0, 0), 30.f);
+		}
+	}
 
 	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
 	{

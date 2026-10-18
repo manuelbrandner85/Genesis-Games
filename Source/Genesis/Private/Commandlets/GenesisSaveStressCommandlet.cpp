@@ -13,15 +13,15 @@ namespace
 	{
 		// Jeder Teil traegt die Sequenz der Transaktion, in der er geschrieben wurde.
 		Bundle.Soul.LivesLived = int32(Sequence);
-		Bundle.World.DayOfYear = int32(Sequence % 365);
-		Bundle.Life.AgeYears = float(Sequence);
+		Bundle.World.WorldSeed = Sequence;
+		Bundle.Life.MoneyCents = Sequence;
 	}
 
 	bool MarkersConsistent(const FGenesisSaveBundle& Bundle)
 	{
 		return Bundle.Soul.LivesLived == int32(Bundle.Sequence)
-			&& Bundle.World.DayOfYear == int32(Bundle.Sequence % 365)
-			&& Bundle.Life.AgeYears == float(Bundle.Sequence);
+			&& Bundle.World.WorldSeed == Bundle.Sequence
+			&& Bundle.Life.MoneyCents == Bundle.Sequence;
 	}
 }
 
