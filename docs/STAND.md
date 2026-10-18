@@ -109,14 +109,32 @@ Bekannte Schwächen (nicht kaschiert):
 | Absturztest | `docs/evidence/WK-M03-001/crash_test_schema3.csv` | 15/15 harte Abbrüche konsistent (Schema 3) |
 | Tests | `docs/evidence/WK-M03-001/automation_report.json` | **34/34 bestanden.** Neu: Typen geladen, Erinnerungen und Haltungen beim Eintragen, Ursachenkette + Ablehnung unbekannter/zukünftiger Ursachen, Verblassen, Gerücht abhängig vom Vertrauen (−0,05 vs. −0,01), neues Leben = Fremder, Widerspruchsprüfung, Speichern/Laden inkl. Gerüchtequelle und Schema-2-Spielstand |
 
-Noch nicht: Wahrnehmung (wer etwas sieht, wird noch von Hand übergeben), automatische Gerüchte zwischen NPCs, Dialoge, die Erinnerungen ansprechen, Haltungen, die sich ohne neue Ereignisse langsam erholen.
+Noch nicht: automatische Gerüchte zwischen NPCs, Dialoge, die Erinnerungen ansprechen, Haltungen, die sich ohne neue Ereignisse langsam erholen. (Wahrnehmung: siehe WK-M03-002.)
+
+## WK-M03-002 – NPC-Tagesablauf (StateTree + Smart Objects) und Wahrnehmung · Status: GETESTET (lokal, Graubox)
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| NPC-Figur + KI | `AGenesisNpcCharacter` (Aussehen über Registry, Gedächtnis-Komponente), `AGenesisNpcAIController` mit StateTree-Komponente | 3 Proxy-NPCs `NPC_TEST_01..03` im Testlevel |
+| Tagespläne | Projekteinstellungen > Genesis NPC (`Config/DefaultGame.ini`) | Schlafen, Arbeiten, Markt, Freizeit je Stunde, auch über Mitternacht. **Testdaten, kein Kanon** |
+| StateTree „Tagesablauf“ | `/Game/Genesis/AI/ST_GenesisDailyLife`, erzeugt von `UGenesisNpcAssetBuilder` (C++) über `Tools/Editor/build_wk_m03_002.py` | 4 Zustände mit eigener Bedingung („Plan sieht Aktivität vor“) und Aufgabe („Aktivität ausführen“); Freizeit als Rückfall; nach jedem Wechsel wird neu gewählt |
+| Smart Objects | `/Game/Genesis/AI/SOD_Sleep/Work/Market/Leisure`, Plätze `AGenesisActivitySpot` (Betten, Werkbank, Marktstand, Bank) | Platz suchen (nächster freier), reservieren, **von vorn** herangehen, belegen, bei Planwechsel freigeben. Wer 3 s feststeckt, tritt zur Seite und sucht neu |
+| Navigation | Navigationsvolumen 60 × 60 m, Navigationsnetz zur Laufzeit dynamisch | alle Figuren (auch die Spielfigur) weichen einander aus (RVO) |
+| Wahrnehmung | `FGenesisPerception`, `UGenesisCausalitySubsystem::RecordEventAt` | Zeugen automatisch: Sichtweite nach Licht (Tag 40 m, Nacht bis 8 m), Blickwinkel ±105°, Sichtlinie (Wände verdecken) |
+| PIE-Test über einen Spieltag | `Genesis.Npc.PIE.DailyScheduleAndPerception`, Protokoll `docs/evidence/WK-M03-002/npc_day_log.txt` | 03:00, 09:00, 12:30, 15:00, 21:30, 23:30: alle drei Figuren am richtigen Platz (Ankunft nach 17–31 s Echtzeit). Wahrnehmung: am Tag nur die Figur in 5 m mit Blick hin; hinter der Wand, 60 m entfernt oder wegschauend: kein Zeuge; nachts 15 m nein, 6 m ja |
+| Alle Tests | `docs/evidence/WK-M03-002/automation_report.json` | **35/35 bestanden.** Verbleibende Warnungen: erwartete „Sicherung geladen“; 6× Crowd-Startmeldung der Engine (Navigationsnetz entsteht erst zur Laufzeit, harmlos) |
+| Spielstart mit Grafik | `sky_20260615-1000_40_-10.png` (Markt), `sky_20260615-1000_315_-10.png` (Werkstatt) | Figuren stehen um 10:00 an Marktstand und Werkbank |
+
+Unterwegs gefundene und behobene Fehler: Test setzte die Uhrzeit vor dem Spielstart (überschrieben); Bankplätze zu eng für eine Figur; Figuren liefen entlang der Sitzreihe in eine sitzende Figur; NPCs kannten die stehende Spielfigur nicht als Hindernis; Asset-Builder konnte vorhandene Assets nicht überschreiben.
+
+Noch nicht: Animationen für Tätigkeiten (Figuren stehen am Platz, statt zu liegen/arbeiten/sitzen), Türen/Innenräume, Begrüßung oder Reaktion beim Vorbeigehen, automatische Gerüchte im Gespräch, Tagespläne aus der Spielbibel (Flussdorf-Figuren).
 
 ## Was noch NICHT existiert
-- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs im Level, Missionen, Dialoge, UI.
+- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, nur 3 Test-NPCs, keine Missionen, Dialoge, UI.
 - Wetter (Wolkenmenge, Regen) beeinflusst Licht und Belichtung noch nicht; die Belichtungstabelle gilt für klaren Himmel.
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M03-002: NPC-Tagesablauf mit StateTree + Smart Objects – 3 Proxy-NPCs im Testlevel mit festen IDs, 24-h-Plan nach Weltuhr (schlafen, arbeiten, Markt), Wahrnehmung: wer in Sichtweite ist, wird automatisch Zeuge; Test per PIE ueber einen Spieltag.
+WK-M03-003: Missionen und Dialoge mit Entscheidung – Questgraph (Schritte, Bedingungen, Auslöser), Dialog mit Antwortwahl, Folgen über den Kausalgraphen, automatische Prüfung auf Sackgassen; eine Testmission mit den drei NPCs. Inhalt der Testmission ist Platzhalter, bis die Originalmissionen (z. B. L08) aus den Quellen extrahiert sind.

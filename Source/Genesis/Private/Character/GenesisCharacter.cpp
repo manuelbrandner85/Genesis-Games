@@ -39,6 +39,9 @@ AGenesisCharacter::AGenesisCharacter()
 	Movement->BrakingDecelerationFalling = 1500.f;
 	Movement->MaxStepHeight = 40.f;
 	Movement->SetWalkableFloorAngle(44.f);
+	// Alle Figuren (auch die Spielfigur) weichen einander aus.
+	Movement->bUseRVOAvoidance = true;
+	Movement->AvoidanceConsiderationRadius = 200.f;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);

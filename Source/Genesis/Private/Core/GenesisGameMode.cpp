@@ -72,6 +72,8 @@ void AGenesisGameMode::StartPlay()
 			ShotPC->SetIgnoreLookInput(true);
 			ShotPC->SetIgnoreMoveInput(true);
 		}
+		// -GenesisShotWarmup=<s>: Vorlauf vor dem ersten Bild (Shader, Streaming, NPC-Wege).
+		FParse::Value(FCommandLine::Get(), TEXT("GenesisShotWarmup="), SkyShotWarmup);
 		UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOTS gestartet: %d Zeitpunkte am %s"), SkyShotTimes.Num(), *SkyShotDate.ToString(TEXT("%Y-%m-%d")));
 	}
 
@@ -172,7 +174,7 @@ void AGenesisGameMode::TickSkyShots(float DeltaSeconds)
 	switch (SkyShotStage)
 	{
 	case 0: // Zeitpunkt einstellen. Erster Zeitpunkt wartet laenger (Shader, Streaming).
-		if (SkyShotTimer < (bFirst ? 6.f : 0.f))
+		if (SkyShotTimer < (bFirst ? SkyShotWarmup : 0.f))
 		{
 			return;
 		}

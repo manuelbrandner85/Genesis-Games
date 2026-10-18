@@ -32,6 +32,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "SmartObjects",
+			"Enabled": true
+		},
+		{
 			"Name": "ModelContextProtocol",
 			"Enabled": true,
 			"TargetAllowList": [

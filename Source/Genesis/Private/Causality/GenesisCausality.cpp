@@ -2,6 +2,7 @@
 
 #include "Engine/GameInstance.h"
 #include "Genesis.h"
+#include "Npc/GenesisNpc.h"
 #include "Save/GenesisSaveSubsystem.h"
 
 const FGenesisEventTypeDef* UGenesisCausalitySettings::FindType(FName EventType) const
@@ -401,4 +402,16 @@ TArray<FName> UGenesisCausalitySubsystem::GetCauseChain(FName EventId) const
 {
 	const FGenesisSaveBundle* Bundle = GetBundle();
 	return Bundle ? FGenesisCausality::GetCauseChain(*Bundle, EventId) : TArray<FName>();
+}
+
+FName UGenesisCausalitySubsystem::RecordEventAt(const FGenesisEventSpec& Spec, FVector Location, AActor* ActorInWorld)
+{
+	FGenesisEventSpec WithWitnesses = Spec;
+	TArray<FName> Exclude = Spec.TargetIds;
+	Exclude.Add(Spec.ActorId);
+	for (const FName Witness : FGenesisPerception::FindWitnesses(GetGameInstance()->GetWorld(), Location, ActorInWorld, Exclude))
+	{
+		WithWitnesses.WitnessIds.AddUnique(Witness);
+	}
+	return RecordEvent(WithWitnesses);
 }

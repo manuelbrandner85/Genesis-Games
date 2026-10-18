@@ -43,4 +43,5 @@ private:
 	int32 SkyShotStage = 0;
 	float SkyShotTimer = 0.f;
 	FString SkyShotName;
+	float SkyShotWarmup = 6.f;
 };

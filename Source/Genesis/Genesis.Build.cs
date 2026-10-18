@@ -17,13 +17,18 @@ public class Genesis : ModuleRules
 			"UMG",
 			"Json",
 			"JsonUtilities",
-			"DeveloperSettings"
+			"DeveloperSettings",
+			"GameplayTags",
+			"NavigationSystem",
+			"SmartObjectsModule",
+			"StateTreeModule",
+			"GameplayStateTreeModule"
 		});
 
 		if (Target.bBuildEditor)
 		{
-			// Nur fuer Editor-Automationstests (Play-in-Editor).
-			PrivateDependencyModuleNames.Add("UnrealEd");
+			// Nur im Editor: Automationstests (Play-in-Editor) und Asset-Builder (StateTree, Smart Objects).
+			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "StateTreeEditorModule", "AssetTools", "PropertyBindingUtils" });
 		}
 	}
 }

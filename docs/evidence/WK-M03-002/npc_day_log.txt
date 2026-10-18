@@ -1,0 +1,8 @@
+"03:00 nach 17.5 s: NPC_TEST_01=Sleep@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Sleep@Platz"
+"09:00 nach 30.5 s: NPC_TEST_01=Work@Platz NPC_TEST_02=Market@Platz NPC_TEST_03=Market@Platz"
+"12:30 nach 30.0 s: NPC_TEST_01=Market@Platz NPC_TEST_02=Market@Platz NPC_TEST_03=Leisure@Platz"
+"15:00 nach 29.1 s: NPC_TEST_01=Work@Platz NPC_TEST_02=Leisure@Platz NPC_TEST_03=Leisure@Platz"
+"21:30 nach 21.9 s: NPC_TEST_01=Leisure@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Leisure@Platz"
+"23:30 nach 22.4 s: NPC_TEST_01=Sleep@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Sleep@Platz"
+"Tag, Sichtweite 4000 cm: Zeugen = NPC_TEST_01"
+"Nacht, Sichtweite 800 cm"

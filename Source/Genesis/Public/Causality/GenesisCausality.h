@@ -158,6 +158,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Genesis|Causality")
 	FName RecordEvent(const FGenesisEventSpec& Spec);
 
+	/**
+	 * Ereignis an einem Ort in der Welt: alle Figuren, die den Ort gerade sehen (Licht, Blickwinkel, Sichtlinie),
+	 * werden automatisch als Zeugen eingetragen. ActorInWorld (der Handelnde) verdeckt die Sicht nicht.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Genesis|Causality")
+	FName RecordEventAt(const FGenesisEventSpec& Spec, FVector Location, AActor* ActorInWorld);
+
 	UFUNCTION(BlueprintCallable, Category = "Genesis|Causality")
 	bool ShareMemory(FName FromNpc, FName ToNpc, FName EventId);
 
