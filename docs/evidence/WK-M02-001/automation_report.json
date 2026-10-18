@@ -1,0 +1,132 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "8D7E87F74D20DBBAF2EA689A1B2C7032",
+			"instanceName": "DESKTOP-9JVIIPU-16260",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26300.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.18-17.20.05",
+	"succeeded": 5,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.09529760479927063,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "AbortAfterTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.AbortAfterTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.019934900104999542,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AbortOnFirstSaveLeavesNoSave",
+			"fullTestPath": "Genesis.Save.AbortOnFirstSaveLeavesNoSave",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.008141200989484787,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CorruptMainFallsBackToBackup",
+			"fullTestPath": "Genesis.Save.CorruptMainFallsBackToBackup",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.024340599775314331,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogGenesis: Spielstand 'TestSlot': Hauptdatei unbrauchbar, Sicherung geladen.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-17.20.05"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FutureSchemaRejected",
+			"fullTestPath": "Genesis.Save.FutureSchemaRejected",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.0085851997137069702,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RoundTrip",
+			"fullTestPath": "Genesis.Save.RoundTrip",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.017885599285364151,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TruncatedTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.TruncatedTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"8D7E87F74D20DBBAF2EA689A1B2C7032"
+			],
+			"duration": 0.01641010120511055,
+			"dateTime": "2026.10.18-17.20.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

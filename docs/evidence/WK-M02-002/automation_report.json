@@ -1,0 +1,309 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "C59C90F9411B72986E799F87034FF238",
+			"instanceName": "DESKTOP-9JVIIPU-28736",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26300.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.18-19.17.27",
+	"succeeded": 11,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 7.8782987594604492,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "KeyboardMouseAndGamepadMapped",
+			"fullTestPath": "Genesis.Character.Input.KeyboardMouseAndGamepadMapped",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.0076517015695571899,
+			"dateTime": "2026.10.18-19.17.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WalkRunJumpInTestLevel",
+			"fullTestPath": "Genesis.Character.PIE.WalkRunJumpInTestLevel",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 7.6547460556030273,
+			"dateTime": "2026.10.18-19.17.19",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Gehen: 150.0 cm/s, 293.9 cm in 2 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.22"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Laufen: 360.0 cm/s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.24"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Sprunghoehe: 45.9 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.26"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AllEntriesMeetContract",
+			"fullTestPath": "Genesis.Character.Registry.AllEntriesMeetContract",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.095253497362136841,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_PLAYER_ADULT: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.27"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_TEST_PROXY_M: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.27"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_TEST_PROXY_F: Hoehe 180.17 cm, Anker 162.53 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.27"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ByAssetId",
+			"fullTestPath": "Genesis.Character.Swap.ByAssetId",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.011272002011537552,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContractViolationRejected",
+			"fullTestPath": "Genesis.Character.Swap.ContractViolationRejected",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.01115349680185318,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ModelSwapKeepsLogicAndCamera",
+			"fullTestPath": "Genesis.Character.Swap.ModelSwapKeepsLogicAndCamera",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.011332299560308456,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Kamerahoehe ueber Fusssohle: vorher 162.60 cm, nachher 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.27"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AbortAfterTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.AbortAfterTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.018329702317714691,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AbortOnFirstSaveLeavesNoSave",
+			"fullTestPath": "Genesis.Save.AbortOnFirstSaveLeavesNoSave",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.0084176994860172272,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CorruptMainFallsBackToBackup",
+			"fullTestPath": "Genesis.Save.CorruptMainFallsBackToBackup",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.020832300186157227,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogGenesis: Spielstand 'TestSlot': Hauptdatei unbrauchbar, Sicherung geladen.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.18-19.17.27"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FutureSchemaRejected",
+			"fullTestPath": "Genesis.Save.FutureSchemaRejected",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.0080452002584934235,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RoundTrip",
+			"fullTestPath": "Genesis.Save.RoundTrip",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.01616629958152771,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TruncatedTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.TruncatedTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"C59C90F9411B72986E799F87034FF238"
+			],
+			"duration": 0.015098102390766144,
+			"dateTime": "2026.10.18-19.17.27",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
