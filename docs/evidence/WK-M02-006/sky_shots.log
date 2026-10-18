@@ -1,0 +1,10 @@
+GENESIS_SKYSHOTS gestartet: 8 Zeitpunkte am 2026-06-15
+GENESIS_SKYSHOT shot=20260615-1320_250 local=2026.06.15-13.20.00 sun_el=64.32 sun_az=179.73 moon_el=68.08 moon_az=166.42 moon_frac=0.003 moon_lux=0.0002 ev100=15.00
+GENESIS_SKYSHOT shot=20260615-2100_250 local=2026.06.15-21.00.00 sun_el=2.62 sun_az=303.48 moon_el=10.94 moon_az=298.61 moon_frac=0.008 moon_lux=0.0003 ev100=12.65
+GENESIS_SKYSHOT shot=20260615-2145_300_5 local=2026.06.15-21.45.00 sun_el=-3.21 sun_az=312.01 moon_el=4.94 moon_az=306.12 moon_frac=0.009 moon_lux=0.0003 ev100=9.18
+GENESIS_SKYSHOT shot=20260615-2230_300_5 local=2026.06.15-22.30.00 sun_el=-8.29 sun_az=321.05 moon_el=-0.49 moon_az=313.96 moon_frac=0.010 moon_lux=0.0003 ev100=3.09
+GENESIS_SKYSHOT shot=20260615-2330_330_10 local=2026.06.15-23.30.00 sun_el=-13.57 sun_az=334.00 moon_el=-6.64 moon_az=325.09 moon_frac=0.011 moon_lux=0.0003 ev100=-4.57
+GENESIS_SKYSHOT shot=20260812-2345_180_20 local=2026.08.12-23.45.00 sun_el=-22.51 sun_az=333.75 moon_el=-22.83 moon_az=331.35 moon_frac=0.000 moon_lux=0.0001 ev100=-7.00
+GENESIS_SKYSHOT shot=20260827-2345_moon_8 local=2026.08.27-23.45.00 sun_el=-27.48 sun_az=333.03 moon_el=26.44 moon_az=156.53 moon_frac=0.999 moon_lux=0.2392 ev100=-3.59
+GENESIS_SKYSHOT shot=20260827-2345_0_-6 local=2026.08.27-23.45.00 sun_el=-27.48 sun_az=333.03 moon_el=26.44 moon_az=156.53 moon_frac=0.999 moon_lux=0.2392 ev100=-3.59
+GENESIS_SKYSHOTS beendet

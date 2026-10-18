@@ -27,3 +27,8 @@ Packaged/
 # Epic-Template-Inhalt (Mannequin): nicht im oeffentlichen Repo.
 # Tools/Setup/Copy-EngineMannequin.ps1 kopiert ihn aus der lokalen Engine.
 Content/Characters/Mannequins/
+
+# NASA-Sternkarte (124,5 MB) und daraus importierte Textur: nicht im Repo (Git-LFS-Kontingent).
+# Tools/Setup/Get-StarMap.ps1 laedt sie (SHA256-geprueft) und baut Textur + Material.
+SourceArt/Sky/*.exr
+Content/Genesis/Sky/T_StarMap_2020_8k.uasset

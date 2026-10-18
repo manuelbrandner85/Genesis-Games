@@ -61,26 +61,44 @@ Unterwegs gefundener Fehler (betraf auch WK-M02-001): Unreals JSON-Standardexpor
 
 Annahmen, die du prüfen solltest: Altersgrenzen nach der Geburt (1/12/18/65) sind Vorschläge, das Drehbuch nennt nur Szenenalter. Das Testlevel startet mit einem **Testprofil** (Erwachsener, 30 Jahre, 15.06.2026 10:00), das kein Kanon ist.
 
-## WK-M02-005 – Sonnenstand und Belichtung folgen der Weltuhr · Status: TAG GETESTET, NACHT NICHT BESTANDEN
+## WK-M02-005 – Sonnenstand und Belichtung folgen der Weltuhr · Status: GETESTET (Nacht siehe WK-M02-006)
 
 | Was | Datei / Beleg | Ergebnis |
 |---|---|---|
 | Sonnenstand | `FGenesisSolar` (Astronomical-Almanac-Näherung), Ort in Projekteinstellungen > Genesis Time (vorläufig 49° N, 10° O, MEZ/MESZ nach EU-Regel) | Tests gegen Geometrie: Sommer-Mittag 64,435° (Soll 64,44°), Winter-Mittag 17,566° (Soll 17,56°), Tagundnachtgleiche 40,95° (Soll ca. 41°), Sonnenhöchststand 11:22 UTC, Aufgang am 20.03. im Osten (90,4°), Sommerzeit-Wechsel 2026 korrekt |
-| Belichtung | `GetClearSkyEV100`: Stützwerte der fotografischen Belichtungstabelle (Sunny-16 = EV 15 … Nacht ohne Mond EV −2), lineare Interpolation; Umsetzung laut Engine-Quelltext `Bias = −EV100` | Test: monoton, keine Sprünge |
+| Belichtung | `GetClearSkyEV100`: Stützwerte der fotografischen Belichtungstabelle (Sunny-16 = EV 15 …; Nachtwerte in WK-M02-006 neu abgeglichen), lineare Interpolation; Umsetzung laut Engine-Quelltext `Bias = −EV100` | Test: monoton, keine Sprünge |
 | Himmels-Steuerung | `AGenesisSkyController` (vom GameMode automatisch erzeugt) | dreht die Sonne (Licht bleibt 90 000 lx) und setzt die Belichtung je Frame passend zur Weltzeit |
 | Tests | `docs/evidence/WK-M02-005/automation_report.json` | **24/24 bestanden** (2 Warnungen: erwartete „Sicherung geladen“, Internet-Prüfung der Engine) |
 | Bildschirmfotos 15.06.2026 | `sky_0700/1320/2100/2330.png`, Werte `sky_shots.log`, Messung `luminance.txt` | 07:00 (14,2°, Ost-Nordost), 13:20 (64,3°, Süd), 21:00 (2,6°, Nordwest, goldene Stunde): glaubwürdig, gleichmäßig belichtet, nichts ausgebrannt. **23:30 (−13,6°): Bild komplett schwarz** |
 
-Reality Check Nacht: **nicht bestanden.** Ursache: Bei −13,6° erreicht kein direktes Sonnenlicht mehr die modellierte Atmosphäre; das reale Restlicht (Mehrfachstreuung der Dämmerung, Sterne, Airglow, Mond) fehlt im Level. Am 15.06.2026 ist zudem etwa Neumond. Kein Aufhelllicht eingebaut, weil es keine reale Quelle hätte. Lösung: eigenes Arbeitspaket (siehe unten).
+Reality Check Nacht: **nicht bestanden** (Stand WK-M02-005). Ursache: Bei −13,6° erreicht kein direktes Sonnenlicht mehr die modellierte Atmosphäre; das reale Restlicht (Mehrfachstreuung der Dämmerung, Sterne, Airglow, Mond) fehlt im Level. Am 15.06.2026 ist zudem etwa Neumond. Kein Aufhelllicht eingebaut, weil es keine reale Quelle hätte. → behoben mit WK-M02-006.
+
+## WK-M02-006 – Nachthimmel: Mond, Sterne, Airglow, Dämmerung · Status: GETESTET (lokal)
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| Mond | `FGenesisSolar::ComputeMoon` (Hauptglieder der Mondtheorie, Parallaxe; Helligkeit nach Allen/Krisciunas-Schaefer) | Test an den Finsternissen 2026: Mondfinsternis 03.03. und 28.08. → Vollmond (Phasenwinkel 0,47° / 0,35°, 0,27 / 0,26 lx); Sonnenfinsternis 17.02. und 12.08. → Neumond (179°) |
+| Mondlicht | zweites Atmosphärenlicht im `AGenesisSkyController`, 4100 K, Beleuchtungsstärke aus Phase und Entfernung | wirft Schatten, Atmosphäre dämpft/färbt es |
+| Sternenhimmel | NASA-SVS-Sternkarte 8K (gemeinfrei, Credits im Register `docs/asset-vault/ASSET_REGISTER.md`), Himmelsmaterial `M_GenesisSky` (Python-Skript `Tools/Editor/build_wk_m02_006.py`), Drehung nach Ortssternzeit | Test: Himmelsachsen orthonormal und echte Drehung; Polarstern auf 49° Höhe im Norden; Vega/Sirius identisch mit unabhängigem Rechenweg. Helligkeit über die gemessene Kartenhelligkeit auf 6,8·10⁻⁵ cd/m² mittleres Sternlicht geeicht (Leinert et al. 1998), Extinktion 0,2 mag pro Luftmasse |
+| Airglow | im Himmelsmaterial: 1,2·10⁻⁴ cd/m² im Zenit, zum Horizont heller (Van-Rhijn-Effekt), leicht grünlich | sichtbar als Grundhelligkeit des Nachthimmels |
+| Tiefe Dämmerung | `GetTwilightZenithLuminance` (Messwerte Patat et al. 2006, Rozenberg 1966), setzt ab −5° ein, wo Unreals Atmosphäre aufhört (gemessen: oberer Himmel ab −8,3° nur noch 2,5/255, Bilder in `twilight_measurement_unreal_only/`) | |
+| Belichtung | Nachtteil der Tabelle neu abgeglichen (Milchstraße EV −7, nautische Dämmerung −3), Mond addiert (Vollmond hoch = EV −2,5) | Bildhelligkeit fällt jetzt gleichmäßig: 21:45 → 22:30 → 23:30 → Neumond = 52 → 35 → 20 → 10 (von 255), nichts ausgebrannt |
+| Tests | `docs/evidence/WK-M02-006/automation_report.json` | **26/26 bestanden** |
+| Bilder | `docs/evidence/WK-M02-006/sky_*.png`, Messung `luminance.txt`, Werte `sky_shots.log` | Tag unverändert; blaue Stunde, nautische Dämmerung mit ersten Sternen, Neumondnacht mit Milchstraße, Vollmondnacht mit Mondschatten: glaubwürdig |
+
+Bekannte Schwächen (nicht kaschiert):
+- Mondscheibe wird immer voll gezeichnet; bei Halbmond ist nur die Helligkeit richtig, nicht die Form.
+- Roter Horizontstreifen in der nautischen Dämmerung etwas zu gesättigt.
+- Die Proxy-Figur hat ein leuchtendes Unreal-Logo auf der Brust (Epic-Mannequin), das nachts auffällt; entfällt mit der echten GENESIS-Figur.
+- Belichtungsstufen sind wie in der Nachtfotografie gewählt (Nachtbilder heller als das Auge sie sieht). Ob GENESIS nachts eher „Foto“ oder „Augenwahrnehmung“ zeigen soll, ist eine Gestaltungsentscheidung.
+- Sternkarte und Textur liegen nicht im Repo (Git-LFS-Kontingent): nach dem Klonen `Tools/Setup/Get-StarMap.ps1` ausführen.
 
 ## Was noch NICHT existiert
 - Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs, Missionen, Dialoge, UI.
-- Nachthimmel: kein Mond, keine Sterne, kein Airglow → Nächte sind schwarz.
 - Wetter (Wolkenmenge, Regen) beeinflusst Licht und Belichtung noch nicht; die Belichtungstabelle gilt für klaren Himmel.
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M02-006: Nachthimmel – Mondposition und Mondphase (Beleuchtungsstärke bis ca. 0,25 lx), Sternenhimmel aus einer gemeinfreien Sternkarte (z. B. NASA SVS Deep Star Maps; Download braucht deine Freigabe), Airglow als schwache Grundhelligkeit. Test: Nachtbilder bei Neumond und Vollmond.
-Alternativ WK-M03-001: Kausalgraph und NPC-Gedächtnis.
+WK-M03-001: Kausalgraph und NPC-Gedächtnis (Verbesserung 1/17) – Ereignisse mit Ursache, Beteiligten und Zeit; NPCs erinnern sich, Vertrauen ändert sich; alles im Spielstand; Tests inkl. Speichern/Laden.

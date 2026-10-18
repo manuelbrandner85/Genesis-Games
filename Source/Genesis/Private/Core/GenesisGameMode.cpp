@@ -177,14 +177,32 @@ void AGenesisGameMode::TickSkyShots(float DeltaSeconds)
 			return;
 		}
 		{
-			const FString& Hhmm = SkyShotTimes[SkyShotIndex];
-			const int32 Hour = FCString::Atoi(*Hhmm.Left(2));
-			const int32 Minute = FCString::Atoi(*Hhmm.Mid(2, 2));
-			Save->GetMutable().World.WorldDateTime = SkyShotDate + FTimespan(Hour, Minute, 0);
+			// Eintrag: [JJJJMMTT-]HHMM[@Gier[/Neigung]], Gier "moon" = Richtung des Mondes.
+			FString TimePart, ViewPart;
+			if (!SkyShotTimes[SkyShotIndex].Split(TEXT("@"), &TimePart, &ViewPart))
+			{
+				TimePart = SkyShotTimes[SkyShotIndex];
+			}
+			FDateTime Date = SkyShotDate;
+			FString Hhmm = TimePart;
+			FString Ymd;
+			if (TimePart.Split(TEXT("-"), &Ymd, &Hhmm))
+			{
+				Date = FDateTime(FCString::Atoi(*Ymd.Left(4)), FCString::Atoi(*Ymd.Mid(4, 2)), FCString::Atoi(*Ymd.Mid(6, 2)));
+			}
+			Save->GetMutable().World.WorldDateTime = Date + FTimespan(FCString::Atoi(*Hhmm.Left(2)), FCString::Atoi(*Hhmm.Mid(2, 2)), 0);
 			Clock->SetClockRunning(false);
 			Sky->UpdateSky();
-			// Feste Blickrichtung West-Suedwest, leicht nach unten: Figur, Treppe und Horizont im Bild.
-			PC->SetControlRotation(FRotator(-6.f, 250.f, 0.f));
+
+			// Standard: West-Suedwest, leicht nach unten (Figur, Treppe, Horizont im Bild).
+			FString YawText = TEXT("250"), PitchText = TEXT("-6");
+			if (!ViewPart.IsEmpty() && !ViewPart.Split(TEXT("/"), &YawText, &PitchText))
+			{
+				YawText = ViewPart;
+			}
+			const float Yaw = YawText == TEXT("moon") ? float(Sky->GetLastMoonAzimuthDeg()) : FCString::Atof(*YawText);
+			PC->SetControlRotation(FRotator(FCString::Atof(*PitchText), Yaw, 0.f));
+			SkyShotName = ViewPart.IsEmpty() ? TimePart : TimePart + TEXT("_") + ViewPart.Replace(TEXT("/"), TEXT("_"));
 			SkyShotStage = 1;
 			SkyShotTimer = 0.f;
 		}
@@ -192,10 +210,12 @@ void AGenesisGameMode::TickSkyShots(float DeltaSeconds)
 	case 1: // Lumen, Himmelslicht-Erfassung und Schatten einschwingen lassen.
 		if (SkyShotTimer > 4.f)
 		{
-			const FString& Hhmm = SkyShotTimes[SkyShotIndex];
-			UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOT time=%s local=%s elevation=%.2f azimuth=%.2f ev100=%.2f"),
-				*Hhmm, *Clock->GetWorldDateTime().ToString(), Sky->GetLastElevationDeg(), Sky->GetLastAzimuthDeg(), Sky->GetLastEV100());
-			FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / FString::Printf(TEXT("Automation/WK-M02-005/sky_%s.png"), *Hhmm), false, false);
+			UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOT shot=%s local=%s sun_el=%.2f sun_az=%.2f moon_el=%.2f moon_az=%.2f moon_frac=%.3f moon_lux=%.4f ev100=%.2f"),
+				*SkyShotName, *Clock->GetWorldDateTime().ToString(), Sky->GetLastElevationDeg(), Sky->GetLastAzimuthDeg(),
+				Sky->GetLastMoonElevationDeg(), Sky->GetLastMoonAzimuthDeg(), Sky->GetLastMoonFraction(), Sky->GetLastMoonLux(), Sky->GetLastEV100());
+			FString ShotDir = TEXT("WK-M02-006");
+			FParse::Value(FCommandLine::Get(), TEXT("GenesisShotDir="), ShotDir);
+			FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("Automation") / ShotDir / FString::Printf(TEXT("sky_%s.png"), *SkyShotName), false, false);
 			SkyShotStage = 2;
 			SkyShotTimer = 0.f;
 		}

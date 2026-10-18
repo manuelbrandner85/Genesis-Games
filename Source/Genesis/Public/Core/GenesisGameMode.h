@@ -42,4 +42,5 @@ private:
 	int32 SkyShotIndex = 0;
 	int32 SkyShotStage = 0;
 	float SkyShotTimer = 0.f;
+	FString SkyShotName;
 };

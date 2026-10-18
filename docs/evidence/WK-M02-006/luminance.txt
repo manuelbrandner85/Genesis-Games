@@ -1,0 +1,8 @@
+﻿sky_20260615-1320_250.png: Mittel 63,7, Himmel 95,2, ausgebrannt 0,00%
+sky_20260615-2100_250.png: Mittel 50,2, Himmel 104,9, ausgebrannt 0,00%
+sky_20260615-2145_300_5.png: Mittel 51,8, Himmel 70,4, ausgebrannt 0,00%
+sky_20260615-2230_300_5.png: Mittel 34,8, Himmel 26,5, ausgebrannt 0,04%
+sky_20260615-2330_330_10.png: Mittel 20,0, Himmel 26,6, ausgebrannt 0,01%
+sky_20260812-2345_180_20.png: Mittel 10,3, Himmel 15,6, ausgebrannt 0,01%
+sky_20260827-2345_0_-6.png: Mittel 57,8, Himmel 85,4, ausgebrannt 0,00%
+sky_20260827-2345_moon_8.png: Mittel 69,0, Himmel 112,5, ausgebrannt 0,01%

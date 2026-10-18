@@ -1,0 +1,8 @@
+{
+  "starmap_mean_raw": 0.004620271029975519,
+  "star_luminance_scale": 0.014748786978460387,
+  "integrated_starlight_cd_m2": 6.81433932038607e-05,
+  "airglow_zenith_cd_m2": 0.00011841964518346424,
+  "extinction_mag_per_airmass": 0.2,
+  "source": "Leinert et al. 1998, A&AS 127, 1"
+}
