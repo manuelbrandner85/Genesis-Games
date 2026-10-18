@@ -16,7 +16,14 @@ public class Genesis : ModuleRules
 			"AIModule",
 			"UMG",
 			"Json",
-			"JsonUtilities"
+			"JsonUtilities",
+			"DeveloperSettings"
 		});
+
+		if (Target.bBuildEditor)
+		{
+			// Nur fuer Editor-Automationstests (Play-in-Editor).
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 	}
 }

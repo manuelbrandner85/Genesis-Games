@@ -1,0 +1,4 @@
+GENESIS_AUTOTEST gestartet
+GENESIS_AUTOTEST id=CHR_PLAYER_ADULT mesh=SKM_Manny_Simple distance_cm=403.5 speed_cm_s=150.0 grounded=1
+GENESIS_AUTOTEST mesh_loc=X=400.284 Y=50.715 Z=2.170 bounds=X=43.768 Y=45.744 Z=88.729 visible=1 hidden=0 render=1 materials=2 mat0=MI_Manny_01_New anim=ABP_Unarmed_C_0 camera=X=111.368 Y=100.655 Z=164.750
+GENESIS_AUTOTEST beendet

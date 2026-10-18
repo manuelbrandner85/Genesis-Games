@@ -23,3 +23,7 @@ Platforms/
 
 # Packaging
 Packaged/
+
+# Epic-Template-Inhalt (Mannequin): nicht im oeffentlichen Repo.
+# Tools/Setup/Copy-EngineMannequin.ps1 kopiert ihn aus der lokalen Engine.
+Content/Characters/Mannequins/

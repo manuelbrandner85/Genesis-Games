@@ -1,0 +1,16 @@
+{
+  "DA_Proxy_Adult_M": {
+    "mesh": "/Game/Characters/Mannequins/Meshes/SKM_Manny_Simple.SKM_Manny_Simple",
+    "height_cm": 180.54,
+    "anchor_height_cm": 162.6,
+    "foot_z_cm": -0.02,
+    "capsule_half_height": 90.3
+  },
+  "DA_Proxy_Adult_F": {
+    "mesh": "/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple",
+    "height_cm": 180.17,
+    "anchor_height_cm": 162.53,
+    "foot_z_cm": -0.03,
+    "capsule_half_height": 90.1
+  }
+}
