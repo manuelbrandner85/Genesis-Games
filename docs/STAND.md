@@ -61,13 +61,26 @@ Unterwegs gefundener Fehler (betraf auch WK-M02-001): Unreals JSON-Standardexpor
 
 Annahmen, die du prüfen solltest: Altersgrenzen nach der Geburt (1/12/18/65) sind Vorschläge, das Drehbuch nennt nur Szenenalter. Das Testlevel startet mit einem **Testprofil** (Erwachsener, 30 Jahre, 15.06.2026 10:00), das kein Kanon ist.
 
+## WK-M02-005 – Sonnenstand und Belichtung folgen der Weltuhr · Status: TAG GETESTET, NACHT NICHT BESTANDEN
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| Sonnenstand | `FGenesisSolar` (Astronomical-Almanac-Näherung), Ort in Projekteinstellungen > Genesis Time (vorläufig 49° N, 10° O, MEZ/MESZ nach EU-Regel) | Tests gegen Geometrie: Sommer-Mittag 64,435° (Soll 64,44°), Winter-Mittag 17,566° (Soll 17,56°), Tagundnachtgleiche 40,95° (Soll ca. 41°), Sonnenhöchststand 11:22 UTC, Aufgang am 20.03. im Osten (90,4°), Sommerzeit-Wechsel 2026 korrekt |
+| Belichtung | `GetClearSkyEV100`: Stützwerte der fotografischen Belichtungstabelle (Sunny-16 = EV 15 … Nacht ohne Mond EV −2), lineare Interpolation; Umsetzung laut Engine-Quelltext `Bias = −EV100` | Test: monoton, keine Sprünge |
+| Himmels-Steuerung | `AGenesisSkyController` (vom GameMode automatisch erzeugt) | dreht die Sonne (Licht bleibt 90 000 lx) und setzt die Belichtung je Frame passend zur Weltzeit |
+| Tests | `docs/evidence/WK-M02-005/automation_report.json` | **24/24 bestanden** (2 Warnungen: erwartete „Sicherung geladen“, Internet-Prüfung der Engine) |
+| Bildschirmfotos 15.06.2026 | `sky_0700/1320/2100/2330.png`, Werte `sky_shots.log`, Messung `luminance.txt` | 07:00 (14,2°, Ost-Nordost), 13:20 (64,3°, Süd), 21:00 (2,6°, Nordwest, goldene Stunde): glaubwürdig, gleichmäßig belichtet, nichts ausgebrannt. **23:30 (−13,6°): Bild komplett schwarz** |
+
+Reality Check Nacht: **nicht bestanden.** Ursache: Bei −13,6° erreicht kein direktes Sonnenlicht mehr die modellierte Atmosphäre; das reale Restlicht (Mehrfachstreuung der Dämmerung, Sterne, Airglow, Mond) fehlt im Level. Am 15.06.2026 ist zudem etwa Neumond. Kein Aufhelllicht eingebaut, weil es keine reale Quelle hätte. Lösung: eigenes Arbeitspaket (siehe unten).
+
 ## Was noch NICHT existiert
 - Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, keine NPCs, Missionen, Dialoge, UI.
-- Sonne und Licht folgen der Weltuhr noch nicht (Tag/Nacht ist nur als Zeitwert vorhanden, nicht sichtbar).
+- Nachthimmel: kein Mond, keine Sterne, kein Airglow → Nächte sind schwarz.
+- Wetter (Wolkenmenge, Regen) beeinflusst Licht und Belichtung noch nicht; die Belichtungstabelle gilt für klaren Himmel.
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M02-005: Tag/Nacht und Jahreszeit sichtbar machen – Sonnenstand aus Weltzeit und Breitengrad, physikalisch korrekte Belichtung je Tageszeit (EV100 nach Lichtsituation), Test per Bildschirmfoto zu 4 Tageszeiten.
-Alternativ WK-M03-001: Kausalgraph und NPC-Gedächtnis (Verbesserung 1/17).
+WK-M02-006: Nachthimmel – Mondposition und Mondphase (Beleuchtungsstärke bis ca. 0,25 lx), Sternenhimmel aus einer gemeinfreien Sternkarte (z. B. NASA SVS Deep Star Maps; Download braucht deine Freigabe), Airglow als schwache Grundhelligkeit. Test: Nachtbilder bei Neumond und Vollmond.
+Alternativ WK-M03-001: Kausalgraph und NPC-Gedächtnis.

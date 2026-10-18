@@ -1,0 +1,6 @@
+GENESIS_SKYSHOTS gestartet: 4 Zeitpunkte am 2026-06-15
+GENESIS_SKYSHOT time=0700 local=2026.06.15-07.00.00 elevation=14.17 azimuth=70.64 ev100=14.41
+GENESIS_SKYSHOT time=1320 local=2026.06.15-13.20.00 elevation=64.32 azimuth=179.73 ev100=15.00
+GENESIS_SKYSHOT time=2100 local=2026.06.15-21.00.00 elevation=2.62 azimuth=303.48 ev100=12.65
+GENESIS_SKYSHOT time=2330 local=2026.06.15-23.30.00 elevation=-13.57 azimuth=334.00 ev100=0.95
+GENESIS_SKYSHOTS beendet

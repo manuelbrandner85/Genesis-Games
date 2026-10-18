@@ -1,0 +1,5 @@
+Bildmessung (Luminanz Rec.709, jedes 4. Pixel, 0-255):
+sky_0700.png: Mittel 55.2, Himmel 94.7, ausgebrannt 0.00%
+sky_1320.png: Mittel 63.7, Himmel 95.3, ausgebrannt 0.00%
+sky_2100.png: Mittel 50.3, Himmel 104.8, ausgebrannt 0.00%
+sky_2330.png: Mittel 0.0, Himmel 0.0, ausgebrannt 0.00%  -> Reality Check NICHT bestanden (Nacht ohne Licht)

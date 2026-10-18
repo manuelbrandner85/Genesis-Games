@@ -30,6 +30,24 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Time", meta = (ClampMin = "0"))
 	float GameSecondsPerRealSecond = 60.f;
 
+	/** Geografische Breite der Spielwelt. Vorlaeufig Mitteleuropa (Sueddeutschland); der kanonische Ort ist noch nicht festgelegt. */
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Sky")
+	double LatitudeDeg = 49.0;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Sky")
+	double LongitudeDeg = 10.0;
+
+	/** Normalzeit gegenueber UTC (MEZ = +1). Die Weltzeit ist Ortszeit. */
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Sky")
+	double StandardUtcOffsetHours = 1.0;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Sky")
+	bool bEuSummerTime = true;
+
+	/** Blickrichtung Norden in der Welt (Grad Gier). 0 = +X zeigt nach Norden. */
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Sky")
+	float WorldNorthYawDeg = 0.f;
+
 	/** Tage ab Befruchtung: Ende der Vor-Embryonalzeit (Zellteilung, Wanderung, Einnistung). */
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Biology")
 	int32 EmbryoStartDay = 14;

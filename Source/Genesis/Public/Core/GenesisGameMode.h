@@ -35,4 +35,11 @@ private:
 	float AutoTestTime = 0.f;
 	FVector AutoTestStart = FVector::ZeroVector;
 	int32 AutoTestStage = 0;
+
+	void TickSkyShots(float DeltaSeconds);
+	TArray<FString> SkyShotTimes;
+	FDateTime SkyShotDate;
+	int32 SkyShotIndex = 0;
+	int32 SkyShotStage = 0;
+	float SkyShotTimer = 0.f;
 };

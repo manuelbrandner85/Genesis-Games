@@ -9,6 +9,9 @@
 #include "Misc/CommandLine.h"
 #include "Misc/Paths.h"
 #include "Save/GenesisSaveSubsystem.h"
+#include "EngineUtils.h"
+#include "Time/GenesisSkyController.h"
+#include "Time/GenesisWorldClockSubsystem.h"
 #include "Engine/GameInstance.h"
 #include "UnrealClient.h"
 
@@ -47,6 +50,31 @@ void AGenesisGameMode::StartPlay()
 		}
 	}
 
+	// Himmel an die Weltuhr koppeln, wenn das Level keinen eigenen Controller hat.
+	if (!TActorIterator<AGenesisSkyController>(GetWorld()))
+	{
+		GetWorld()->SpawnActor<AGenesisSkyController>();
+	}
+
+	FString ShotTimes;
+	if (FParse::Value(FCommandLine::Get(), TEXT("GenesisSkyShots="), ShotTimes, /*bShouldStopOnSeparator*/ false))
+	{
+		// Format: -GenesisSkyShots=0700,1320,2100,2330 (Ortszeit am Testdatum)
+		ShotTimes.ParseIntoArray(SkyShotTimes, TEXT(","));
+		FString DateText;
+		SkyShotDate = FDateTime(2026, 6, 15);
+		if (FParse::Value(FCommandLine::Get(), TEXT("GenesisSkyDate="), DateText))
+		{
+			FDateTime::ParseIso8601(*DateText, SkyShotDate);
+		}
+		if (APlayerController* ShotPC = GetWorld()->GetFirstPlayerController())
+		{
+			ShotPC->SetIgnoreLookInput(true);
+			ShotPC->SetIgnoreMoveInput(true);
+		}
+		UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOTS gestartet: %d Zeitpunkte am %s"), SkyShotTimes.Num(), *SkyShotDate.ToString(TEXT("%Y-%m-%d")));
+	}
+
 	bAutoTest = FParse::Param(FCommandLine::Get(), TEXT("GenesisAutoTest"));
 	if (bAutoTest)
 	{
@@ -62,6 +90,11 @@ void AGenesisGameMode::StartPlay()
 void AGenesisGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (SkyShotTimes.Num() > 0)
+	{
+		TickSkyShots(DeltaSeconds);
+		return;
+	}
 	if (!bAutoTest)
 	{
 		return;
@@ -115,5 +148,73 @@ void AGenesisGameMode::Tick(float DeltaSeconds)
 		break;
 	default:
 		break;
+	}
+}
+
+void AGenesisGameMode::TickSkyShots(float DeltaSeconds)
+{
+	UWorld* World = GetWorld();
+	APlayerController* PC = World->GetFirstPlayerController();
+	UGenesisSaveSubsystem* Save = GetGameInstance()->GetSubsystem<UGenesisSaveSubsystem>();
+	UGenesisWorldClockSubsystem* Clock = World->GetSubsystem<UGenesisWorldClockSubsystem>();
+	AGenesisSkyController* Sky = nullptr;
+	for (TActorIterator<AGenesisSkyController> It(World); It; ++It)
+	{
+		Sky = *It;
+	}
+	if (!PC || !PC->GetPawn() || !Save || !Clock || !Sky)
+	{
+		return;
+	}
+
+	SkyShotTimer += DeltaSeconds;
+	const bool bFirst = SkyShotIndex == 0 && SkyShotStage == 0;
+	switch (SkyShotStage)
+	{
+	case 0: // Zeitpunkt einstellen. Erster Zeitpunkt wartet laenger (Shader, Streaming).
+		if (SkyShotTimer < (bFirst ? 6.f : 0.f))
+		{
+			return;
+		}
+		{
+			const FString& Hhmm = SkyShotTimes[SkyShotIndex];
+			const int32 Hour = FCString::Atoi(*Hhmm.Left(2));
+			const int32 Minute = FCString::Atoi(*Hhmm.Mid(2, 2));
+			Save->GetMutable().World.WorldDateTime = SkyShotDate + FTimespan(Hour, Minute, 0);
+			Clock->SetClockRunning(false);
+			Sky->UpdateSky();
+			// Feste Blickrichtung West-Suedwest, leicht nach unten: Figur, Treppe und Horizont im Bild.
+			PC->SetControlRotation(FRotator(-6.f, 250.f, 0.f));
+			SkyShotStage = 1;
+			SkyShotTimer = 0.f;
+		}
+		return;
+	case 1: // Lumen, Himmelslicht-Erfassung und Schatten einschwingen lassen.
+		if (SkyShotTimer > 4.f)
+		{
+			const FString& Hhmm = SkyShotTimes[SkyShotIndex];
+			UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOT time=%s local=%s elevation=%.2f azimuth=%.2f ev100=%.2f"),
+				*Hhmm, *Clock->GetWorldDateTime().ToString(), Sky->GetLastElevationDeg(), Sky->GetLastAzimuthDeg(), Sky->GetLastEV100());
+			FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / FString::Printf(TEXT("Automation/WK-M02-005/sky_%s.png"), *Hhmm), false, false);
+			SkyShotStage = 2;
+			SkyShotTimer = 0.f;
+		}
+		return;
+	case 2: // Bildschirmfoto abwarten, naechster Zeitpunkt.
+		if (SkyShotTimer > 1.f)
+		{
+			++SkyShotIndex;
+			SkyShotStage = 0;
+			SkyShotTimer = 0.f;
+			if (SkyShotIndex >= SkyShotTimes.Num())
+			{
+				UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOTS beendet"));
+				SkyShotTimes.Reset();
+				FPlatformMisc::RequestExit(false, TEXT("GenesisSkyShots"));
+			}
+		}
+		return;
+	default:
+		return;
 	}
 }
