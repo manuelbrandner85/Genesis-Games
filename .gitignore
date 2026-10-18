@@ -1,0 +1,25 @@
+# Unreal
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+.vsconfig
+*.sln
+*.slnx
+*.VC.db
+*.opensdf
+*.sdf
+*.suo
+*.xcodeproj
+*.xcworkspace
+Build/*/
+!Build/*/Resources/
+Platforms/
+
+# Blender
+*.blend1
+*.blend2
+
+# Packaging
+Packaged/
