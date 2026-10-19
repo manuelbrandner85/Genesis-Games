@@ -44,4 +44,5 @@ private:
 	float SkyShotTimer = 0.f;
 	FString SkyShotName;
 	float SkyShotWarmup = 6.f;
+	bool bShotTalked = false;
 };

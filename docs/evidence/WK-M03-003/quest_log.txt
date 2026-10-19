@@ -1,0 +1,7 @@
+"NPC_A erinnert unbelegtes Ereignis EV_GHOST"
+"NPC_TEST_02: Hoehe 180.17 cm, Anker 162.53 cm"
+"Ziel: Sprich mit der Haendlerin am Marktstand."
+"NPC_TEST_02: [Platzhalter] Meine Waage zeigt falsch an. In der Werkstatt koennte man sie richten."
+"Ereignis EV_000001 HELPED -> NPC_TEST_02, Zeugen: "
+"Verlauf: S1 > T_ACCEPT > S2 > T_REPAIRED > S3 > T_GIVE > HELPED_MARKET"
+"TEST_Q01: 3 Schritte (Platzhalter-Inhalt)"

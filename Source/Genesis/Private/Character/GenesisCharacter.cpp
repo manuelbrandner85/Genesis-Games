@@ -14,6 +14,10 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Input/GenesisInputSet.h"
+#include "EngineUtils.h"
+#include "Engine/GameInstance.h"
+#include "Npc/GenesisNpc.h"
+#include "Story/GenesisStory.h"
 #include "InputActionValue.h"
 #include "Materials/MaterialInterface.h"
 #include "PhysicsEngine/PhysicsAsset.h"
@@ -186,6 +190,17 @@ void AGenesisCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Input->BindActionValueLambda(InputSet->RunHold, ETriggerEvent::Started, [this](const FInputActionValue&) { SetRunning(true); });
 	Input->BindActionValueLambda(InputSet->RunHold, ETriggerEvent::Completed, [this](const FInputActionValue&) { SetRunning(false); });
 	Input->BindAction(InputSet->RunToggle, ETriggerEvent::Started, this, &AGenesisCharacter::HandleRunToggle);
+	Input->BindActionValueLambda(InputSet->Interact, ETriggerEvent::Started, [this](const FInputActionValue&) { TryInteract(); });
+	for (int32 i = 0; i < InputSet->Choices.Num(); ++i)
+	{
+		Input->BindActionValueLambda(InputSet->Choices[i], ETriggerEvent::Started, [this, i](const FInputActionValue&)
+		{
+			if (UGenesisStorySubsystem* Story = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisStorySubsystem>() : nullptr)
+			{
+				Story->Choose(i);
+			}
+		});
+	}
 }
 
 void AGenesisCharacter::HandleMove(const FInputActionValue& Value)
@@ -211,4 +226,28 @@ void AGenesisCharacter::HandleLook(const FInputActionValue& Value)
 void AGenesisCharacter::HandleRunToggle(const FInputActionValue&)
 {
 	SetRunning(!bRunning);
+}
+
+bool AGenesisCharacter::TryInteract()
+{
+	UGenesisStorySubsystem* Story = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisStorySubsystem>() : nullptr;
+	if (!Story || Story->IsInDialog())
+	{
+		return false;
+	}
+	// Naechste Figur vor dem Spieler innerhalb der Reichweite.
+	const float Range = GetDefault<UGenesisStorySettings>()->InteractRangeCm;
+	AGenesisNpcCharacter* Best = nullptr;
+	float BestDistance = Range;
+	for (TActorIterator<AGenesisNpcCharacter> It(GetWorld()); It; ++It)
+	{
+		const FVector ToNpc = It->GetActorLocation() - GetActorLocation();
+		const float Distance = ToNpc.Size2D();
+		if (Distance <= BestDistance && (GetActorForwardVector() | ToNpc.GetSafeNormal2D()) > 0.3f)
+		{
+			Best = *It;
+			BestDistance = Distance;
+		}
+	}
+	return Best && Story->InteractWith(Best->GetNpcId());
 }

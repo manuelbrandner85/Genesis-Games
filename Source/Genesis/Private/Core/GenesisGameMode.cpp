@@ -9,6 +9,8 @@
 #include "Misc/CommandLine.h"
 #include "Misc/Paths.h"
 #include "Save/GenesisSaveSubsystem.h"
+#include "Story/GenesisStory.h"
+#include "Npc/GenesisNpc.h"
 #include "EngineUtils.h"
 #include "Time/GenesisSkyController.h"
 #include "Time/GenesisWorldClockSubsystem.h"
@@ -24,6 +26,7 @@ AGenesisGameMode::AGenesisGameMode()
 {
 	DefaultPawnClass = AGenesisCharacter::StaticClass();
 	PlayerControllerClass = AGenesisPlayerController::StaticClass();
+	HUDClass = AGenesisHUD::StaticClass();
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -37,6 +40,15 @@ void AGenesisGameMode::StartPlay()
 		{
 			// Testprofil fuer das Graubox-Level, kein Kanon: Erwachsener, 30 Jahre, Sommervormittag 2026.
 			Save->StartTestLife(TEXT("CHR_PLAYER_ADULT"), FDateTime(2026, 6, 15, 10, 0, 0), 30.f);
+		}
+	}
+
+	// Im Testlevel konfigurierte Quests starten (Projekteinstellungen > Genesis Story).
+	if (UGenesisStorySubsystem* Story = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisStorySubsystem>() : nullptr)
+	{
+		for (const FName QuestId : GetDefault<UGenesisStorySettings>()->AutoStartQuestIds)
+		{
+			Story->StartQuest(QuestId);
 		}
 	}
 
@@ -210,6 +222,27 @@ void AGenesisGameMode::TickSkyShots(float DeltaSeconds)
 		}
 		return;
 	case 1: // Lumen, Himmelslicht-Erfassung und Schatten einschwingen lassen.
+		// -GenesisShotTalkTo=<NpcId>: Spielfigur hinter die Figur stellen und ansprechen (Gespraechs-HUD im Bild).
+		if (!bShotTalked && SkyShotTimer > 2.f)
+		{
+			bShotTalked = true;
+			FString TalkTo;
+			if (FParse::Value(FCommandLine::Get(), TEXT("GenesisShotTalkTo="), TalkTo))
+			{
+				for (TActorIterator<AGenesisNpcCharacter> It(World); It; ++It)
+				{
+					if (It->GetNpcId() == FName(*TalkTo))
+					{
+						const FVector Forward = It->GetActorForwardVector();
+						const FVector Right = FVector::CrossProduct(FVector::UpVector, Forward);
+						AGenesisCharacter* Player = Cast<AGenesisCharacter>(PC->GetPawn());
+						Player->SetActorLocationAndRotation(It->GetActorLocation() - Forward * 150.f + Right * 40.f, Forward.Rotation(), false, nullptr, ETeleportType::TeleportPhysics);
+						PC->SetControlRotation(FRotator(-8.f, Forward.Rotation().Yaw + 25.f, 0.f));
+						UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOT talk=%s ok=%d"), *TalkTo, Player->TryInteract() ? 1 : 0);
+					}
+				}
+			}
+		}
 		if (SkyShotTimer > 4.f)
 		{
 			UE_LOG(LogGenesis, Display, TEXT("GENESIS_SKYSHOT shot=%s local=%s sun_el=%.2f sun_az=%.2f moon_el=%.2f moon_az=%.2f moon_frac=%.3f moon_lux=%.4f ev100=%.2f"),

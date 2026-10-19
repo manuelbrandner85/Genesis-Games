@@ -39,6 +39,14 @@ public:
 	UPROPERTY()
 	TObjectPtr<UInputAction> RunToggle;
 
+	/** Figur ansprechen. */
+	UPROPERTY()
+	TObjectPtr<UInputAction> Interact;
+
+	/** Antwort 1-4 im Gespraech. */
+	UPROPERTY()
+	TArray<TObjectPtr<UInputAction>> Choices;
+
 	/** Controller: Drehgeschwindigkeit der Kamera in Grad pro Sekunde bei vollem Ausschlag. */
 	static constexpr float GamepadLookDegreesPerSecond = 160.f;
 

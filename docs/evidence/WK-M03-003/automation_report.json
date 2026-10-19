@@ -1,0 +1,1581 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "98CB073C47C73D2C9450218B35724B72",
+			"instanceName": "DESKTOP-9JVIIPU-25888",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26300.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.19-06.54.47",
+	"succeeded": 35,
+	"succeededWithWarnings": 5,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 182.8875732421875,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "EventTypesLoaded",
+			"fullTestPath": "Genesis.Causality.Config.EventTypesLoaded",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0078365020453929901,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CauseChainAndRejections",
+			"fullTestPath": "Genesis.Causality.CauseChainAndRejections",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0085062012076377869,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MemoryFadesButTruthRemains",
+			"fullTestPath": "Genesis.Causality.MemoryFadesButTruthRemains",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082118995487689972,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NewLifeIsAStranger",
+			"fullTestPath": "Genesis.Causality.NewLifeIsAStranger",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0081373006105422974,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RecordEventFormsMemoriesAndAttitudes",
+			"fullTestPath": "Genesis.Causality.RecordEventFormsMemoriesAndAttitudes",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082635991275310516,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RumorDependsOnTrustInTeller",
+			"fullTestPath": "Genesis.Causality.RumorDependsOnTrustInTeller",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.007993798702955246,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Vertrauen zum Spieler nach Geruecht: B -0.050, C -0.010, A -0.400",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.44"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SaveLoadRoundTrip",
+			"fullTestPath": "Genesis.Causality.SaveLoadRoundTrip",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082470998167991638,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ValidateDetectsContradictions",
+			"fullTestPath": "Genesis.Causality.ValidateDetectsContradictions",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0083256997168064117,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "EV_3: Ursache EV_MISSING fehlt",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Zyklus im Kausalgraphen bei EV_1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "NPC_A erinnert unbelegtes Ereignis EV_GHOST",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.44"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "KeyboardMouseAndGamepadMapped",
+			"fullTestPath": "Genesis.Character.Input.KeyboardMouseAndGamepadMapped",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0080169998109340668,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WalkRunJumpInTestLevel",
+			"fullTestPath": "Genesis.Character.PIE.WalkRunJumpInTestLevel",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 7.2904515266418457,
+			"dateTime": "2026.10.19-06.51.44",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Gehen: 150.0 cm/s, 292.6 cm in 2 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Laufen: 360.0 cm/s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Sprunghoehe: 45.9 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AllEntriesMeetContract",
+			"fullTestPath": "Genesis.Character.Registry.AllEntriesMeetContract",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082584023475646973,
+			"dateTime": "2026.10.19-06.51.51",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_PLAYER_ADULT: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_TEST_PROXY_M: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "CHR_TEST_PROXY_F: Hoehe 180.17 cm, Anker 162.53 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "NPC_TEST_03: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "NPC_TEST_02: Hoehe 180.17 cm, Anker 162.53 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "NPC_TEST_01: Hoehe 180.54 cm, Anker 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ByAssetId",
+			"fullTestPath": "Genesis.Character.Swap.ByAssetId",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.022554501891136169,
+			"dateTime": "2026.10.19-06.51.51",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContractViolationRejected",
+			"fullTestPath": "Genesis.Character.Swap.ContractViolationRejected",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.017821598798036575,
+			"dateTime": "2026.10.19-06.51.51",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ModelSwapKeepsLogicAndCamera",
+			"fullTestPath": "Genesis.Character.Swap.ModelSwapKeepsLogicAndCamera",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.018986999988555908,
+			"dateTime": "2026.10.19-06.51.51",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Kamerahoehe ueber Fusssohle: vorher 162.60 cm, nachher 162.60 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.51"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DailyScheduleAndPerception",
+			"fullTestPath": "Genesis.Npc.PIE.DailyScheduleAndPerception",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 154.87982177734375,
+			"dateTime": "2026.10.19-06.51.51",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.51.52"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "03:00 nach 17.5 s: NPC_TEST_01=Sleep@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Sleep@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.52.11"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "09:00 nach 30.5 s: NPC_TEST_01=Work@Platz NPC_TEST_02=Market@Platz NPC_TEST_03=Market@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.52.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "12:30 nach 30.0 s: NPC_TEST_01=Market@Platz NPC_TEST_02=Market@Platz NPC_TEST_03=Leisure@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.53.12"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "15:00 nach 29.3 s: NPC_TEST_01=Work@Platz NPC_TEST_02=Leisure@Platz NPC_TEST_03=Leisure@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.53.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "21:30 nach 21.9 s: NPC_TEST_01=Leisure@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Leisure@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.03"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "23:30 nach 22.4 s: NPC_TEST_01=Sleep@Platz NPC_TEST_02=Sleep@Platz NPC_TEST_03=Sleep@Platz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.25"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag, Sichtweite 4000 cm: Zeugen = NPC_TEST_01",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.26"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Nacht, Sichtweite 800 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.26"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.26"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PositionTimeAgeRoundTrip",
+			"fullTestPath": "Genesis.Save.PIE.PositionTimeAgeRoundTrip",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 1.1616061925888062,
+			"dateTime": "2026.10.19-06.54.26",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.26"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Weltuhr: 56.8 Spielsekunden in ~1 s Echtzeit",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.27"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Position gespeichert X=300.000 Y=-200.000 Z=92.450, geladen X=300.000 Y=-200.000 Z=92.450",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.27"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Weltzeit-Abweichung: 0 Ticks (100 ns)",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.27"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Geladen: 2026.09.23-10.01.01, Alter 30.274, Jahreszeit 3",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.27"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.27"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AbortAfterTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.AbortAfterTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.02189289778470993,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AbortOnFirstSaveLeavesNoSave",
+			"fullTestPath": "Genesis.Save.AbortOnFirstSaveLeavesNoSave",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0080947987735271454,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CorruptMainFallsBackToBackup",
+			"fullTestPath": "Genesis.Save.CorruptMainFallsBackToBackup",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.020923499017953873,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogGenesis: Spielstand 'TestSlot': Hauptdatei unbrauchbar, Sicherung geladen.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FutureSchemaRejected",
+			"fullTestPath": "Genesis.Save.FutureSchemaRejected",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0080222003161907196,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MigrateSchema1ToSchema2",
+			"fullTestPath": "Genesis.Save.MigrateSchema1ToSchema2",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0081679001450538635,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RoundTrip",
+			"fullTestPath": "Genesis.Save.RoundTrip",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.01568400114774704,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TruncatedTempWriteKeepsOldState",
+			"fullTestPath": "Genesis.Save.TruncatedTempWriteKeepsOldState",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.014895498752593994,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ClearSkyEV100",
+			"fullTestPath": "Genesis.Sky.Exposure.ClearSkyEV100",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082184001803398132,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhasesAtEclipses2026",
+			"fullTestPath": "Genesis.Sky.Moon.PhasesAtEclipses2026",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.008210599422454834,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Ringfoermige Sonnenfinsternis 17.02.2026: beleuchtet 0.0001, Phasenwinkel 178.98, 0.0001 lx",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Totale Mondfinsternis 03.03.2026: beleuchtet 1.0000, Phasenwinkel 0.47, 0.2667 lx",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Totale Sonnenfinsternis 12.08.2026: beleuchtet 0.0001, Phasenwinkel 179.16, 0.0001 lx",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Partielle Mondfinsternis 28.08.2026: beleuchtet 1.0000, Phasenwinkel 0.35, 0.2569 lx",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EquinoxSunriseInTheEast",
+			"fullTestPath": "Genesis.Sky.Solar.EquinoxSunriseInTheEast",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0076291002333164215,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Aufgang 20.03.: 05:29 UTC, Azimut 90.37",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EuSummerTime",
+			"fullTestPath": "Genesis.Sky.Solar.EuSummerTime",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0081962011754512787,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NoonElevationAndAzimuth",
+			"fullTestPath": "Genesis.Sky.Solar.NoonElevationAndAzimuth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082316994667053223,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "21.06.2026: Hoehe 64.435, Azimut 180.10 um 11:22 UTC",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "21.12.2026: Hoehe 17.566",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "20.03.2026: Hoehe 40.948",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CelestialBasis",
+			"fullTestPath": "Genesis.Sky.Stars.CelestialBasis",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0081871002912521362,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayTestQuest",
+			"fullTestPath": "Genesis.Story.PIE.PlayTestQuest",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 19.188989639282227,
+			"dateTime": "2026.10.19-06.54.28",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.28"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Ziel: Sprich mit der Haendlerin am Marktstand.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "NPC_TEST_02: [Platzhalter] Meine Waage zeigt falsch an. In der Werkstatt koennte man sie richten.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Ereignis EV_000001 HELPED -> NPC_TEST_02, Zeugen: ",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogCrowdFollowing: Unable to find RecastNavMesh instance while trying to create UCrowdManager instance",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AllPathsReachOutcome",
+			"fullTestPath": "Genesis.Story.Run.AllPathsReachOutcome",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0075610019266605377,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Verlauf: S1 > T_ACCEPT > S2 > T_REPAIRED > S3 > T_GIVE > HELPED_MARKET",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AllProjectQuestsClean",
+			"fullTestPath": "Genesis.Story.Validate.AllProjectQuestsClean",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0080682002007961273,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "TEST_Q01: 3 Schritte (Platzhalter-Inhalt)",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DetectsDeadEnds",
+			"fullTestPath": "Genesis.Story.Validate.DetectsDeadEnds",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.008275199681520462,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: Figur NPC_GHOST ist nicht in der Registry",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/N1/C_BAD: Folgeknoten N_MISSING fehlt",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/C_EVT: unbekannter Ereignistyp FLY_TO_MOON",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/N_GATED: alle Antworten haben Bedingungen - Sackgasse moeglich",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/N_LOOP1: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/N_LOOP2: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: D_BROKEN/N_GATED: nie erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: Folgeschritt S_MISSING fehlt",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: Ausloeser T_NEVER wird im Gespraech nie ausgeloest",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: Ausloeser T_UNUSED bleibt ohne Wirkung",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: kein Weg weiter - Sackgasse",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/N1/C_BAD: Folgeknoten N_MISSING fehlt",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/C_EVT: unbekannter Ereignistyp FLY_TO_MOON",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/N_GATED: alle Antworten haben Bedingungen - Sackgasse moeglich",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/N_LOOP1: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/N_LOOP2: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: D_BROKEN/N_GATED: nie erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: Ausloeser T_A bleibt ohne Wirkung",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: Ausloeser T_UNUSED bleibt ohne Wirkung",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/N1/C_BAD: Folgeknoten N_MISSING fehlt",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/C_EVT: unbekannter Ereignistyp FLY_TO_MOON",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/N_GATED: alle Antworten haben Bedingungen - Sackgasse moeglich",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/N_LOOP1: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/N_LOOP2: Schleife ohne Ausgang",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: D_BROKEN/N_GATED: nie erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: Ausloeser T_UNUSED bleibt ohne Wirkung",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S1: von hier ist kein Questende erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S2: von hier ist kein Questende erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Q_BROKEN/S3: nie erreichbar",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SaveLoadMidQuest",
+			"fullTestPath": "Genesis.Story.SaveLoadMidQuest",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0061382018029689789,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ConceptionToBirth",
+			"fullTestPath": "Genesis.Time.Advance.ConceptionToBirth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082295015454292297,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DayAndSeasonEvents",
+			"fullTestPath": "Genesis.Time.Advance.DayAndSeasonEvents",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082309991121292114,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TimeSkipThroughStages",
+			"fullTestPath": "Genesis.Time.Advance.TimeSkipThroughStages",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082166977226734161,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Alter nach Zeitraffer: 20.0821 Jahre",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.19-06.54.47"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Postnatal",
+			"fullTestPath": "Genesis.Time.LifeStages.Postnatal",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0082427002489566803,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Prenatal",
+			"fullTestPath": "Genesis.Time.LifeStages.Prenatal",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0083599984645843506,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Seasons",
+			"fullTestPath": "Genesis.Time.Seasons",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98CB073C47C73D2C9450218B35724B72"
+			],
+			"duration": 0.0078747980296611786,
+			"dateTime": "2026.10.19-06.54.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

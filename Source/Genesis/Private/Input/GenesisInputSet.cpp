@@ -95,5 +95,19 @@ UGenesisInputSet* UGenesisInputSet::CreateDefault(UObject* Outer)
 	Context->MapKey(Set->RunHold, EKeys::LeftShift);
 	Context->MapKey(Set->RunToggle, EKeys::Gamepad_LeftThumbstick);
 
+	Set->Interact = MakeAction(Set, TEXT("IA_Interact"), EInputActionValueType::Boolean);
+	Context->MapKey(Set->Interact, EKeys::E);
+	Context->MapKey(Set->Interact, EKeys::Gamepad_FaceButton_Left);
+
+	const FKey ChoiceKeys[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four };
+	const FKey ChoicePad[] = { EKeys::Gamepad_DPad_Up, EKeys::Gamepad_DPad_Right, EKeys::Gamepad_DPad_Down, EKeys::Gamepad_DPad_Left };
+	for (int32 i = 0; i < 4; ++i)
+	{
+		UInputAction* Choice = MakeAction(Set, *FString::Printf(TEXT("IA_Choice%d"), i + 1), EInputActionValueType::Boolean);
+		Context->MapKey(Choice, ChoiceKeys[i]);
+		Context->MapKey(Choice, ChoicePad[i]);
+		Set->Choices.Add(Choice);
+	}
+
 	return Set;
 }

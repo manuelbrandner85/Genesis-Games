@@ -180,6 +180,29 @@ struct GENESIS_API FGenesisNpcState
 	TMap<FName, FGenesisAttitude> Attitudes;
 };
 
+/** Fortschritt einer Quest im aktuellen Leben. */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisQuestState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName QuestId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName CurrentStepId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	bool bCompleted = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName OutcomeId;
+
+	/** Durchlaufene Schritte und Ausloeser in Reihenfolge (Nachvollziehbarkeit, Rueckblick). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	TArray<FName> History;
+};
+
 /** Ueberdauert alle Leben: Identitaet der Seele, Echo-Erinnerungen, Enthuellungs-Guards. */
 USTRUCT(BlueprintType)
 struct GENESIS_API FGenesisSoulState
@@ -281,6 +304,9 @@ struct GENESIS_API FGenesisLifeState
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Life")
 	TMap<FName, float> ConductProfile;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Life")
+	TArray<FGenesisQuestState> Quests;
 };
 
 /**
@@ -295,8 +321,9 @@ struct GENESIS_API FGenesisSaveBundle
 	/**
 	 * 1: Jahr/Tag/Uhrzeit + Alter als Zahl. 2: Weltdatum + Zeugung/Geburt (Migration 1 -> 2 beim Laden).
 	 * 3: Kausalgraph, NPC-Gedaechtnis, Verhaltensprofil (Schema 2 laedt mit leerem Graphen).
+	 * 4: Questfortschritt (aeltere Staende laden ohne Quests).
 	 */
-	static constexpr int32 CurrentSchemaVersion = 3;
+	static constexpr int32 CurrentSchemaVersion = 4;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Genesis|Save")
 	int32 SchemaVersion = CurrentSchemaVersion;

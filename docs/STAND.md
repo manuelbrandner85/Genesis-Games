@@ -129,12 +129,28 @@ Unterwegs gefundene und behobene Fehler: Test setzte die Uhrzeit vor dem Spielst
 
 Noch nicht: Animationen für Tätigkeiten (Figuren stehen am Platz, statt zu liegen/arbeiten/sitzen), Türen/Innenräume, Begrüßung oder Reaktion beim Vorbeigehen, automatische Gerüchte im Gespräch, Tagespläne aus der Spielbibel (Flussdorf-Figuren).
 
+## WK-M03-003 – Missionen und Dialoge mit Entscheidungen · Status: GETESTET (lokal, Platzhalter-Inhalt)
+
+| Was | Datei / Beleg | Ergebnis |
+|---|---|---|
+| Datenmodell | `GenesisStoryTypes.h`: Quest (Schritte, Kanten mit Auslöser und optionaler Weltbedingung, Ausgänge), Dialog (Knoten, Antworten, Folgen, Vertrauensbedingung); Spielstand Schema 4 mit Questfortschritt und Verlauf | Quests und Dialoge sind Daten-Assets, keine Programmierung pro Mission |
+| Logik | `FGenesisStory` (reine Funktionen), `UGenesisStorySubsystem` | Antwort wirkt erst beim Wählen (atomar): Weltzustand, Ereignis im Kausalgraphen (Zeugen über Wahrnehmung), Questauslöser. Antworten können Vertrauen voraussetzen |
+| Sackgassen-Prüfung | `FGenesisStory::ValidateQuest/ValidateDialog` | erkennt: Schritt ohne Ausweg, kein Questende erreichbar, unerreichbare Schritte/Knoten, fehlende Folgeschritte/-knoten, Auslöser die nie kommen oder ohne Wirkung bleiben, Auslöser nur unter Bedingung, Gesprächsschleifen ohne Ausgang, Knoten mit nur bedingten Antworten, unbekannte Figuren und Ereignistypen |
+| Spiel | Taste E / Controller X: Figur ansprechen; 1–4 / Steuerkreuz: antworten; `AGenesisHUD` | **Platzhalter-HUD** (Text auf dem Bild, keine gestaltete Oberfläche); zeigt Gespräch und aktuelles Ziel, nie Vertrauens- oder Karmawerte |
+| Testmission | `TEST_Q01` „Die Waage“ (`/Game/Genesis/Quests`, gebaut von `Tools/Editor/build_wk_m03_003.py`) | **Platzhalter-Inhalt, kein Kanon.** 3 Schritte über alle drei NPCs, 4 Ausgänge/Wege (ablehnen, helfen, behalten, Vertrauens-Antwort) |
+| Tests | `docs/evidence/WK-M03-003/automation_report.json` | **40/40 bestanden.** Neu: alle Projekt-Quests ohne Fehler; kaputte Testquest – alle 12 Fehlerarten erkannt; alle Wege führen zum richtigen Ausgang mit passender Wirkung auf Vertrauen und verdecktes Profil; Laden mitten in der Mission und zu Ende spielen; **Durchspielen im laufenden Spiel (PIE)** über die echte Ansprech-Funktion |
+| Bild | `docs/evidence/WK-M03-003/dialog_hud_0900.png` | Gespräch mit der Händlerin am Markt, drei Antworten |
+
+Beobachtung: Bei der Übergabe am Markt war die Nachbarin **kein** Zeuge, weil sie zum Stand schaute und die Übergabe hinter ihrem Rücken stattfand – das ist das gewollte Verhalten der Wahrnehmung.
+
+Noch nicht: echte Missionen aus der Spielbibel (L00–L15, G01–G02, J00–J24 müssen erst aus den Quellpaketen extrahiert werden), gestaltete Oberfläche, Sprachausgabe, Umlaute in den Platzhaltertexten (ae/oe statt ä/ö), Missionsschritte ohne Gespräch (Orte erreichen, Gegenstände), Abbrechen/Wiederholen von Gesprächen per Taste.
+
 ## Was noch NICHT existiert
-- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, nur 3 Test-NPCs, keine Missionen, Dialoge, UI.
+- Keine GENESIS-Figuren (nur Proxy-Mannequin), keine Spielwelt außer dem Graubox-Testlevel, nur 3 Test-NPCs, nur eine Platzhalter-Mission, keine gestaltete UI.
 - Wetter (Wolkenmenge, Regen) beeinflusst Licht und Belichtung noch nicht; die Belichtungstabelle gilt für klaren Himmel.
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M03-003: Missionen und Dialoge mit Entscheidung – Questgraph (Schritte, Bedingungen, Auslöser), Dialog mit Antwortwahl, Folgen über den Kausalgraphen, automatische Prüfung auf Sackgassen; eine Testmission mit den drei NPCs. Inhalt der Testmission ist Platzhalter, bis die Originalmissionen (z. B. L08) aus den Quellen extrahiert sind.
+WK-M00-001: Originalquellen erschließen – die 37 eingebetteten Quell-ZIPs der V61-Kette (nur lesen) entpacken, Prüfsummen prüfen und die Originalmissionen L00–L15, G01–G02, J00–J24 sowie die Flussdorf-NPCs als Dokument extrahieren. Danach können echte Missionen statt Platzhalter gebaut werden.

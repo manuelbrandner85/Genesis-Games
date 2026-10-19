@@ -44,6 +44,10 @@ public:
 	UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	UGenesisInputSet* GetInputSet() const { return InputSet; }
 
+	/** Naechste Figur vor dem Spieler ansprechen (Taste E / Controller X). */
+	UFUNCTION(BlueprintCallable, Category = "Genesis|Character")
+	bool TryInteract();
+
 	void SetRunning(bool bInRunning);
 	bool IsRunning() const { return bRunning; }
 
