@@ -152,5 +152,16 @@ Noch nicht: echte Missionen aus der Spielbibel (L00–L15, G01–G02, J00–J24 
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
 - Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
 
+## WK-M00-001 – Originalquellen erschlossen · Status: ERLEDIGT (nur gelesen)
+
+| Was | Ergebnis |
+|---|---|
+| Quellkette | V62 → V61 → V60 → V59 → 37 Quellpakete, insgesamt 109 ZIP-Archive und 4043 Dateien, entpackt im temporären Leseordner (nicht im Projekt) |
+| Prüfsummen | 64 Prüflisten, **3862 Einträge korrekt, 0 fehlende Dateien, 0 inhaltliche Abweichungen** (9 Meldungen betreffen nur die Prüflisten selbst, die sich nicht selbst prüfen können) |
+| Gefunden | alle Missionsquellen: L00–L15 und G01–G02 (V21), J00–J11 (Vorschlag 20B), J12–J24 (V27–V30), Flussdorf-Weltbibel mit 8 Regionen, Bewohner N01–N08 und Missionsbibel (V24) |
+| Extrakt | `Desktop\GENESIS_V62_PLANUNG\WK-M00-001_ORIGINALMISSIONEN_UND_FLUSSDORF.md` (wörtlich, mit Prüfsumme je Quelle). **Bewusst nicht im öffentlichen Repo**, weil es Story und geschützte Enthüllungen enthält |
+
+Hinweis: Alle Missionsquellen tragen den Status „wartet auf Freigabe durch die Spielleitung“. Sie sind die Grundlage für echte Missionen, aber noch kein freigegebener Kanon.
+
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
-WK-M00-001: Originalquellen erschließen – die 37 eingebetteten Quell-ZIPs der V61-Kette (nur lesen) entpacken, Prüfsummen prüfen und die Originalmissionen L00–L15, G01–G02, J00–J24 sowie die Flussdorf-NPCs als Dokument extrahieren. Danach können echte Missionen statt Platzhalter gebaut werden.
+WK-M03-004: Erste echte Mission statt Platzhalter – L08 „Die Nacht der Naturgewalt“ im Flussdorf (Sturm, Brücke, Wetterstation passen zum Vertical Slice) mit den Original-Rollen N01 Werkstatt, N04 Lieferperson, N05 Gemeindekoordination; Inhalte nur aus den Quellen, offene Punkte als ungeklärt markiert.
