@@ -66,7 +66,7 @@ Annahmen, die du prüfen solltest: Altersgrenzen nach der Geburt (1/12/18/65) si
 - Sonne und Licht folgen der Weltuhr noch nicht (Tag/Nacht ist nur als Zeitwert vorhanden, nicht sichtbar).
 - Figur wechselt beim Altern noch nicht ihr Aussehen (Kinder-/Altersmodelle fehlen; die Schnittstelle dafür existiert).
 - Wiedergeburt (Leben abschließen → Erinnerungen in die Seele → neues Leben) ist nur als Datenmodell vorbereitet, nicht programmiert.
-- Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01), Epochenumfang.
+- Offene Kreativentscheidungen: ScriptLock-Endfreigabe, C15/C16 (CON33-01 entschieden am 23.10.2026, siehe docs/kanon/BESCHLUESSE.md), Epochenumfang.
 
 ## Nächster Schritt (Vorschlag, wartet auf Freigabe)
 WK-M02-005: Tag/Nacht und Jahreszeit sichtbar machen – Sonnenstand aus Weltzeit und Breitengrad, physikalisch korrekte Belichtung je Tageszeit (EV100 nach Lichtsituation), Test per Bildschirmfoto zu 4 Tageszeiten.
