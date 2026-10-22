@@ -17,7 +17,7 @@ Länge C00: 00:01:40:00 (2.400 Frames). Länge C01: 00:01:20:00 (1.920 Frames). 
 | 00-E | 00:01:32:00–00:01:40:00 (2208–2400) | Bild fällt ins Schwarz. Ein schwacher Punkt erscheint und erlischt. | – | – | Stille / Ausklang des Intervalls | Übergang in `M02_BEGINNING` |
 
 Geschätzte Dialogzeiten in 00-C (vorläufig): 001 00:00:31:00–00:00:34:10 · 002 00:00:35:00–00:00:38:22 · 003 00:00:39:12–00:00:43:10 · 004 00:00:44:00–00:00:45:07 · 005 00:00:45:22–00:00:48:22 · 006 00:00:49:12–00:00:55:14 · 007 00:00:56:05–00:00:58:07 · 008 00:00:58:22–00:01:03:05. Danach rund 9 s Raum für Blicke und Atem bis 00:01:12:00.
-Reprise-Zeilen für C20: **VO_C00_001, VO_C00_002, VO_C00_006**.
+Reprise für C20 (Entscheidung 23.10.2026): **alle 8 Zeilen VO_C00_001 … 008** und die vollen 60 s von 00-B + 00-C, Bild und Ton unverändert.
 
 ## Übergang C00 → C01 (Ton-Match-Cut)
 
@@ -47,7 +47,7 @@ Nach der Abnahme von C00 werden diese Dateien eingefroren (schreibgeschützt, Gi
 
 | # | Master | Zweck |
 |---|---|---|
-| 1 | Dialog-Waves VO_C00_001 … 008, unbearbeitet und final geschnitten (WAV, 48 kHz / 24 bit) | Originalton; C20 nutzt 001, 002, 006 |
+| 1 | Dialog-Waves VO_C00_001 … 008, unbearbeitet und final geschnitten (WAV, 48 kHz / 24 bit) | Originalton; C20 nutzt alle 8 Zeilen |
 | 2 | Atmo- und Foley-Stems von 00-B und 00-C (Regen, Laken, Atem, Straße) | gleiche Tonumgebung in C20 |
 | 3 | Final-Mix-Stems C00 (Dialog, Atmo, Foley, Musik getrennt) | Null-Test und Neu-Mischung ohne Neuaufnahme |
 | 4 | Soul-Intervall-Master aus 00-D | gemeinsamer Kern für C17/C20 |
@@ -60,7 +60,7 @@ Nach der Abnahme von C00 werden diese Dateien eingefroren (schreibgeschützt, Gi
 
 ## Nachweisverfahren C00 = C20 (Reprise)
 
-1. **Prüfsummen:** SHA256 jeder eingefrorenen Datei ins Manifest. Das C20-Sequencer-Asset darf auf die Dialog-Waves 001/002/006 nur **verweisen** (gleiche Asset-Referenz, keine Kopie). Prüfschritt: Asset-Referenzen auslesen und SHA256 der verwendeten Dateien mit dem Manifest vergleichen. Muss 100 % gleich sein.
+1. **Prüfsummen:** SHA256 jeder eingefrorenen Datei ins Manifest. Das C20-Sequencer-Asset darf auf die Dialog-Waves 001 … 008 nur **verweisen** (gleiche Asset-Referenz, keine Kopie). Prüfschritt: Asset-Referenzen auslesen und SHA256 der verwendeten Dateien mit dem Manifest vergleichen. Muss 100 % gleich sein.
 2. **Null-Test beim Ton:** Den Dialog-Stem aus dem C20-Render an den Stellen der Reprise ausschneiden, auf Sample genau an das C00-Original legen, eine Spur invertieren und summieren. Erwartung: Restsignal digital Null (bei identischer Kette). Wenn in C20 bewusst anders gemischt wird (z. B. Hall), wird der Null-Test am **Dialog-Stem vor dem Mix** gemacht und die Abweichung im Protokoll begründet. Zusätzlich Lautheit (LUFS) und Start-Sample jeder Zeile protokollieren.
 3. **Bildvergleich Frame für Frame:** Gleiche Frames aus C00 (00-B/00-C) und C20 (20-B) mit gleichen Render-Einstellungen rendern. Pro Frame vergleichen: pixelgleicher Hash; falls Echtzeit-Rendering nicht deterministisch ist (Temporal AA, Partikel, Regen), stattdessen PSNR und SSIM mit vorher festgelegter Schwelle (z. B. SSIM ≥ 0,99, wird mit QA festgelegt) plus Differenzbild. Abweichende Frames mit Nummer melden.
 4. **Timing:** Für jede Reprise-Zeile Start- und End-Frame in C00 und in C20 notieren. Dauer muss auf das Frame gleich sein.

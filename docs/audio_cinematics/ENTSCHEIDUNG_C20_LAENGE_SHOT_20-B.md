@@ -1,5 +1,17 @@
 # Entscheidungsvorlage für Manuel: Länge von Shot 20-B
 
+**Status: ENTSCHIEDEN – 23.10.2026** (Manuel hat die Entscheidung an den Koordinator GENESIS übertragen.)
+
+## Entscheidung
+- **Lösung 2, Variante „volle 60 s“.** Shot 20-B zeigt die vollen 60 s aus 00-B und 00-C. Bild und Ton bleiben vollständig und unverändert, **inklusive aller 8 Zeilen im Originalton** (VO_C00_001 … 008).
+- Dazu kommt ein **stiller Übergang aus dem Netzwerk hinein und wieder hinaus, zusammen 15 s**, ohne Dialog und ohne neues Material aus 2026. Gesamt: 75 s.
+- **Begründung:** identisch 1:1, deshalb sind Null-Test und Frame-Vergleich am einfachsten.
+- **Rückfall:** 20-B auf 60 s kürzen (Lösung 1).
+- Arbeitsannahme für die Zeitplanung (noch nicht entschieden): Übergang 7,5 s hinein (01:00:00–01:07:12) und 7,5 s hinaus (02:07:12–02:15:00). Reprise 01:07:12–02:07:12 in C20. Die Aufteilung legt die Regie im Animatic fest.
+- Damit ist die offene Frage „ganze 60 s oder Ausschnitte“ beantwortet: ganze 60 s. In C20 sind jetzt 8 statt 3 Reprise-Zeilen eingetragen (VO_C20_004 … 011).
+
+---
+
 > **Intern – enthält das C20-Geheimnis. Nicht nach außen geben.**
 
 ## Das Problem in einem Satz
@@ -54,7 +66,8 @@ Soll 20-B die **ganzen** 60 s von 00-B + 00-C zeigen (dann wären alle 8 Zeilen 
 - Wenn beim Animatic sichtbar wird, dass der Rahmen wie „neu gedrehtes Leben“ wirkt, wird auf Lösung 1 gekürzt.
 - C00 bleibt unverändert, der Prolog bleibt bei 3:00.
 
-## Was Manuel entscheiden muss
-1. Welche Lösung (1, 2, 3 oder 4)?
-2. Ganze 60 s von 00-B + 00-C in 20-B, oder nur Ausschnitte mit den 3 genannten Zeilen?
-3. Freigabe der Schwelle für den Bildvergleich (z. B. SSIM ≥ 0,99), falls das Rendering nicht pixelgleich ist.
+## Noch offen
+1. ~~Welche Lösung?~~ Entschieden: Lösung 2, volle 60 s.
+2. ~~Ganze 60 s oder Ausschnitte?~~ Entschieden: ganze 60 s, alle 8 Zeilen.
+3. Aufteilung der 15 s Übergang (Annahme 7,5 + 7,5 s).
+4. Freigabe der Schwelle für den Bildvergleich (z. B. SSIM ≥ 0,99), falls das Rendering nicht pixelgleich ist.
