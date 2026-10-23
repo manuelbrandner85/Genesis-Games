@@ -48,6 +48,7 @@ def main():
         "uv_map": len(me.uv_layers) == 1,
         "no_degenerate_triangles": bool((areas > 1e-10).all()),
         "max_4_corners": max(len(p.vertices) for p in me.polygons) <= 4,
+        "one_material": len(me.materials) == 1 and me.materials[0] is not None,
     }
     checks = {k: bool(v) for k, v in checks.items()}
     report = {

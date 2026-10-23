@@ -1,11 +1,15 @@
-"""G3 tech smoke asset: EUR pallet (EN 13698-1 outer dimensions 1200 x 800 x 144 mm).
+"""G3 tech smoke asset: used EUR pallet (EN 13698-1 outer dimensions 1200 x 800 x 144 mm).
 
-Run inside Blender (background):
+Background:
     blender -b --factory-startup --python tools/v4/g3/build_pallet.py -- --out <DIR> [--bake 4096]
+Visible session (step by step over MCP): import this file as a module and call
+    reset_scene(), build_geometry(), unwrap(), build_material(), enable_gpu(), bake_maps(), save_and_export().
 
-Builds the master mesh with real dimensions, bevels, nail heads and a procedural used-spruce
-material, unwraps UVs, bakes BaseColor / Roughness / Metallic / Normal for Unreal, saves the
-.blend master and exports the FBX. Neutral technical asset, no GENESIS canon content.
+Builds the master mesh with real dimensions, bevels, varied nail heads, chipped edges, end
+cracks, raised splinters and pressed-chip blocks; a procedural used-spruce material with wear
+(fork scuffs, grime in joints, deck dust, darker end grain, fresh wood in breaks); unwraps UVs,
+bakes BaseColor / ORM / Normal (DirectX) for Unreal, saves the .blend master and exports the
+FBX. Neutral technical asset, no GENESIS canon content.
 """
 import argparse
 import hashlib
@@ -17,6 +21,7 @@ from pathlib import Path
 import bmesh
 import bpy
 import numpy as np
+from mathutils import Euler, Matrix, Vector
 
 ASSET = "SM_TechSmoke_PalletEUR"
 MM = 0.001
@@ -30,7 +35,12 @@ TOP_BOARDS = ((-327.5, 145.0), (-163.75, 100.0), (0.0, 145.0), (163.75, 100.0), 
 BOTTOM_BOARDS = ((-350.0, 100.0), (0.0, 145.0), (350.0, 100.0))
 BLOCK_ROWS_Y = ((-350.0, 100.0), (0.0, 145.0), (350.0, 100.0))
 BEVEL = 1.5             # mm, sawn and handled softwood edges
-NAIL_D, NAIL_PROUD = 7.0, 0.3   # nail head diameter, height above the deck surface
+NAIL_D = 7.0            # nominal nail head diameter
+
+FLOAT_ATTRS = ("grain_axis", "part_rand", "is_nail", "is_chip", "fresh", "nail_rand")
+VECTOR_ATTRS = ("pith", "tilt")
+
+RNG = np.random.default_rng(13698)
 
 
 def parse_args():
@@ -42,7 +52,10 @@ def parse_args():
 
 
 def reset_scene():
-    bpy.ops.wm.read_factory_settings(use_empty=True)
+    if bpy.app.background:
+        bpy.ops.wm.read_factory_settings(use_empty=True)
+    else:
+        bpy.ops.wm.read_homefile(use_empty=True)
     s = bpy.context.scene
     s.unit_settings.system = "METRIC"
     s.unit_settings.scale_length = 1.0
@@ -50,72 +63,30 @@ def reset_scene():
     return s
 
 
-RNG = np.random.default_rng(13698)
+# --- Attributes ----------------------------------------------------------------------------------
+def set_attrs(me, values):
+    """Write one value per face for every material attribute (missing ones default to 0)."""
+    n = len(me.polygons)
+    for name in FLOAT_ATTRS:
+        attr = me.attributes.get(name) or me.attributes.new(name, "FLOAT", "FACE")
+        attr.data.foreach_set("value", [float(values.get(name, 0.0))] * n)
+    for name in VECTOR_ATTRS:
+        attr = me.attributes.get(name) or me.attributes.new(name, "FLOAT_VECTOR", "FACE")
+        attr.data.foreach_set("vector", list(values.get(name, (0.0, 0.0, 0.0))) * n)
 
 
-def box(name, cx, cy, z0, sx, sy, sz, grain_axis, rnd, bevel=BEVEL, is_nail=0.0, jitter=True):
-    """Box in mm with bevel baked in; tagged with face attributes for the material.
+def attrs_of(ob):
+    me = ob.data
+    return {**{n: me.attributes[n].data[0].value for n in FLOAT_ATTRS},
+            **{n: tuple(me.attributes[n].data[0].vector) for n in VECTOR_ATTRS}}
 
-    Hand-built pallets are not CAD-exact: each part gets a small width deviation, offset and
-    twist about Z (all inside the EN 13698-1 tolerance of +-3 mm on length and width).
-    Heights stay nominal so the deck stays flat and the measured height is exact.
-    """
-    across = sy if grain_axis == 0.0 else sx
-    d_w = float(np.clip(RNG.normal(0, 0.4), -0.6, 0.6)) if jitter else 0.0
-    off = RNG.normal(0, 0.5, 2).clip(-0.8, 0.8) if jitter else (0.0, 0.0)
-    twist = math.radians(float(np.clip(RNG.normal(0, 0.05), -0.08, 0.08))) if jitter else 0.0
-    if grain_axis == 0.0:
-        sy += d_w
-    else:
-        sx += d_w
+
+def new_object(name, bm):
     me = bpy.data.meshes.new(name)
-    bm = bmesh.new()
-    bmesh.ops.create_cube(bm, size=1.0)
-    c, s = math.cos(twist), math.sin(twist)
-    for v in bm.verts:
-        x, y = v.co.x * sx, v.co.y * sy
-        v.co.x = (cx + off[0] + x * c - y * s) * MM
-        v.co.y = (cy + off[1] + x * s + y * c) * MM
-        v.co.z = (z0 + (v.co.z + 0.5) * sz) * MM
     bm.to_mesh(me)
     bm.free()
     ob = bpy.data.objects.new(name, me)
     bpy.context.collection.objects.link(ob)
-    if bevel > 0:
-        mod = ob.modifiers.new("Bevel", "BEVEL")
-        mod.width = bevel * MM
-        mod.segments = 3
-        mod.limit_method = "NONE"
-        mod.harden_normals = True
-        bake_modifiers(ob)
-    tag(ob, grain_axis, rnd, is_nail)
-    # Grain space (length on X): pith of the log 4-20 cm beside/below the board centre, and a
-    # slight fibre slope along the length, which together give the arched (cathedral) figure.
-    centre_across = cy if grain_axis == 0.0 else cx
-    side = RNG.choice((-1.0, 1.0))
-    pith = (RNG.uniform(-5, 5), (centre_across + side * RNG.uniform(10, 60)) * MM, (z0 + sz * 0.5 + RNG.choice((-1, 1)) * RNG.uniform(40, 200)) * MM)
-    tilt = (0.0, RNG.normal(0, 0.025), RNG.normal(0, 0.025))
-    for name_, value in (("pith", pith), ("tilt", tilt)):
-        attr = ob.data.attributes.new(name_, "FLOAT_VECTOR", "FACE")
-        attr.data.foreach_set("vector", list(value) * len(ob.data.polygons))
-    return ob
-
-
-def cylinder(name, cx, cy, z0, d, h, rnd):
-    me = bpy.data.meshes.new(name)
-    bm = bmesh.new()
-    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=True, segments=16, radius1=d * 0.5 * MM, radius2=d * 0.5 * MM, depth=h * MM)
-    bmesh.ops.translate(bm, verts=bm.verts, vec=(cx * MM, cy * MM, (z0 + h * 0.5) * MM))
-    bm.to_mesh(me)
-    bm.free()
-    for p in me.polygons:
-        p.use_smooth = abs(p.normal.z) < 0.5
-    ob = bpy.data.objects.new(name, me)
-    bpy.context.collection.objects.link(ob)
-    tag(ob, 0.0, rnd, 1.0)
-    for name_ in ("pith", "tilt"):
-        attr = me.attributes.new(name_, "FLOAT_VECTOR", "FACE")
-        attr.data.foreach_set("vector", [0.0, 0.0, 0.0] * len(me.polygons))
     return ob
 
 
@@ -128,33 +99,229 @@ def bake_modifiers(ob):
     bpy.data.meshes.remove(old)
 
 
-def tag(ob, grain_axis, rnd, is_nail):
-    me = ob.data
-    for name, value in (("grain_axis", grain_axis), ("part_rand", rnd), ("is_nail", is_nail)):
-        attr = me.attributes.new(name, "FLOAT", "FACE")
-        attr.data.foreach_set("value", [value] * len(me.polygons))
+def bounds_mm(ob):
+    co = np.empty(len(ob.data.vertices) * 3)
+    ob.data.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3) / MM
+    return co.min(0), co.max(0)
 
 
+# --- Parts ---------------------------------------------------------------------------------------
+def box(name, cx, cy, z0, sx, sy, sz, grain_axis, bevel=BEVEL, is_chip=0.0):
+    """Box in mm with bevel baked in; tagged with face attributes for the material.
+
+    Hand-built pallets are not CAD-exact: each part gets a small width deviation, offset and
+    twist about Z (inside the EN 13698-1 tolerance of +-3 mm on length and width). Heights stay
+    nominal so the deck stays flat and the measured height is exact.
+    """
+    d_w = float(np.clip(RNG.normal(0, 0.4), -0.6, 0.6))
+    off = RNG.normal(0, 0.5, 2).clip(-0.8, 0.8)
+    twist = math.radians(float(np.clip(RNG.normal(0, 0.05), -0.08, 0.08)))
+    if grain_axis == 0.0:
+        sy += d_w
+    else:
+        sx += d_w
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    c, s = math.cos(twist), math.sin(twist)
+    for v in bm.verts:
+        x, y = v.co.x * sx, v.co.y * sy
+        v.co.x = (cx + off[0] + x * c - y * s) * MM
+        v.co.y = (cy + off[1] + x * s + y * c) * MM
+        v.co.z = (z0 + (v.co.z + 0.5) * sz) * MM
+    ob = new_object(name, bm)
+    mod = ob.modifiers.new("Bevel", "BEVEL")
+    mod.width = bevel * MM
+    mod.segments = 3
+    mod.limit_method = "NONE"
+    bake_modifiers(ob)
+    # Grain space (length on X): pith of the log 1-6 cm beside and 4-20 cm below/above the
+    # board centre, plus a slight fibre slope - together they give the arched (cathedral) figure.
+    centre_across = cy if grain_axis == 0.0 else cx
+    pith = (RNG.uniform(-5, 5), (centre_across + RNG.choice((-1, 1)) * RNG.uniform(10, 60)) * MM,
+            (z0 + sz * 0.5 + RNG.choice((-1, 1)) * RNG.uniform(40, 200)) * MM)
+    tilt = (0.0, RNG.normal(0, 0.025), RNG.normal(0, 0.025))
+    set_attrs(ob.data, {"grain_axis": grain_axis, "part_rand": RNG.random(), "is_chip": is_chip, "pith": pith, "tilt": tilt})
+    return ob
+
+
+def nail(name, cx, cy, top):
+    """Nail head: diameter, height above the deck, tilt and corrosion differ from nail to nail."""
+    d = RNG.uniform(6.4, 7.6)
+    proud = float(np.clip(RNG.gamma(1.6, 0.35), 0.05, 1.8))
+    tilt = math.radians(abs(RNG.normal(0, 3.5)))
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=True, segments=16, radius1=d * 0.5 * MM, radius2=d * 0.47 * MM, depth=(1.2 + proud) * MM)
+    bmesh.ops.translate(bm, verts=bm.verts, vec=(0, 0, (proud - (1.2 + proud) * 0.5) * MM))
+    rot = Euler((tilt, 0.0, RNG.uniform(0, math.tau))).to_matrix().to_4x4()
+    bmesh.ops.transform(bm, matrix=Matrix.Translation((cx * MM, cy * MM, top * MM)) @ rot, verts=bm.verts)
+    ob = new_object(name, bm)
+    for p in ob.data.polygons:
+        p.use_smooth = abs(p.normal.z) < 0.5
+    set_attrs(ob.data, {"is_nail": 1.0, "part_rand": RNG.random(), "nail_rand": RNG.random()})
+    return ob
+
+
+# --- Damage: chipped edges, end cracks, raised splinters -----------------------------------------
+def cutter_from(bm, part, fresh):
+    ob = new_object("cutter", bm)
+    vals = attrs_of(part)
+    vals["fresh"] = fresh
+    set_attrs(ob.data, vals)
+    return ob
+
+
+def chip_cutter(part, centre, radii):
+    """Irregular, faceted lump on an edge: removed by boolean, its faces become fresh wood.
+    Low subdivision + strong radial jitter gives the angular facets of split wood."""
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=1, radius=1.0)
+    for v in bm.verts:
+        v.co *= RNG.uniform(0.55, 1.2)
+    rot = Euler(RNG.uniform(-0.45, 0.45, 3)).to_matrix().to_4x4()
+    scale = Matrix.Diagonal((*[r * MM for r in radii], 1.0))
+    bmesh.ops.transform(bm, matrix=Matrix.Translation(Vector(centre) * MM) @ rot @ scale, verts=bm.verts)
+    return cutter_from(bm, part, 1.0)
+
+
+def edge_point(lo, hi, axis, ends, t):
+    """Point on the box edge running along `axis`, at the given min/max of the other two axes."""
+    p = [0.0, 0.0, 0.0]
+    others = [a for a in range(3) if a != axis]
+    for a, e in zip(others, ends):
+        p[a] = hi[a] if e else lo[a]
+    p[axis] = lo[axis] + t * (hi[axis] - lo[axis])
+    return p
+
+
+def chips(part, count, edges, along=(6, 20), across=(3, 8), t_range=(0.02, 0.98)):
+    lo, hi = bounds_mm(part)
+    out = []
+    for _ in range(count):
+        axis, ends = edges[RNG.integers(len(edges))]
+        t = RNG.uniform(*t_range) if RNG.random() < 0.5 else 1.0 - RNG.uniform(*t_range)
+        r = [0.0, 0.0, 0.0]
+        r[axis] = RNG.uniform(*along)
+        for a in range(3):
+            if a != axis:
+                r[a] = RNG.uniform(*across)
+        if attrs_of(part)["is_chip"] < 0.5:      # solid wood splits along the fibre
+            g = int(attrs_of(part)["grain_axis"])
+            r[g] = max(r[g], RNG.uniform(*along)) * RNG.uniform(1.4, 2.4)
+        out.append(chip_cutter(part, edge_point(lo, hi, axis, ends, t), r))
+    return out
+
+
+def end_crack(part):
+    """Drying/nailing crack running in from a board end along the grain, open at the top."""
+    lo, hi = bounds_mm(part)
+    sign = RNG.choice((-1, 1))
+    x_end = hi[0] if sign > 0 else lo[0]
+    y = lo[1] + RNG.uniform(0.25, 0.75) * (hi[1] - lo[1])
+    length, depth, gap = RNG.uniform(40, 170), RNG.uniform(6, 13), RNG.uniform(0.8, 1.8)
+    top = hi[2]
+    x_o, x_i = x_end + sign * 2.0, x_end - sign * length
+    bm = bmesh.new()
+    vs = [bm.verts.new(Vector(p) * MM) for p in (
+        (x_o, y - gap / 2, top + 1), (x_o, y + gap / 2, top + 1), (x_o, y, top - depth),
+        (x_i, y - 0.05, top + 1), (x_i, y + 0.05, top + 1), (x_i, y, top - 0.5))]
+    for f in ((0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)):
+        bm.faces.new([vs[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return cutter_from(bm, part, 0.35)
+
+
+def splinter(part, extras):
+    """A sliver peeled up from a top edge: the groove it left is cut out, the sliver is added."""
+    lo, hi = bounds_mm(part)
+    sign_y = RNG.choice((-1, 1))
+    y_edge = hi[1] if sign_y > 0 else lo[1]
+    length, width, thick = RNG.uniform(60, 140), RNG.uniform(4, 8), RNG.uniform(1.0, 1.6)
+    from_end = RNG.choice((-1, 1))
+    x0 = (hi[0] if from_end > 0 else lo[0]) - from_end * RNG.uniform(0, 30)
+    x1 = x0 - from_end * length
+    y0, y1 = sorted((y_edge, y_edge - sign_y * width))
+    top = hi[2]
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co.x = ((x0 + x1) / 2 + v.co.x * abs(x1 - x0)) * MM
+        v.co.y = ((y0 + y1) / 2 + v.co.y * (y1 - y0 + 0.6)) * MM
+        v.co.z = (top - thick + (v.co.z + 0.5) * (thick + 1.0)) * MM
+    groove = cutter_from(bm, part, 1.0)
+    # The sliver itself: same footprint, lifted at the free end (towards the board end).
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co.x = ((x0 + x1) / 2 + v.co.x * abs(x1 - x0)) * MM
+        v.co.y = ((y0 + y1) / 2 + v.co.y * (y1 - y0) * 0.92) * MM
+        v.co.z = (top - thick + (v.co.z + 0.5) * thick) * MM
+    lift = RNG.uniform(1.0, 2.2) / length
+    pivot = Vector((x1 * MM, (y0 + y1) / 2 * MM, top * MM))
+    rot = Matrix.Rotation(-from_end * math.atan(lift), 4, "Y") @ Matrix.Rotation(sign_y * math.radians(RNG.uniform(2, 6)), 4, "X")
+    bmesh.ops.transform(bm, matrix=Matrix.Translation(pivot) @ rot @ Matrix.Translation(-pivot), verts=bm.verts)
+    sliver = new_object("splinter", bm)
+    vals = attrs_of(part)
+    set_attrs(sliver.data, vals)
+    fresh = sliver.data.attributes["fresh"]
+    fresh.data.foreach_set("value", [1.0 if p.normal.z < -0.5 else 0.15 for p in sliver.data.polygons])
+    extras.append(sliver)
+    return groove
+
+
+def cut(part, cutters):
+    for c in cutters:
+        mod = part.modifiers.new("cut", "BOOLEAN")
+        mod.operation = "DIFFERENCE"
+        mod.solver = "EXACT"
+        mod.object = c
+        bake_modifiers(part)
+        bpy.data.objects.remove(c)
+
+
+# --- Assembly ------------------------------------------------------------------------------------
 def build_geometry():
-    rng = RNG
-    parts = []
+    parts, extras = [], []
     z_top = H - T_BOARD
     z_str = z_top - T_BOARD
     z_blk = z_str - H_BLOCK
+    # Edge sets: (axis the edge runs along, (min/max of the other two axes in order)).
+    long_top = [(0, (y, 1)) for y in (0, 1)]
+    long_all = [(0, (y, z)) for y in (0, 1) for z in (0, 1)]
+    ends = [(1, (x, 1)) for x in (0, 1)] + [(2, (x, y)) for x in (0, 1) for y in (0, 1)]
     for i, (y, w) in enumerate(TOP_BOARDS):
-        parts.append(box(f"top_{i}", 0, y, z_top, L, w, T_BOARD, 0.0, rng.random()))
+        p = box(f"top_{i}", 0, y, z_top, L, w, T_BOARD, 0.0)
+        cuts = chips(p, RNG.integers(1, 4), long_top, t_range=(0.0, 0.12)) + chips(p, RNG.integers(1, 3), ends)
+        if RNG.random() < 0.55:
+            cuts.append(end_crack(p))
+        if RNG.random() < 0.5:
+            cuts.append(splinter(p, extras))
+        cut(p, cuts)
+        parts.append(p)
     for i, x in enumerate(X_ROWS):
-        parts.append(box(f"stringer_{i}", x, 0, z_str, 145.0, W, T_BOARD, 1.0, rng.random()))
+        p = box(f"stringer_{i}", x, 0, z_str, 145.0, W, T_BOARD, 1.0)
+        cut(p, chips(p, RNG.integers(0, 2), [(1, (x_, 0)) for x_ in (0, 1)]))
+        parts.append(p)
         for j, (y, w) in enumerate(BLOCK_ROWS_Y):
-            parts.append(box(f"block_{i}{j}", x, y, z_blk, 145.0, w, H_BLOCK, 0.0, rng.random(), bevel=2.5))
+            b = box(f"block_{i}{j}", x, y, z_blk, 145.0, w, H_BLOCK, 0.0, bevel=2.0, is_chip=1.0)
+            # Pressed-chip blocks crumble at corners and along the bottom where forks hit them.
+            edges = [(2, (a, c)) for a in (0, 1) for c in (0, 1)] + [(0, (c, 0)) for c in (0, 1)] + [(1, (c, 0)) for c in (0, 1)]
+            cut(b, chips(b, RNG.integers(2, 5), edges, along=(5, 14), across=(2.5, 6)))
+            parts.append(b)
     for i, (y, w) in enumerate(BOTTOM_BOARDS):
-        parts.append(box(f"bottom_{i}", 0, y, 0.0, L, w, T_BOARD, 0.0, rng.random()))
+        p = box(f"bottom_{i}", 0, y, 0.0, L, w, T_BOARD, 0.0)
+        cuts = chips(p, RNG.integers(2, 5), long_all) + chips(p, RNG.integers(0, 2), ends)
+        if RNG.random() < 0.35:
+            cuts.append(end_crack(p))
+        cut(p, cuts)
+        parts.append(p)
     # Nail heads on the top deck: two per board/stringer crossing, slightly staggered.
     for bi, (y, w) in enumerate(TOP_BOARDS):
         for x in X_ROWS:
             for k, (dx, dy) in enumerate(((-38.0, -0.22 * w), (38.0, 0.22 * w))):
-                jitter = rng.normal(0, 1.5, 2)
-                parts.append(cylinder(f"nail_{bi}_{x}_{k}", x + dx + jitter[0], y + dy + jitter[1], H - 0.2, NAIL_D, 0.2 + NAIL_PROUD, rng.random()))
+                j = RNG.normal(0, 1.5, 2)
+                parts.append(nail(f"nail_{bi}_{x}_{k}", x + dx + j[0], y + dy + j[1], H))
+    parts += extras
     with bpy.context.temp_override(active_object=parts[0], selected_editable_objects=parts, object=parts[0]):
         bpy.ops.object.join()
     ob = parts[0]
@@ -166,6 +333,28 @@ def build_geometry():
     co[:, :2] -= (co[:, :2].max(0) + co[:, :2].min(0)) / 2
     ob.data.vertices.foreach_set("co", co.ravel())
     ob.data.update()
+    # Boolean seams leave slivers: weld near-duplicate points and dissolve zero-area faces.
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.02 * MM)
+    bmesh.ops.dissolve_degenerate(bm, edges=bm.edges, dist=0.02 * MM)
+    bm.to_mesh(ob.data)
+    bm.free()
+    # Clean shading: n-gons from the booleans triangulated (needed for tangents), sharp by
+    # angle, weighted normals so the large flat faces stay flat next to the bevels and breaks.
+    tri = ob.modifiers.new("Triangulate", "TRIANGULATE")
+    tri.min_vertices = 5
+    bake_modifiers(ob)
+    ob.data.set_sharp_from_angle(angle=math.radians(35))
+    wn = ob.modifiers.new("WeightedNormal", "WEIGHTED_NORMAL")
+    wn.keep_sharp = True
+    wn.weight = 50
+    bake_modifiers(ob)
+    ob.data.calc_loop_triangles()
+    areas = np.empty(len(ob.data.loop_triangles))
+    ob.data.loop_triangles.foreach_get("area", areas)
+    if (areas <= 1e-10).any():
+        raise RuntimeError(f"{int((areas <= 1e-10).sum())} degenerate triangles left after cleanup")
     return ob
 
 
@@ -189,218 +378,233 @@ def node(nt, kind, loc, **props):
     return n
 
 
+def map_range(nt, loc, src, a, b, c=0.0, d=1.0, smooth=False):
+    n = node(nt, "ShaderNodeMapRange", loc, interpolation_type="SMOOTHSTEP" if smooth else "LINEAR")
+    for k, v in (("From Min", a), ("From Max", b), ("To Min", c), ("To Max", d)):
+        n.inputs[k].default_value = v
+    nt.links.new(src, n.inputs["Value"])
+    return n.outputs["Result"]
+
+
+def math_op(nt, loc, op, a, b=None, c=None, clamp=False):
+    n = node(nt, "ShaderNodeMath", loc, operation=op, use_clamp=clamp)
+    for i, v in enumerate((a, b, c)):
+        if v is None:
+            continue
+        if isinstance(v, (int, float)):
+            n.inputs[i].default_value = v
+        else:
+            nt.links.new(v, n.inputs[i])
+    return n.outputs["Value"]
+
+
+def mix(nt, loc, fac, a, b, kind="RGBA", blend="MIX"):
+    n = node(nt, "ShaderNodeMix", loc, data_type=kind, blend_type=blend)
+    for sock, v in (("Factor", fac), ("A", a), ("B", b)):
+        if isinstance(v, (int, float, tuple)):
+            n.inputs[sock].default_value = (*v, 1.0) if isinstance(v, tuple) and len(v) == 3 else v
+        else:
+            nt.links.new(v, n.inputs[sock])
+    return n.outputs["Result"]
+
+
+def noise(nt, loc, vec, scale, detail=4.0, rough=0.5):
+    n = node(nt, "ShaderNodeTexNoise", loc)
+    n.inputs["Scale"].default_value = scale
+    n.inputs["Detail"].default_value = detail
+    n.inputs["Roughness"].default_value = rough
+    nt.links.new(vec, n.inputs["Vector"])
+    return n
+
+
+def vmul(nt, loc, vec, factors):
+    n = node(nt, "ShaderNodeVectorMath", loc, operation="MULTIPLY")
+    n.inputs[1].default_value = factors
+    nt.links.new(vec, n.inputs[0])
+    return n.outputs["Vector"]
+
+
+def assign_material(ob, mat):
+    """Exactly one material slot, every face on it (the UI session can leave an empty slot)."""
+    ob.data.materials.clear()
+    ob.data.materials.append(mat)
+    ob.data.polygons.foreach_set("material_index", [0] * len(ob.data.polygons))
+    ob.data.update()
+
+
 def build_material():
     mat = bpy.data.materials.new("M_TechSmoke_PalletWood")
     mat.use_nodes = True
     nt = mat.node_tree
     nt.nodes.clear()
     ln = nt.links.new
-    out = node(nt, "ShaderNodeOutputMaterial", (1600, 0))
-    bsdf = node(nt, "ShaderNodeBsdfPrincipled", (1300, 0))
+    out = node(nt, "ShaderNodeOutputMaterial", (2600, 0))
+    bsdf = node(nt, "ShaderNodeBsdfPrincipled", (2300, 0))
     bsdf.inputs["IOR"].default_value = 1.5
     ln(bsdf.outputs["BSDF"], out.inputs["Surface"])
 
-    tex = node(nt, "ShaderNodeTexCoord", (-1800, 0))
-    sep = node(nt, "ShaderNodeSeparateXYZ", (-1600, 0))
+    tex = node(nt, "ShaderNodeTexCoord", (-2000, 0))
+    geo = node(nt, "ShaderNodeNewGeometry", (-2000, -400))
+    sep = node(nt, "ShaderNodeSeparateXYZ", (-1800, 0))
     ln(tex.outputs["Object"], sep.inputs[0])
-    attr = {n: node(nt, "ShaderNodeAttribute", (-1800, -300 - 150 * i), attribute_name=n, attribute_type="GEOMETRY")
-            for i, n in enumerate(("grain_axis", "part_rand", "is_nail"))}
+    A = {n: node(nt, "ShaderNodeAttribute", (-2000, -700 - 150 * i), attribute_name=n, attribute_type="GEOMETRY")
+         for i, n in enumerate(FLOAT_ATTRS + VECTOR_ATTRS)}
+    fac = {n: A[n].outputs["Fac"] for n in FLOAT_ATTRS}
 
-    # Grain space: board length always on X; each part gets its own offset so boards differ.
-    swapped = node(nt, "ShaderNodeCombineXYZ", (-1400, 100))
+    # Grain space: board length always on X, relative to the log's pith, with fibre slope.
+    swapped = node(nt, "ShaderNodeCombineXYZ", (-1600, 100))
     ln(sep.outputs["Y"], swapped.inputs["X"]); ln(sep.outputs["X"], swapped.inputs["Y"]); ln(sep.outputs["Z"], swapped.inputs["Z"])
-    gsel = node(nt, "ShaderNodeMix", (-1200, 0), data_type="VECTOR")
-    ln(attr["grain_axis"].outputs["Fac"], gsel.inputs["Factor"])
-    ln(tex.outputs["Object"], gsel.inputs["A"]); ln(swapped.outputs["Vector"], gsel.inputs["B"])
-    # Grain space relative to the log's pith, with fibre slope: p' = p - pith + x * tilt.
-    pith = node(nt, "ShaderNodeAttribute", (-1400, -300), attribute_name="pith", attribute_type="GEOMETRY")
-    tilt = node(nt, "ShaderNodeAttribute", (-1400, -450), attribute_name="tilt", attribute_type="GEOMETRY")
-    rel = node(nt, "ShaderNodeVectorMath", (-1100, 0), operation="SUBTRACT")
-    ln(gsel.outputs["Result"], rel.inputs[0]); ln(pith.outputs["Vector"], rel.inputs[1])
-    gsep = node(nt, "ShaderNodeSeparateXYZ", (-1100, -250))
-    ln(gsel.outputs["Result"], gsep.inputs[0])
-    slope = node(nt, "ShaderNodeVectorMath", (-950, -250), operation="SCALE")
-    ln(tilt.outputs["Vector"], slope.inputs[0]); ln(gsep.outputs["X"], slope.inputs["Scale"])
-    gpos = node(nt, "ShaderNodeVectorMath", (-850, 0), operation="ADD")
-    ln(rel.outputs["Vector"], gpos.inputs[0]); ln(slope.outputs["Vector"], gpos.inputs[1])
+    gsel = mix(nt, (-1400, 0), fac["grain_axis"], tex.outputs["Object"], swapped.outputs["Vector"], "VECTOR")
+    rel = node(nt, "ShaderNodeVectorMath", (-1250, 0), operation="SUBTRACT")
+    ln(gsel, rel.inputs[0]); ln(A["pith"].outputs["Vector"], rel.inputs[1])
+    gsep = node(nt, "ShaderNodeSeparateXYZ", (-1250, -250))
+    ln(gsel, gsep.inputs[0])
+    slope = node(nt, "ShaderNodeVectorMath", (-1100, -250), operation="SCALE")
+    ln(A["tilt"].outputs["Vector"], slope.inputs[0]); ln(gsep.outputs["X"], slope.inputs["Scale"])
+    gpos_n = node(nt, "ShaderNodeVectorMath", (-1000, 0), operation="ADD")
+    ln(rel.outputs["Vector"], gpos_n.inputs[0]); ln(slope.outputs["Vector"], gpos_n.inputs[1])
+    gpos = gpos_n.outputs["Vector"]
 
-    # Medium: annual rings of spruce about 4-5 mm apart around the pith; where the sawn face
-    # cuts them at a shallow angle they open into arches. Distortion is stretched along the
-    # length so it wanders slowly, as in sawn timber.
-    ring_noise_v = node(nt, "ShaderNodeVectorMath", (-700, 450), operation="MULTIPLY")
-    ring_noise_v.inputs[1].default_value = (0.6, 4.0, 4.0)
-    ln(gpos.outputs["Vector"], ring_noise_v.inputs[0])
-    ring_noise = node(nt, "ShaderNodeTexNoise", (-550, 450))
-    ring_noise.inputs["Scale"].default_value = 1.5
-    ring_noise.inputs["Detail"].default_value = 2.0
-    ln(ring_noise_v.outputs["Vector"], ring_noise.inputs["Vector"])
-    warp = node(nt, "ShaderNodeVectorMath", (-400, 450), operation="MULTIPLY_ADD")
+    # Medium: annual rings of spruce ~4.5 mm apart around the pith, slowly wandering.
+    rn = noise(nt, (-800, 450), vmul(nt, (-900, 450), gpos, (0.6, 4.0, 4.0)), 1.5, 2.0)
+    warp = node(nt, "ShaderNodeVectorMath", (-650, 450), operation="MULTIPLY_ADD")
     warp.inputs[1].default_value = (0.0, 0.006, 0.006)
-    ln(ring_noise.outputs["Color"], warp.inputs[0]); ln(gpos.outputs["Vector"], warp.inputs[2])
-    rings = node(nt, "ShaderNodeTexWave", (-800, 200), wave_type="RINGS", rings_direction="X")
+    ln(rn.outputs["Color"], warp.inputs[0]); ln(gpos, warp.inputs[2])
+    rings = node(nt, "ShaderNodeTexWave", (-500, 300), wave_type="RINGS", rings_direction="X")
     rings.inputs["Scale"].default_value = 70.0
     rings.inputs["Distortion"].default_value = 0.0
     ln(warp.outputs["Vector"], rings.inputs["Vector"])
-    ring_sharp = node(nt, "ShaderNodeMapRange", (-600, 200), interpolation_type="SMOOTHSTEP")
-    ring_sharp.inputs["From Min"].default_value = 0.35
-    ring_sharp.inputs["From Max"].default_value = 0.85
-    ln(rings.outputs["Fac"], ring_sharp.inputs["Value"])
+    ring = map_range(nt, (-350, 300), rings.outputs["Fac"], 0.35, 0.85, smooth=True)
 
     # Micro: fibres stretched along the grain.
-    fib_vec = node(nt, "ShaderNodeVectorMath", (-800, -50), operation="MULTIPLY")
-    fib_vec.inputs[1].default_value = (3.0, 90.0, 90.0)
-    ln(gpos.outputs["Vector"], fib_vec.inputs[0])
-    fibres = node(nt, "ShaderNodeTexNoise", (-600, -50))
-    fibres.inputs["Scale"].default_value = 4.0
-    fibres.inputs["Detail"].default_value = 6.0
-    fibres.inputs["Roughness"].default_value = 0.6
-    ln(fib_vec.outputs["Vector"], fibres.inputs["Vector"])
+    fibres = noise(nt, (-650, 0), vmul(nt, (-800, 0), gpos, (3.0, 90.0, 90.0)), 4.0, 6.0, 0.6)
 
-    # Wood colour: early/late wood of spruce, per-part tone shift.
-    wood = node(nt, "ShaderNodeMix", (-300, 250), data_type="RGBA")
-    wood.inputs["A"].default_value = (0.43, 0.32, 0.20, 1)   # early wood, linear
-    wood.inputs["B"].default_value = (0.33, 0.235, 0.135, 1)  # late wood, low contrast as in spruce
-    ln(ring_sharp.outputs["Result"], wood.inputs["Factor"])
-    fibre_tone = node(nt, "ShaderNodeMix", (-100, 250), data_type="RGBA", blend_type="MULTIPLY")
-    fibre_tone.inputs["Factor"].default_value = 0.18
-    ln(wood.outputs["Result"], fibre_tone.inputs["A"]); ln(fibres.outputs["Color"], fibre_tone.inputs["B"])
-    part_tone = node(nt, "ShaderNodeHueSaturation", (100, 250))
-    pr_hue = node(nt, "ShaderNodeMapRange", (-100, 450))
-    pr_hue.inputs["To Min"].default_value = 0.485
-    pr_hue.inputs["To Max"].default_value = 0.515
-    ln(attr["part_rand"].outputs["Fac"], pr_hue.inputs["Value"])
-    pr_val = node(nt, "ShaderNodeMapRange", (-100, 600))
-    pr_val.inputs["To Min"].default_value = 0.85
-    pr_val.inputs["To Max"].default_value = 1.12
-    ln(attr["part_rand"].outputs["Fac"], pr_val.inputs["Value"])
-    ln(pr_hue.outputs["Result"], part_tone.inputs["Hue"]); ln(pr_val.outputs["Result"], part_tone.inputs["Value"])
-    ln(fibre_tone.outputs["Result"], part_tone.inputs["Color"])
+    # Spruce colour, per-part tone, knots.
+    wood = mix(nt, (-150, 300), ring, (0.43, 0.32, 0.20), (0.33, 0.235, 0.135))
+    wood = mix(nt, (0, 300), 0.18, wood, fibres.outputs["Color"], blend="MULTIPLY")
+    tone = node(nt, "ShaderNodeHueSaturation", (150, 300))
+    ln(map_range(nt, (0, 500), fac["part_rand"], 0, 1, 0.485, 0.515), tone.inputs["Hue"])
+    ln(map_range(nt, (0, 650), fac["part_rand"], 0, 1, 0.85, 1.12), tone.inputs["Value"])
+    ln(wood, tone.inputs["Color"])
+    vor = node(nt, "ShaderNodeTexVoronoi", (-500, 800))
+    ln(vmul(nt, (-650, 800), gpos, (5.0, 24.0, 24.0)), vor.inputs["Vector"])
+    kpick = node(nt, "ShaderNodeSeparateColor", (-350, 950))
+    ln(vor.outputs["Color"], kpick.inputs[0])
+    knot = math_op(nt, (-50, 850), "MULTIPLY", map_range(nt, (-200, 800), vor.outputs["Distance"], 0.16, 0.08, smooth=True),
+                   math_op(nt, (-200, 950), "GREATER_THAN", kpick.outputs["Red"], 0.88))
+    spruce = mix(nt, (300, 400), knot, tone.outputs["Color"], (0.13, 0.065, 0.03))
 
-    # Macro weathering: UV-greyed softwood, patchy, stronger on some boards.
-    weather_n = node(nt, "ShaderNodeTexNoise", (-300, -350))
-    weather_n.inputs["Scale"].default_value = 2.2
-    weather_n.inputs["Detail"].default_value = 4.0
-    ln(gpos.outputs["Vector"], weather_n.inputs["Vector"])
-    weather = node(nt, "ShaderNodeMapRange", (-100, -350))
-    weather.inputs["From Min"].default_value = 0.35
-    weather.inputs["From Max"].default_value = 0.75
-    weather.inputs["To Min"].default_value = 0.08
-    weather.inputs["To Max"].default_value = 0.42
-    ln(weather_n.outputs["Fac"], weather.inputs["Value"])
-    # Boards of a used pallet differ in age (repairs): some greyed far more than others.
+    # Pressed-chip blocks: dense small flakes (4-12 mm), flattened by the press so they read
+    # elongated on the side faces; two flake layers, low contrast, rare dark bark bits.
+    cn = noise(nt, (-800, 1200), tex.outputs["Object"], 60.0, 3.0)
+    cwarp = node(nt, "ShaderNodeVectorMath", (-700, 1300), operation="MULTIPLY_ADD")
+    cwarp.inputs[1].default_value = (0.0025, 0.0025, 0.0025)
+    ln(cn.outputs["Color"], cwarp.inputs[0]); ln(vmul(nt, (-850, 1350), tex.outputs["Object"], (1.0, 1.0, 2.6)), cwarp.inputs[2])
+    chipv = node(nt, "ShaderNodeTexVoronoi", (-550, 1200))
+    chipv.inputs["Scale"].default_value = 140.0
+    ln(cwarp.outputs["Vector"], chipv.inputs["Vector"])
+    chipv2 = node(nt, "ShaderNodeTexVoronoi", (-550, 1400))
+    chipv2.inputs["Scale"].default_value = 260.0
+    ln(cwarp.outputs["Vector"], chipv2.inputs["Vector"])
+    cpick = node(nt, "ShaderNodeSeparateColor", (-400, 1250))
+    ln(chipv.outputs["Color"], cpick.inputs[0])
+    cpick2 = node(nt, "ShaderNodeSeparateColor", (-400, 1450))
+    ln(chipv2.outputs["Color"], cpick2.inputs[0])
+    # One dominant flake layer with hard cell borders (each flake its own tone), the finer
+    # layer only nudges it; a thin dark seam where flakes meet (glue line / gap).
+    flake = math_op(nt, (-250, 1300), "MULTIPLY_ADD", cpick.outputs["Red"], 0.8, math_op(nt, (-250, 1450), "MULTIPLY", cpick2.outputs["Red"], 0.2))
+    chipcol = mix(nt, (-100, 1250), flake, (0.24, 0.17, 0.10), (0.52, 0.40, 0.25))
+    seam = map_range(nt, (-250, 1150), chipv.outputs["Distance"], 0.0, 0.06, 0.45, 0.0)
+    chipcol = mix(nt, (-50, 1150), seam, chipcol, (0.12, 0.085, 0.05))
+    bark = math_op(nt, (-150, 1500), "GREATER_THAN", cpick2.outputs["Green"], 0.965)
+    chipcol = mix(nt, (0, 1300), math_op(nt, (-50, 1500), "MULTIPLY", bark, 0.8), chipcol, (0.13, 0.095, 0.06))
+    chipcol = mix(nt, (150, 1300), 0.12, chipcol, noise(nt, (0, 1450), tex.outputs["Object"], 900.0, 2.0).outputs["Color"], blend="MULTIPLY")
+    species = mix(nt, (450, 500), fac["is_chip"], spruce, chipcol)
+
+    # End grain: faces looking along the grain soak up dirt and read darker and rougher.
+    nsep = node(nt, "ShaderNodeSeparateXYZ", (-1800, -400))
+    ln(geo.outputs["Normal"], nsep.inputs[0])
+    n_along = mix(nt, (-1600, -400), fac["grain_axis"], nsep.outputs["X"], nsep.outputs["Y"], "FLOAT")
+    endgrain = math_op(nt, (-1250, -500), "MULTIPLY", map_range(nt, (-1400, -400), math_op(nt, (-1500, -400), "ABSOLUTE", n_along), 0.75, 0.92),
+                       math_op(nt, (-1400, -550), "SUBTRACT", 1.0, fac["is_chip"]))
+    species = mix(nt, (600, 500), math_op(nt, (450, 650), "MULTIPLY", endgrain, 0.32), species, (0.0, 0.0, 0.0))
+
+    # Macro weathering: greyed softwood, patchy, boards differ in age (repairs).
+    weather = map_range(nt, (-100, -350), noise(nt, (-300, -350), gpos, 2.2, 4.0).outputs["Fac"], 0.35, 0.75, 0.08, 0.42)
     age = node(nt, "ShaderNodeMath", (100, -450), operation="MULTIPLY_ADD", use_clamp=True)
-    ln(attr["part_rand"].outputs["Fac"], age.inputs[0])
-    age.inputs[1].default_value = 0.35
-    ln(weather.outputs["Result"], age.inputs[2])
+    ln(fac["part_rand"], age.inputs[0]); age.inputs[1].default_value = 0.35; ln(weather, age.inputs[2])
+    col = mix(nt, (750, 400), age.outputs["Value"], species, (0.25, 0.24, 0.225))
 
-    # Medium: knots - small dark ovals, stretched along the grain, sparse.
-    knot_v = node(nt, "ShaderNodeVectorMath", (-700, 700), operation="MULTIPLY")
-    knot_v.inputs[1].default_value = (5.0, 24.0, 24.0)
-    ln(gpos.outputs["Vector"], knot_v.inputs[0])
-    vor = node(nt, "ShaderNodeTexVoronoi", (-550, 700))
-    vor.inputs["Scale"].default_value = 1.0
-    ln(knot_v.outputs["Vector"], vor.inputs["Vector"])
-    knot_core = node(nt, "ShaderNodeMapRange", (-350, 700), interpolation_type="SMOOTHSTEP")
-    knot_core.inputs["From Min"].default_value = 0.16
-    knot_core.inputs["From Max"].default_value = 0.08
-    ln(vor.outputs["Distance"], knot_core.inputs["Value"])
-    knot_pick = node(nt, "ShaderNodeSeparateColor", (-350, 850))
-    ln(vor.outputs["Color"], knot_pick.inputs[0])
-    knot_sel = node(nt, "ShaderNodeMath", (-200, 850), operation="GREATER_THAN")
-    knot_sel.inputs[1].default_value = 0.88
-    ln(knot_pick.outputs["Red"], knot_sel.inputs[0])
-    knot = node(nt, "ShaderNodeMath", (-50, 750), operation="MULTIPLY")
-    ln(knot_core.outputs["Result"], knot.inputs[0]); ln(knot_sel.outputs["Value"], knot.inputs[1])
-    knot_mix = node(nt, "ShaderNodeMix", (200, 400), data_type="RGBA")
-    knot_mix.inputs["B"].default_value = (0.13, 0.065, 0.03, 1)
-    ln(knot.outputs["Value"], knot_mix.inputs["Factor"]); ln(part_tone.outputs["Color"], knot_mix.inputs["A"])
+    # Ground dirt rising from the bottom, stains, grime in joints and corners (AO).
+    zfade = map_range(nt, (-100, -600), sep.outputs["Z"], 0.0, 0.11, 0.55, 0.0)
+    stain = map_range(nt, (-100, -800), noise(nt, (-300, -800), tex.outputs["Object"], 9.0, 3.0).outputs["Fac"], 0.56, 0.70, 0.0, 0.4, smooth=True)
+    ao = node(nt, "ShaderNodeAmbientOcclusion", (-300, -1050), samples=16, only_local=True)
+    ao.inputs["Distance"].default_value = 0.035
+    grime = map_range(nt, (-100, -1050), ao.outputs["AO"], 0.85, 0.35, 0.0, 0.65)
+    dirt_amt = math_op(nt, (150, -800), "ADD", math_op(nt, (100, -650), "ADD", zfade, stain, clamp=True), grime, clamp=True)
+    col = mix(nt, (900, 400), dirt_amt, col, (0.075, 0.06, 0.045))
 
-    grey = node(nt, "ShaderNodeMix", (300, 250), data_type="RGBA")
-    grey.inputs["B"].default_value = (0.25, 0.24, 0.225, 1)
-    ln(age.outputs["Value"], grey.inputs["Factor"])
-    ln(knot_mix.outputs["Result"], grey.inputs["A"])
+    # Vertical faces: rain/drip streaks running down; low down: fork-tine scuffs (rubber/steel).
+    vertical = map_range(nt, (-1400, -700), math_op(nt, (-1500, -700), "ABSOLUTE", nsep.outputs["Z"]), 0.35, 0.15)
+    drips = map_range(nt, (-100, -1250), noise(nt, (-300, -1250), vmul(nt, (-450, -1250), tex.outputs["Object"], (28.0, 28.0, 1.2)), 3.0, 3.0).outputs["Fac"], 0.55, 0.7, 0.0, 0.3)
+    col = mix(nt, (1050, 400), math_op(nt, (150, -1250), "MULTIPLY", drips, vertical), col, (0.12, 0.10, 0.08))
+    low = map_range(nt, (-100, -1450), sep.outputs["Z"], 0.115, 0.09)
+    scuff_n = map_range(nt, (-100, -1600), noise(nt, (-300, -1600), vmul(nt, (-450, -1600), tex.outputs["Object"], (1.5, 1.5, 45.0)), 4.0, 5.0).outputs["Fac"], 0.6, 0.72, 0.0, 0.75)
+    scuff = math_op(nt, (300, -1500), "MULTIPLY", math_op(nt, (150, -1500), "MULTIPLY", scuff_n, low), vertical)
+    col = mix(nt, (1200, 400), scuff, col, (0.075, 0.073, 0.07))
 
-    # Medium: ground dirt rising from the bottom deck, plus scattered stains.
-    zfade = node(nt, "ShaderNodeMapRange", (-100, -600))
-    zfade.inputs["From Min"].default_value = 0.0
-    zfade.inputs["From Max"].default_value = 0.11
-    zfade.inputs["To Min"].default_value = 0.55
-    zfade.inputs["To Max"].default_value = 0.0
-    ln(sep.outputs["Z"], zfade.inputs["Value"])
-    stain_n = node(nt, "ShaderNodeTexNoise", (-300, -800))
-    stain_n.inputs["Scale"].default_value = 9.0
-    stain_n.inputs["Detail"].default_value = 3.0
-    ln(tex.outputs["Object"], stain_n.inputs["Vector"])
-    stain = node(nt, "ShaderNodeMapRange", (-100, -800), interpolation_type="SMOOTHSTEP")
-    stain.inputs["From Min"].default_value = 0.56
-    stain.inputs["From Max"].default_value = 0.70
-    stain.inputs["To Max"].default_value = 0.4
-    ln(stain_n.outputs["Fac"], stain.inputs["Value"])
-    dirt_amt = node(nt, "ShaderNodeMath", (100, -650), operation="ADD", use_clamp=True)
-    ln(zfade.outputs["Result"], dirt_amt.inputs[0]); ln(stain.outputs["Result"], dirt_amt.inputs[1])
-    dirt = node(nt, "ShaderNodeMix", (500, 250), data_type="RGBA")
-    dirt.inputs["B"].default_value = (0.085, 0.068, 0.05, 1)
-    ln(dirt_amt.outputs["Value"], dirt.inputs["Factor"]); ln(grey.outputs["Result"], dirt.inputs["A"])
+    # Top deck: dust and boot traffic, lighter and matter.
+    up = map_range(nt, (-1400, -850), nsep.outputs["Z"], 0.8, 0.95)
+    high = map_range(nt, (-100, -1800), sep.outputs["Z"], 0.13, 0.14)
+    dust_n = map_range(nt, (-100, -1950), noise(nt, (-300, -1950), tex.outputs["Object"], 3.5, 5.0, 0.6).outputs["Fac"], 0.5, 0.7, 0.0, 0.45, smooth=True)
+    dust = math_op(nt, (300, -1850), "MULTIPLY", math_op(nt, (150, -1850), "MULTIPLY", up, high), dust_n)
+    col = mix(nt, (1350, 400), dust, col, (0.33, 0.315, 0.29))
 
-    # Nails: plain steel with light rust.
-    rust_n = node(nt, "ShaderNodeTexNoise", (300, -1000))
-    rust_n.inputs["Scale"].default_value = 900.0
-    rust_n.inputs["Detail"].default_value = 2.0
-    ln(tex.outputs["Object"], rust_n.inputs["Vector"])
-    rust = node(nt, "ShaderNodeMapRange", (500, -1000))
-    rust.inputs["From Min"].default_value = 0.45
-    rust.inputs["From Max"].default_value = 0.65
-    ln(rust_n.outputs["Fac"], rust.inputs["Value"])
-    steel = node(nt, "ShaderNodeMix", (700, -800), data_type="RGBA")
-    steel.inputs["A"].default_value = (0.56, 0.57, 0.58, 1)
-    steel.inputs["B"].default_value = (0.20, 0.085, 0.035, 1)
-    ln(rust.outputs["Result"], steel.inputs["Factor"])
-    base = node(nt, "ShaderNodeMix", (900, 250), data_type="RGBA")
-    ln(attr["is_nail"].outputs["Fac"], base.inputs["Factor"])
-    ln(dirt.outputs["Result"], base.inputs["A"]); ln(steel.outputs["Result"], base.inputs["B"])
-    ln(base.outputs["Result"], bsdf.inputs["Base Color"])
+    # Convex edges rubbed by handling: slightly lighter and smoother.
+    ao_in = node(nt, "ShaderNodeAmbientOcclusion", (-300, -2150), samples=16, inside=True, only_local=True)
+    ao_in.inputs["Distance"].default_value = 0.006
+    edge = math_op(nt, (300, -2150), "MULTIPLY", map_range(nt, (-100, -2150), ao_in.outputs["AO"], 0.9, 0.6, 0.0, 0.5), math_op(nt, (150, -2250), "SUBTRACT", 1.0, fac["is_chip"]))
+    col = mix(nt, (1500, 400), edge, col, (0.40, 0.33, 0.24))
 
-    not_rust = node(nt, "ShaderNodeMath", (700, -1100), operation="SUBTRACT")
-    not_rust.inputs[0].default_value = 1.0
-    ln(rust.outputs["Result"], not_rust.inputs[1])
-    metallic = node(nt, "ShaderNodeMath", (900, -1100), operation="MULTIPLY")
-    ln(attr["is_nail"].outputs["Fac"], metallic.inputs[0]); ln(not_rust.outputs["Value"], metallic.inputs[1])
-    ln(metallic.outputs["Value"], bsdf.inputs["Metallic"])
+    # Fresh wood in chips, cracks and under splinters: little weathering, brighter, rougher.
+    fresh_col = mix(nt, (1500, 650), 0.6, species, (0.50, 0.38, 0.24))
+    fresh_dirty = mix(nt, (1650, 650), math_op(nt, (1500, 800), "MULTIPLY", dirt_amt, 0.5), fresh_col, (0.10, 0.08, 0.06))
+    col = mix(nt, (1700, 400), math_op(nt, (1550, 250), "MULTIPLY", fac["fresh"], 0.9), col, fresh_dirty)
 
-    # Roughness: raw softwood 0.62-0.85, matter where weathered/dirty, nails 0.45 (rust 0.85).
-    rough_w = node(nt, "ShaderNodeMapRange", (500, -300))
-    rough_w.inputs["From Min"].default_value = 0.38
-    rough_w.inputs["From Max"].default_value = 0.62
-    rough_w.inputs["To Min"].default_value = 0.56
-    rough_w.inputs["To Max"].default_value = 0.80
-    ln(fibres.outputs["Fac"], rough_w.inputs["Value"])
-    rough_d = node(nt, "ShaderNodeMath", (700, -300), operation="MULTIPLY_ADD", use_clamp=True)
-    ln(weather.outputs["Result"], rough_d.inputs[0])
-    rough_d.inputs[1].default_value = 0.15
-    ln(rough_w.outputs["Result"], rough_d.inputs[2])
-    rough_n = node(nt, "ShaderNodeMix", (700, -500), data_type="FLOAT")
-    rough_n.inputs["A"].default_value = 0.45
-    rough_n.inputs["B"].default_value = 0.85
-    ln(rust.outputs["Result"], rough_n.inputs["Factor"])
-    rough = node(nt, "ShaderNodeMix", (900, -300), data_type="FLOAT")
-    ln(attr["is_nail"].outputs["Fac"], rough.inputs["Factor"])
-    ln(rough_d.outputs["Value"], rough.inputs["A"]); ln(rough_n.outputs["Result"], rough.inputs["B"])
-    ln(rough.outputs["Result"], bsdf.inputs["Roughness"])
+    # Nails: steel, corrosion differs per nail.
+    rust_n = noise(nt, (1300, -1000), tex.outputs["Object"], 900.0, 2.0).outputs["Fac"]
+    rust_in = math_op(nt, (1450, -1100), "ADD", rust_n, math_op(nt, (1450, -1200), "MULTIPLY", math_op(nt, (1350, -1250), "SUBTRACT", fac["nail_rand"], 0.5), 0.4))
+    rust = map_range(nt, (1600, -1000), rust_in, 0.5, 0.72)
+    steel = mix(nt, (1750, -800), rust, (0.56, 0.57, 0.58), (0.14, 0.075, 0.04))
+    base = mix(nt, (1900, 250), fac["is_nail"], col, steel)
+    ln(base, bsdf.inputs["Base Color"])
+    metallic = math_op(nt, (1900, -1100), "MULTIPLY", fac["is_nail"], math_op(nt, (1750, -1100), "SUBTRACT", 1.0, rust))
+    ln(metallic, bsdf.inputs["Metallic"])
 
-    # Surface relief: fibres + ring edges (sawn softwood), nothing on the nails.
-    height = node(nt, "ShaderNodeMath", (700, -1300), operation="MULTIPLY_ADD")
-    ln(fibres.outputs["Fac"], height.inputs[0])
-    height.inputs[1].default_value = 0.7
-    ln(ring_sharp.outputs["Result"], height.inputs[2])
-    bump_amt = node(nt, "ShaderNodeMath", (900, -1500), operation="SUBTRACT")
-    bump_amt.inputs[0].default_value = 0.35
-    ln(attr["is_nail"].outputs["Fac"], bump_amt.inputs[1])
-    bump = node(nt, "ShaderNodeBump", (1100, -1300))
-    bump.inputs["Distance"].default_value = 0.0004
-    ln(bump_amt.outputs["Value"], bump.inputs["Strength"])
-    ln(height.outputs["Value"], bump.inputs["Height"])
+    # Roughness: raw softwood 0.56-0.80 + weathering; chip blocks 0.85; end grain and fresh
+    # breaks rougher; rubbed edges and scuffs smoother; dust matter; nails 0.45 / rust 0.85.
+    r = node(nt, "ShaderNodeMath", (900, -300), operation="MULTIPLY_ADD", use_clamp=True)
+    ln(weather, r.inputs[0]); r.inputs[1].default_value = 0.15
+    ln(map_range(nt, (700, -300), fibres.outputs["Fac"], 0.38, 0.62, 0.56, 0.80), r.inputs[2])
+    r = mix(nt, (1050, -300), fac["is_chip"], r.outputs["Value"], 0.86, "FLOAT")
+    r = math_op(nt, (1150, -400), "ADD", r, math_op(nt, (1050, -450), "MULTIPLY", endgrain, 0.08), clamp=True)
+    r = mix(nt, (1250, -300), fac["fresh"], r, 0.84, "FLOAT")
+    r = mix(nt, (1350, -300), edge, r, 0.5, "FLOAT")
+    r = mix(nt, (1450, -300), scuff, r, 0.45, "FLOAT")
+    r = math_op(nt, (1550, -300), "ADD", r, math_op(nt, (1450, -450), "MULTIPLY", dust, 0.25), clamp=True)
+    r_nail = mix(nt, (1650, -500), rust, 0.45, 0.85, "FLOAT")
+    ln(mix(nt, (1900, -300), fac["is_nail"], r, r_nail, "FLOAT"), bsdf.inputs["Roughness"])
+
+    # Relief: fibres + ring edges; torn fibres in fresh breaks; flake edges on chip blocks.
+    h = math_op(nt, (1500, -1300), "MULTIPLY_ADD", fibres.outputs["Fac"], 0.7, ring)
+    h = mix(nt, (1650, -1300), fac["is_chip"], h, map_range(nt, (1500, -1450), chipv.outputs["Distance"], 0.0, 0.08), "FLOAT")
+    strength = math_op(nt, (1800, -1500), "SUBTRACT", math_op(nt, (1650, -1500), "MULTIPLY_ADD", fac["fresh"], 0.45, 0.35), fac["is_nail"], clamp=True)
+    bump = node(nt, "ShaderNodeBump", (2100, -1300))
+    bump.inputs["Distance"].default_value = 0.0005
+    ln(strength, bump.inputs["Strength"]); ln(h, bump.inputs["Height"])
     ln(bump.outputs["Normal"], bsdf.inputs["Normal"])
-    return mat, metallic
+    metallic_node = metallic.node
+    return mat, metallic_node
 
 
 # --- Bake --------------------------------------------------------------------------------------
@@ -426,9 +630,13 @@ def enable_gpu(scene):
 def bake_maps(scene, ob, mat, metallic_node, size, tex_dir):
     nt = mat.node_tree
     target = nt.nodes.new("ShaderNodeTexImage")
-    target.location = (1600, -600)
+    target.location = (2600, -600)
+    for n in nt.nodes:
+        n.select = False
+    target.select = True                 # the UI session needs it selected as well as active
     nt.nodes.active = target
-    scene.cycles.samples = 16
+    ob.active_material_index = list(ob.data.materials).index(mat)
+    scene.cycles.samples = 64          # AO grime and edge masks need more than a few samples
     scene.render.bake.margin = 16
     scene.render.bake.margin_type = "EXTEND"
     bpy.context.view_layer.objects.active = ob
@@ -446,7 +654,7 @@ def bake_maps(scene, ob, mat, metallic_node, size, tex_dir):
     run("R", "ROUGHNESS", True)
     run("N_GL", "NORMAL", True, normal_space="TANGENT")
     # Metallic via a temporary emission route.
-    surface = nt.nodes["Material Output"].inputs["Surface"]
+    surface = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL").inputs["Surface"]   # name is localised in the UI
     old = surface.links[0].from_socket
     emit = nt.nodes.new("ShaderNodeEmission")
     nt.links.new(metallic_node.outputs["Value"], emit.inputs["Color"])
@@ -462,7 +670,7 @@ def bake_maps(scene, ob, mat, metallic_node, size, tex_dir):
         return a.reshape(size, size, 4)
 
     def save(arr, name, non_color):
-        img = bpy.data.images.new(name, size, size, alpha=False, is_data=non_color)
+        img = bpy.data.images.get(name + "_out") or bpy.data.images.new(name + "_out", size, size, alpha=False, is_data=non_color)
         img.colorspace_settings.name = "Non-Color" if non_color else "sRGB"
         img.pixels.foreach_set(arr.ravel())
         path = tex_dir / f"{name}.png"
@@ -472,7 +680,8 @@ def bake_maps(scene, ob, mat, metallic_node, size, tex_dir):
         return path
 
     files = {}
-    files["BC"] = save(px(out["BC"]), f"T_{ASSET}_BC", False)
+    bc_px = px(out["BC"])
+    files["BC"] = save(bc_px, f"T_{ASSET}_BC", False)
     rgh, met = px(out["R"]), px(out["M"])
     covered = uv_coverage(ob, size)
     orm = np.ones_like(rgh)
@@ -482,12 +691,14 @@ def bake_maps(scene, ob, mat, metallic_node, size, tex_dir):
     n = px(out["N_GL"])
     n[..., 1] = 1.0 - n[..., 1]          # OpenGL -> DirectX (Unreal) green channel
     files["N"] = save(n, f"T_{ASSET}_N", True)
-    bc = px(bpy.data.images[f"T_{ASSET}_BC"])[..., :3][covered]
+    bc = bc_px[..., :3][covered]
     r = rgh[..., 0][covered]
+    if bc.mean() < 0.05 or r.mean() < 0.05:
+        raise RuntimeError("Bake produced empty maps (no active image node?) - textures not valid")
     stats = {
         "uv_coverage": round(float(covered.mean()), 4),
-        "basecolor_srgb8_p5_mean_p95": [np.percentile(bc.mean(1), 5).round(3) * 255, bc.mean(1).mean().round(3) * 255, np.percentile(bc.mean(1), 95).round(3) * 255],
-        "roughness_p5_mean_p95": [round(float(np.percentile(r, 5)), 3), round(float(r.mean()), 3), round(float(np.percentile(r, 95)), 3)],
+        "basecolor_srgb8_p5_mean_p95": [np.percentile(bc.mean(1), 5) * 255, bc.mean(1).mean() * 255, np.percentile(bc.mean(1), 95) * 255],
+        "roughness_p5_mean_p95": [np.percentile(r, 5), r.mean(), np.percentile(r, 95)],
         "metallic_texel_share": round(float((met[..., 0][covered] > 0.5).mean()), 5),
     }
     stats = {k: ([round(float(x), 2) for x in v] if isinstance(v, list) else v) for k, v in stats.items()}
@@ -518,40 +729,43 @@ def uv_coverage(ob, size):
     return mask
 
 
-def main():
-    args = parse_args()
-    out = args.out.resolve()
-    tex_dir = out / "Textures"
-    exp_dir = out / "Export"
-    for d in (out, tex_dir, exp_dir):
-        d.mkdir(parents=True, exist_ok=True)
-    scene = reset_scene()
-    ob = build_geometry()
-    unwrap(ob)
-    mat, metallic_node = build_material()
-    ob.data.materials.append(mat)
-    device, gpus = enable_gpu(scene)
-    files, stats = bake_maps(scene, ob, mat, metallic_node, args.bake, tex_dir)
-
+def save_and_export(ob, out, files, stats, device, gpus, bake_size):
     blend = out / f"{ASSET}.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend), compress=True)
-    fbx = exp_dir / f"{ASSET}.fbx"
+    fbx = out / "Export" / f"{ASSET}.fbx"
     for o in bpy.context.view_layer.objects:
         o.select_set(o == ob)
     bpy.ops.export_scene.fbx(filepath=str(fbx), use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS",
                              mesh_smooth_type="FACE", use_tspace=True, use_custom_props=False, add_leaf_bones=False,
                              object_types={"MESH"}, path_mode="STRIP", bake_anim=False)
-
-    dims = [round(v / MM, 2) for v in ob.dimensions]
+    me = ob.data
+    fresh = np.empty(len(me.polygons))
+    me.attributes["fresh"].data.foreach_get("value", fresh)
     report = {
         "asset_id": ASSET, "blender": bpy.app.version_string, "device": device, "gpus": gpus,
-        "dimensions_mm_xyz": dims, "origin": "bottom centre (0,0,0)",
-        "verts": len(ob.data.vertices), "faces": len(ob.data.polygons), "uv_layers": [u.name for u in ob.data.uv_layers],
-        "bake_size": args.bake, "texture_stats": stats,
+        "dimensions_mm_xyz": [round(v / MM, 2) for v in ob.dimensions], "origin": "bottom centre (0,0,0)",
+        "verts": len(me.vertices), "faces": len(me.polygons), "fresh_break_faces": int((fresh > 0.5).sum()),
+        "uv_layers": [u.name for u in me.uv_layers], "bake_size": bake_size, "texture_stats": stats,
         "files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in [blend, fbx, *files.values()]},
     }
     (out / "build_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print("G3_BUILD_REPORT " + json.dumps(report))
+    return report
+
+
+def main():
+    args = parse_args()
+    out = args.out.resolve()
+    for d in (out, out / "Textures", out / "Export"):
+        d.mkdir(parents=True, exist_ok=True)
+    scene = reset_scene()
+    ob = build_geometry()
+    unwrap(ob)
+    mat, metallic_node = build_material()
+    assign_material(ob, mat)
+    device, gpus = enable_gpu(scene)
+    files, stats = bake_maps(scene, ob, mat, metallic_node, args.bake, out / "Textures")
+    save_and_export(ob, out, files, stats, device, gpus, args.bake)
 
 
 if __name__ == "__main__":

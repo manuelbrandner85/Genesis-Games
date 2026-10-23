@@ -6,36 +6,37 @@
     "NVIDIA GeForce RTX 5070"
   ],
   "dimensions_mm_xyz": [
-    1201.35,
-    801.8,
-    144.3
+    1202.09,
+    800.96,
+    145.84
   ],
   "origin": "bottom centre (0,0,0)",
-  "verts": 2940,
-  "faces": 3400,
+  "verts": 4188,
+  "faces": 5758,
+  "fresh_break_faces": 1129,
   "uv_layers": [
     "UVMap"
   ],
   "bake_size": 4096,
   "texture_stats": {
-    "uv_coverage": 0.8033,
+    "uv_coverage": 0.7982,
     "basecolor_srgb8_p5_mean_p95": [
-      100.22,
-      122.15,
-      138.72
+      86.33,
+      115.97,
+      138.0
     ],
     "roughness_p5_mean_p95": [
-      0.61,
-      0.71,
-      0.82
+      0.6,
+      0.72,
+      0.86
     ],
-    "metallic_texel_share": 0.00044
+    "metallic_texel_share": 0.00055
   },
   "files": {
-    "SM_TechSmoke_PalletEUR.blend": "337fa72c1ea50ea932ca4f8c3e79cf6c9f9129cab60cdae4b308c35606ad4120",
-    "SM_TechSmoke_PalletEUR.fbx": "d7dd6b1966faa5f20933a203d2375efb6fe2fa62d36200229c509fbe4a4d3a56",
-    "T_SM_TechSmoke_PalletEUR_BC.png": "331936e8dd744bfbe11ea3cb75f7fb2e4969640e70b2c595208a8bca4cccb0c3",
-    "T_SM_TechSmoke_PalletEUR_ORM.png": "ae8f80f8947461f6c4bcbda38a7d678ead0f4e956c1c2d8a80c9a9ea92d55038",
-    "T_SM_TechSmoke_PalletEUR_N.png": "048ff8461a0b71c87e4235387c106af02bd76e8e274c3a9a596ba6c7107e272d"
+    "SM_TechSmoke_PalletEUR.blend": "01b4cdb02e1f003d80a717c92a6bcfaf624e54a292d3aa65eeb337b95d37bde9",
+    "SM_TechSmoke_PalletEUR.fbx": "e53926f9be198902e2fc22477628b72c1d9ba5d086356556ad6c9eec7ae48ef0",
+    "T_SM_TechSmoke_PalletEUR_BC.png": "cde92fd61c91f6528ada578505cf258b19e22479409e759132570005a6355822",
+    "T_SM_TechSmoke_PalletEUR_ORM.png": "3d92ee058a7ac96be53938e6183404b6f98c4868daa4ca4c7712050eaacc2144",
+    "T_SM_TechSmoke_PalletEUR_N.png": "2f9ada95b90fc1717bb3b65f26ba506af8c5f5413a358b7454f20447c672d47f"
   }
 }

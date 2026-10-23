@@ -3,14 +3,14 @@
   "blender": "5.2.1 LTS",
   "object": "SM_TechSmoke_PalletEUR",
   "size_mm": [
-    1201.35,
-    801.8,
-    144.3
+    1202.09,
+    800.96,
+    145.84
   ],
-  "wood_top_mm": 144.0,
-  "verts": 2940,
-  "faces": 3400,
-  "triangles": 5680,
+  "wood_top_mm": 144.05,
+  "verts": 4188,
+  "faces": 5758,
+  "triangles": 8168,
   "uv_layers": [
     "UVMap"
   ],
@@ -24,7 +24,8 @@
     "unit_transform": true,
     "uv_map": true,
     "no_degenerate_triangles": true,
-    "max_4_corners": true
+    "max_4_corners": true,
+    "one_material": true
   },
   "passed": true
 }
