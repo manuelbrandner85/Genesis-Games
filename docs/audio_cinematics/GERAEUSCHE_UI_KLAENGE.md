@@ -5,7 +5,7 @@ Liste: `genesis_geraeusche_ui_klaenge.csv` – **77 Einträge**:
 - 24 V33-Cues (`15_V33_AUDIO_CUES_24.csv`, alle `DESIGN_ONLY`)
 - 18 Audio- und 21 UI-Anforderungen aus `226_VOLLSPIEL_ANFORDERUNGEN.csv` (alle `SPECIFIED_NOT_BUILT`)
 
-Spalten „Quelle“ und „Lizenz“ sind **leer = offen**. Es gibt noch keine einzige Audiodatei.
+Spalten „Quelle“ und „Lizenz“ nennen das **geplante** KI-Werkzeug (Sprache: ElevenLabs, 10 Einträge; sonst Stable Audio, 67 Einträge) mit Lizenz-URL und Prüfdatum. Es gibt noch keine einzige Audiodatei: Status je Zeile `SOURCE_MISSING`, `Authorization` = `NONE`, Rechte-ID `AUD-R09` bzw. `AUD-R17`. WorkID WK-M07-002 (Cues) / WK-M07-003 (UI).
 
 ## Lautheitsziele (Annahmen, bis Mastering-Vorgabe beschlossen ist)
 | Bereich | Ziel | Spitze |

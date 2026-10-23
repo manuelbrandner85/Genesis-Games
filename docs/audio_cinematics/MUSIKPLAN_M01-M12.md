@@ -1,5 +1,7 @@
 # Musikplan M01–M12
 
+WorkID: WK-M07-004 (neu vorgeschlagen, noch nicht im M00-Plan). QAEvidenceID: `EV-WK-M07-004`. Reviewer: `OFFEN`.
+
 > **Intern – enthält Details zu C19/C20.**
 > Quelle: Drehbuch, Abschnitt „E. Musik-/Sound-Cue-Sheet“, und die Klangregie der Szenen. **Instrumentierung und Stimmung sind Vorschläge (Annahmen)**, wo das Drehbuch nichts festlegt; sie müssen von Regie und Komposition bestätigt werden. Es wird keine fremde Musik verwendet. Zeiten sind Shot-Zeiten aus dem Drehbuch, ab Szenenbeginn, vorläufig.
 
@@ -33,7 +35,7 @@
 - C20: „Die ersten zwei Intervalle aus C00, C17 und den Lebenszyklen ergeben hörbar denselben Kern“; die „gesperrte Soul-Melodie wird beim Reveal vollständig lesbar“.
 
 **Widerspruch:** „zwei Töne“ (= ein Intervall) gegen „zwei Intervalle“ (= drei Töne).
-**Entscheidung (Annahme A-M1):** Der Kern ist **ein Paar aus zwei Tönen**. „Zwei Intervalle“ wird als „die zwei Töne des Intervalls“ gelesen. Die vollständige Soul-Melodie in C20 beginnt mit diesem Paar und führt es weiter.
+**Offene Kanon-Entscheidung A-M1 (Story & Kanon, Status `BLOCKED` bis Beschluss):** Arbeitsvorschlag, kein Beschluss: Der Kern ist **ein Paar aus zwei Tönen**. „Zwei Intervalle“ wird als „die zwei Töne des Intervalls“ gelesen. Die vollständige Soul-Melodie in C20 beginnt mit diesem Paar und führt es weiter.
 
 **Technische Regeln (Vorschlag)**
 1. Ein Master-Asset `SOUL_INTERVAL_CORE` (Tonhöhen, Dauer, Abstand) als Daten (MIDI + Notation), getrennt von `M03`.

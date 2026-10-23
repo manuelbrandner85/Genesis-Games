@@ -32,6 +32,17 @@ Quelle für alles: `GENESIS_ScriptLock_11_Drehbuch_v1.1.md` (Release `handover-v
 ## Annahmen im Paket 2 (Manuel: „mach alles automatisch“)
 - Untertitel: 42 Zeichen/Zeile, 2 Zeilen, 17 Zeichen/s (13 bei langsamem Lesetempo), 0,83–7 s Standzeit.
 - Lautheit: Gesamtmix -24 LUFS integriert, ≤ -1 dBTP; UI -26 LUFS, ≤ -3 dBTP.
-- Soul-Intervall: Kern = zwei Töne (Widerspruch „zwei Töne“/„zwei Intervalle“ im Drehbuch, Annahme A-M1).
+- Soul-Intervall: **offene Kanon-Entscheidung A-M1** (Widerspruch „zwei Töne“/„zwei Intervalle“ im Drehbuch). Arbeitsvorschlag „zwei Töne“, Beschluss durch Story & Kanon offen.
 - Instrumentierung im Musikplan ist Vorschlag, kein Kanon.
 - Zeitcodes der Bildschirmtexte: vorläufig/geschätzt; C02-„Zygote“ ohne Zeit (Shot-Zuordnung offen).
+
+## Anbindung an den M00-Plan
+| Datei | WorkID | QAEvidenceID | Status |
+|---|---|---|---|
+| `genesis_bildschirmtexte.csv`, `UNTERTITEL_REGELN.md` (Untertitel) | WK-M07-002 | `EV-WK-M07-002` | `PLANNED`, Aufnahmen `SOURCE_MISSING` |
+| `genesis_bildschirmtexte.csv` (Menü-/UI-Texte) | WK-M07-003 | `EV-WK-M07-003` | `PLANNED` |
+| `genesis_geraeusche_ui_klaenge.csv`, `GERAEUSCHE_UI_KLAENGE.md` | WK-M07-002 (Cues), WK-M07-003 (UI) | `EV-WK-M07-002` / `EV-WK-M07-003` | `SOURCE_MISSING` |
+| `MUSIKPLAN_M01-M12.md` | WK-M07-004 (neu vorgeschlagen) | `EV-WK-M07-004` | `PLANNED`; A-M1 `BLOCKED` (Kanon) |
+| `RECHTE_CHECKLISTE.md` | WK-M07-002 (Rechteteil) | `EV-WK-M07-002` | `BLOCKED` |
+
+SHA256 aller Dateien dieses Pakets: `docs/evidence/WK-M07-002/pr5_dateien.json`. Reviewer: `OFFEN`.

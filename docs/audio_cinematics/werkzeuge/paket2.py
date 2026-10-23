@@ -1,7 +1,16 @@
-# Erzeugt Bildschirmtext-Liste und Geräusch-/UI-Klang-Liste. Aufruf aus /workspace (braucht drehbuch.md und v62/).
-import csv,glob,re
-OUT='gg/docs/audio_cinematics/'
-D=open('drehbuch.md',encoding='utf-8').read().split('\n')
+# Erzeugt Bildschirmtext-Liste und Geräusch-/UI-Klang-Liste.
+# Aufruf: python3 paket2.py --drehbuch PFAD/GENESIS_ScriptLock_11_Drehbuch_v1.1.md --v62 PFAD/zum/entpackten/V62 [--out ZIELORDNER]
+# Standard für --out: der Ordner über diesem Skript (docs/audio_cinematics/).
+import csv,glob,re,argparse,hashlib,os,sys
+SCRIPTLOCK_SHA256='b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d'
+ap=argparse.ArgumentParser()
+ap.add_argument('--drehbuch',required=True);ap.add_argument('--v62',required=True)
+ap.add_argument('--out',default=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))
+a=ap.parse_args()
+h=hashlib.sha256(open(a.drehbuch,'rb').read()).hexdigest()
+if h!=SCRIPTLOCK_SHA256: sys.exit(f'ScriptLock-SHA256 falsch: {h}')
+OUT=os.path.join(a.out,'')
+D=open(a.drehbuch,encoding='utf-8').read().split('\n')
 def tc(s):
     f=round(s*24);return f"{f//86400:02d}:{f//1440%60:02d}:{f//24%60:02d}:{f%24:02d}"
 # --- 1) Bildschirmtexte: (Szene, Shot, Shot-Start s, Typ, Text, Zeile, Hinweis)
@@ -71,14 +80,14 @@ fast=[r[0] for r in S[1:] if r[ix['Start-Zeitcode']] and len(r[ix['Text']])/max(
 print('long',len(long),long);print('fast',len(fast),fast)
 # --- 3) Geräusche/UI
 X=[]
-V25=glob.glob('v62/x/*/04_PRODUKTIONSREGISTER/196_TESTSLICE_ASSETS.csv')[0]
+V25=glob.glob(a.v62+'/x/*/04_PRODUKTIONSREGISTER/196_TESTSLICE_ASSETS.csv')[0]
 for r in csv.DictReader(open(V25,encoding='utf-8-sig')):
     if r['Type']=='Sound':
         n=r['SourceName']
         if n.startswith('Amb_'): L,lu,bus='Loop 60–120 s, nahtlos','-30 LUFS (Loop, kurzfristig gemessen), ≤ -1 dBTP','AMBIENCE'
         else: L,lu,bus='One-Shots 0,2–0,6 s, mind. 8 Varianten je Untergrund','-24 LUFS (Referenz-Satz), ≤ -1 dBTP','FOLEY'
         X.append([r['AssetID'],'Testausschnitt VS01 (V25)',n,L,lu,bus,'NOT_CREATED','',''])
-V33=glob.glob('v62/inner/*/01_REGISTER/15_V33_AUDIO_CUES_24.csv')[0]
+V33=glob.glob(a.v62+'/inner/*/01_REGISTER/15_V33_AUDIO_CUES_24.csv')[0]
 for r in csv.DictReader(open(V33,encoding='utf-8-sig')):
     b=r['MixBus']
     if b.startswith('UI'): L,lu='0,1–0,8 s','-26 LUFS (One-Shot), ≤ -3 dBTP'
@@ -86,7 +95,7 @@ for r in csv.DictReader(open(V33,encoding='utf-8-sig')):
     elif b=='BLEND': L,lu='Übergang 2–6 s (Annahme)','kein eigener Pegel – Überblendung, ≤ -1 dBTP'
     else: L,lu='Loop/Schicht 30–90 s (Annahme)','-28 LUFS, ≤ -1 dBTP'
     X.append([r['CueID'],'V33 Gameplay-Cue ('+r['State']+')',r['DesignIntent']+' | Übergang: '+r['TransitionRule']+' | Verbot: '+r['Prohibition'],L,lu,b,r['Status'],'',''])
-V61=glob.glob('v62/x/*/04_PRODUKTIONSREGISTER/226_VOLLSPIEL_ANFORDERUNGEN.csv')[0]
+V61=glob.glob(a.v62+'/x/*/04_PRODUKTIONSREGISTER/226_VOLLSPIEL_ANFORDERUNGEN.csv')[0]
 for r in csv.DictReader(open(V61,encoding='utf-8-sig')):
     if r['Discipline'] in('Audio','UI'):
         a=r['Discipline']=='Audio'
@@ -94,7 +103,12 @@ for r in csv.DictReader(open(V61,encoding='utf-8-sig')):
           'je nach Szene (offen)' if a else 'UI-Klänge 0,1–0,8 s, falls nötig',
           'Szenenmix -24 LUFS integriert, ≤ -1 dBTP' if a else '-26 LUFS (One-Shot), ≤ -3 dBTP',
           'SCENE_MIX (offen)' if a else 'UI',r['State'],'',''])
+SA=('KI-generiert (geplant): Stable Audio, Stability AI','geplant: Stable Audio Commercial & Usage Licensing, https://kb.stability.ai/knowledge-base/stable-audio-commerical-and-usage-licensing (geprüft 23.10.2026)')
+EL=('KI-generiert (geplant): ElevenLabs (Text-to-Speech, Voice Design)','geplant: ElevenLabs Terms of Service EEA, bezahlter Tarif, https://elevenlabs.io/terms-of-use-eu (geprüft 23.10.2026)')
+for r in X:
+    voice=bool(re.search(r'Stimm|Ensemble|Sprach|Dialog|Voice',r[2])); q,l=EL if voice else SA
+    r[7]=q;r[8]=l;r[6]='SOURCE_MISSING (keine Datei; Paketstatus: '+r[6]+')';r+=['AUD-R09' if voice else 'AUD-R17','NONE']
 with open(OUT+'genesis_geraeusche_ui_klaenge.csv','w',encoding='utf-8',newline='') as f:
-    w=csv.writer(f,delimiter=';');w.writerow(['ID','Herkunft','Beschreibung','Länge (Annahme)','Lautheitsziel (Annahme)','Mix-Bus','Status im Paket','Quelle','Lizenz (leer = offen)']);w.writerows(X)
+    w=csv.writer(f,delimiter=';');w.writerow(['ID','Herkunft','Beschreibung','Länge (Annahme)','Lautheitsziel (Annahme)','Mix-Bus','Status','Quelle','Lizenz','Rechte-ID','Authorization']);w.writerows(X)
 from collections import Counter
 print('sfx',len(X),Counter(x[1].split(' (')[0] for x in X))
