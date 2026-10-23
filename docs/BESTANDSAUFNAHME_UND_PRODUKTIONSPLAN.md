@@ -41,8 +41,8 @@ Typ nach ScriptLock IV-B: A = fest, B = zustandsgebunden, C = Archiv-Replay, D =
 | C12 | Der Tisch der Jahre | N08 | Ankerort über Jahre | B | nur Drehbuch; braucht Replay-Snapshots |
 | C13 | Der Ort von damals | N08 | Kindheitsort Jahre später | B | nur Drehbuch |
 | C14 | Was bleibt? | N08 | Sterbeort | B | nur Drehbuch |
-| C15 | Kein Körper mehr | N09 | Dunkelraum → Erinnerungsraum | C | nur Drehbuch; **Konflikt CON33-01** |
-| C16 | Die andere Seite | N09/N10 | „Bibliothek“ → Erinnerungsort | C | nur Drehbuch; **Konflikt CON33-01** |
+| C15 | Kein Körper mehr | N09 | Dunkelraum → Erinnerungsraum | C | nur Drehbuch; CON33-01 entschieden (23.10.2026) |
+| C16 | Die andere Seite | N09/N10 | „Bibliothek“ → Erinnerungsort | C | nur Drehbuch; CON33-01 entschieden (23.10.2026) |
 | C17 | Ein neuer Herzschlag | N12 | Echo → neuer Anfang | D | nur Drehbuch |
 | C18 | Die vertraute Fremde | N12 | Alltagsort neues Leben | B | nur Drehbuch |
 | C19 | Wer spricht mit mir? | N13 | tiefere Echo-Ebene | A (geschützt) | nur Drehbuch |
@@ -146,7 +146,7 @@ Nur benötigte Spezialisten, nie zwei gleichzeitig im selben Editor:
 | Thema | Risiko | Benötigt |
 |---|---|---|
 | ScriptLock 1.1 nicht endfreigegeben | Kanon kann sich noch ändern | dein „JA zu Vorschlag 11“ (oder Änderungen) |
-| C15/C16 (CON33-01) | Drehbuch nennt „Bibliothek“ und „räumliche Architekturen“, die Vorgabe verbietet begehbare Bibliotheken/Architektur im Echo. Betrifft auch C17/C19 („Bibliothek“) | kreative Entscheidung von dir, Drehbuch bleibt bis dahin unverändert |
+| C15/C16 (CON33-01) | Drehbuch nennt „Bibliothek“ und „räumliche Architekturen“, die Vorgabe verbietet begehbare Bibliotheken/Architektur im Echo. Betrifft auch C17/C19 („Bibliothek“) | **entschieden 23.10.2026:** Räume und Bibliothek bleiben wie im ScriptLock, auch C17/C19; V20A-Ausnahme, siehe docs/kanon/BESCHLUESSE.md |
 | Altes Repo nicht erreichbar | ScriptLock verweist auf `Docs/*.md` und einen 121,5-s-Vorfilm des alten Repos, die hier fehlen | ggf. Zugang oder Bestätigung, dass sie entfallen |
 | Epochenumfang | ohne Entscheidung keine Epochen-Assets | Entscheidung, welche Epochen spielbar sind |
 | Missionsdetails J00–J24 | Titel laut Register „aus Quellenpaket übernehmen“, V61-Kette nicht vollständig ausgewertet | Auswertung der eingebetteten Quell-ZIPs (lesen) |
