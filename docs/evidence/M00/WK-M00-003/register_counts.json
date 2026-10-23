@@ -1,0 +1,97 @@
+{
+  "evidence_id": "M00-EV-005",
+  "work_id": "WK-M00-003",
+  "status": "FILE_VALIDATED",
+  "reviewer": "OFFEN",
+  "counted_on": "2026-10-23",
+  "method": "Datenzeilen je CSV, Kodierung utf-8-sig, Kopfzeile nicht mitgezählt. Kein Unreal-Lauf, kein Blender-Lauf.",
+  "phases": 17,
+  "requirements": 226,
+  "vs01_assets": 196,
+  "glb": 38,
+  "animations": 40,
+  "missions": 43,
+  "shots": 113,
+  "scenes": 22,
+  "scene_packages": 31,
+  "v60_gaps": 36,
+  "v60_gap_phase_rows": 71,
+  "v60_gap_ids_unique": 36,
+  "v61_tests": 390,
+  "rights_rows": 28,
+  "shot_scene_ids": 22,
+  "scriptlock_equal": true,
+  "scriptlock_sha256": "b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d",
+  "scriptlock_copies": [
+    "04_PRODUKTIONSREGISTER/SCRIPTLOCK_ORIGINAL_UNVERAENDERT.md",
+    "V61/00_QUELLEN_UNVERAENDERT/GENESIS_ScriptLock_11_Drehbuch_v1.1.md"
+  ],
+  "sources": {
+    "phases": {
+      "path": "04_PRODUKTIONSREGISTER/17_SPIELPHASEN_STATUS.csv",
+      "data_rows": 17,
+      "sha256": "f8733d4614ca90fc059af4e50cd6b69202ebfc51a3627d1dc37662d0e1111c25"
+    },
+    "requirements": {
+      "path": "04_PRODUKTIONSREGISTER/226_VOLLSPIEL_ANFORDERUNGEN.csv",
+      "data_rows": 226,
+      "sha256": "5a665bbcb801ad005e263f28442f18bf1c8b082c4b347b8b307e5c676617d5a0"
+    },
+    "vs01_assets": {
+      "path": "04_PRODUKTIONSREGISTER/196_TESTSLICE_ASSETS.csv",
+      "data_rows": 196,
+      "sha256": "3f7c6e9cb724f1077741063b355ad6c37652f3fe56c30d86e19157aaab38d349"
+    },
+    "glb": {
+      "path": "04_PRODUKTIONSREGISTER/38_GLB_QUELLEN.csv",
+      "data_rows": 38,
+      "sha256": "e0fc251bcb38d5e997f53657dbf29f93a2229567a5cf71e3f6961bf074de4a07"
+    },
+    "animations": {
+      "path": "04_PRODUKTIONSREGISTER/40_ANIMATIONEN_STATUS.csv",
+      "data_rows": 40,
+      "sha256": "190760812c46deeeb19ca78f2c591dba6bcee85cb5972ebf9bd60d6f3737f1c9"
+    },
+    "missions": {
+      "path": "04_PRODUKTIONSREGISTER/43_MISSIONSANKER.csv",
+      "data_rows": 43,
+      "sha256": "bd6b64c3121f45ba25dc725fdbbc1f5826d71003631438eef06281c4c6fd0eb4"
+    },
+    "shots": {
+      "path": "04_PRODUKTIONSREGISTER/CINEMATIC_SHOTS.csv",
+      "data_rows": 113,
+      "sha256": "a6ae76495a3675d300332d3dfe0434ca3816aa51b75e3be945cc09f3794a040e"
+    },
+    "scenes": {
+      "path": "V61/01_REGISTER/01_KANON_FILMSZENEN_22.csv",
+      "data_rows": 22,
+      "sha256": "20b203027b8994e965791a8c6a53952660ec04bf464ffa4a12e9b8d8f508b6ff"
+    },
+    "scene_packages": {
+      "path": "V61/01_REGISTER/07_LEVEL_UND_SZENEPAKETE_31.csv",
+      "data_rows": 31,
+      "sha256": "37abfd9f66f4b96cd1a3dc8c5c31fa22a4d9965f96fe3cf03cacc3257551b72e"
+    },
+    "v60_gaps": {
+      "path": "V61/00_QUELLEN_UNVERAENDERT/V60_36_GAP_PRODUKTIONSVERTRAEGE.csv",
+      "data_rows": 36,
+      "sha256": "a1a0e6d9dcb700e4bf280f3d4dea5f6fae8001d8853503c02b338d23b2f15ecd"
+    },
+    "v61_tests": {
+      "path": "V61/04_QUALITAET/12_V61_NEUE_ABNAHMETESTS.csv",
+      "data_rows": 390,
+      "sha256": "f11f3144712c90cd2605b555f6dd695857577707795d40b63cee7ecff0170579"
+    },
+    "rights_rows": {
+      "path": "V61/00_QUELLEN_UNVERAENDERT/GENESIS_V60_Produktionsreife_CLAUDE_CODE_Gesamtpaket/GENESIS_V60_FERTIGUNGSVORBEREITUNG_CLAUDE_CODE/07_QUELLEN_UNVERAENDERT/GENESIS_V59_GAMEFORGE_GODMODE_2_GESAMTPAKET_CLAUDE_CODE/GENESIS_V59_GAMEFORGE_GODMODE_2_GENESIS/11_QUELLENPAKETE/GENESIS_V39_Quellen_Rechte_Integritaet_Claude_Paket/GENESIS_V39_Quellen_Rechte_Integritaet_Planung/21_RECHTEPRUEFPLAN.csv",
+      "data_rows": 28,
+      "sha256": "48ab298b1b06b751b9e2a1404556ee355ec685c8f3370d5ab4905eac5d41df4f"
+    },
+    "v60_gap_phase_map": {
+      "path": "V61/01_REGISTER/09_V60_GAPS_36_ZU_17_PHASES.csv",
+      "data_rows": 71,
+      "unique_gap_ids": 36,
+      "sha256": "cb4472086aba36ea8fb1c12e7837d943dbe1ef3c4003639bdac7a1f436883690"
+    }
+  }
+}
