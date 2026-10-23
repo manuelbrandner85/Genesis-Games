@@ -1,0 +1,289 @@
+{
+  "created_utc": "2026-10-23T21:39:21+00:00",
+  "status": "KANDIDAT_NICHT_ENDFREIGEGEBEN",
+  "approval": "Arbeitskanon per Game-Director-Entscheid 2026-10-23; Endfreigabe ausstehend",
+  "v62_zip_sha256": "be91f395b09a131adc8d16fa8cfa4b54e337010e1c2aa7c6defdf0762cf80e07",
+  "note": "Titel und Inhalte liegen nur lokal in canon_sources/ (nicht im oeffentlichen Repo).",
+  "open_conflicts_not_touched": [
+    "CON33-01 C15/C16",
+    "C17 Wortlaut 'andere Epoche'",
+    "C21 Finale vs. Ein-Welt-Regel",
+    "C00/C20 nur mit echtem Bild-/Tonmaster"
+  ],
+  "files": [
+    {
+      "id": "SCRIPTLOCK_1_1",
+      "group": "scriptlock",
+      "sha256": "b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d",
+      "bytes": 104335,
+      "copies_in_zip": 10
+    },
+    {
+      "id": "SCRIPTLOCK_1_1_SZENENMATRIX",
+      "group": "scriptlock",
+      "sha256": "a399d8135ea605c1b686374b201467c0494c367f3375a653f3e5a989378d8093",
+      "bytes": 7620,
+      "copies_in_zip": 8
+    },
+    {
+      "id": "SCRIPTLOCK_KONFLIKTENTSCHEIDUNGEN",
+      "group": "scriptlock",
+      "sha256": "6bb5597815b0f9ec37682479ede985c2ca9439e91ff90c894de16ef02ee408dd",
+      "bytes": 1105,
+      "copies_in_zip": 1
+    },
+    {
+      "id": "J_MISSIONEN_J00_J24_CSV",
+      "group": "jenseits",
+      "sha256": "b7fdd664c9225a21cc9bbe6aaf46ceb65df6959972d0101056a1eb6798866b80",
+      "bytes": 3941,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J00",
+      "group": "jenseits",
+      "sha256": "2b678e7320f532964cb868a9d5daf237ff5898e3655196e721ec671610fb332c",
+      "bytes": 1189,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J01",
+      "group": "jenseits",
+      "sha256": "e6358cf38afc934e0b1576e9e4687cfb370a9c852102fbdbadc404fd7672859c",
+      "bytes": 1387,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J02",
+      "group": "jenseits",
+      "sha256": "8dbc1f705c9fe7f7663218d2cca685be2aa735b8823e65133bac8fc667109528",
+      "bytes": 1207,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J03",
+      "group": "jenseits",
+      "sha256": "b81cd918793839fc259616849d05e2aad4901db4e39d37b921b74148e3f758b0",
+      "bytes": 1362,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J04",
+      "group": "jenseits",
+      "sha256": "e94b6cb8a31c98785e46723ab5d032eefc22ae515df79b01cfbcfa8574050b14",
+      "bytes": 1188,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J05",
+      "group": "jenseits",
+      "sha256": "1acbbb9a9f5b92c1e9ad68016efd774fdc1c8bf897d1c0cc0fa393e9d5efc869",
+      "bytes": 1252,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J06",
+      "group": "jenseits",
+      "sha256": "dff854e2d816d44db6fd8681d4d5263d175dda654e0d7728a6cf9016638f22b2",
+      "bytes": 1246,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J07",
+      "group": "jenseits",
+      "sha256": "cc0cae438dab8b39da67c001d572db89bc9269433efa0eecdcaf02b0722ef29a",
+      "bytes": 1387,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J08",
+      "group": "jenseits",
+      "sha256": "fce16de0170b256b3144b4dd7b5b7c9a257342ae1be7b6e0e361e4f07fdce725",
+      "bytes": 1410,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J09",
+      "group": "jenseits",
+      "sha256": "4fec0a502189b1e6b41c73c5e43fb2478af2076b4ebbf7ea9bb9e76eca33f0ed",
+      "bytes": 1422,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J10",
+      "group": "jenseits",
+      "sha256": "94a9065ee6a388036ac935348f000ad1e55b50e3773575cd6b521eae7bb864a6",
+      "bytes": 1369,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J11",
+      "group": "jenseits",
+      "sha256": "a4fc2d30dbd0edff7b4dd6c67917cb07dcbd35706ac92b898927e55d5cf5b66e",
+      "bytes": 1494,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J12",
+      "group": "jenseits",
+      "sha256": "b26cfcb4e5d14f23d79e91ed128f70115729561c7bfdcc9473137696845e883b",
+      "bytes": 5871,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J13",
+      "group": "jenseits",
+      "sha256": "8b85c737755f32e1207b81c1107623dcc586e4293c8cc52b6a768a9c257581db",
+      "bytes": 2178,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J14",
+      "group": "jenseits",
+      "sha256": "f034fca60b97deda54e9d9ae59b29f5b602b50d5d42a05d6b2f6230f4c841580",
+      "bytes": 1940,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J15",
+      "group": "jenseits",
+      "sha256": "c0f7abf96f9cfea5ac729c439253138e20434adff74ef3bb633e0f4a3a1f7d1d",
+      "bytes": 2064,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J16",
+      "group": "jenseits",
+      "sha256": "7968c63637d2cf4d35406679dfd8332ee4f1eae339374eca9921785ced70df44",
+      "bytes": 2056,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J17",
+      "group": "jenseits",
+      "sha256": "f09b06b4dab81b53787ce1b2f53b92012d1bb56cba1e45ad373feeb1a3e4d029",
+      "bytes": 2409,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J18",
+      "group": "jenseits",
+      "sha256": "338f63dd20c6c810cb1068404aa6fc8bcdb1301a2129a218769182e80ad9bfa5",
+      "bytes": 2411,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J19",
+      "group": "jenseits",
+      "sha256": "6eedced02215e4c2676de39a6ab452662727b8eed9533795ae770c8363a72a42",
+      "bytes": 2274,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J20",
+      "group": "jenseits",
+      "sha256": "0f83aacc2dc56f312ffb4809488e775bd62310655dc263ec10f9a97edb57e834",
+      "bytes": 2464,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J21",
+      "group": "jenseits",
+      "sha256": "0db1a16e42a3e5894d72569f7b74b36101953cd61c4acbce73265206fda133b7",
+      "bytes": 2227,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J22",
+      "group": "jenseits",
+      "sha256": "b736d2cff29b39e95b6066f5e1cca5d1a91ffaacd961934957f730c6c4794011",
+      "bytes": 2342,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J23",
+      "group": "jenseits",
+      "sha256": "1a7ebee623ad06c3727289747de73bc747211fc0b9fd5a6c8a1ee227b7e44d1f",
+      "bytes": 2368,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "J24",
+      "group": "jenseits",
+      "sha256": "800b2f11e1dff9d9b9a16ebfbad8d83af5c45b4e71603380b7f4ca7c3dd90e9b",
+      "bytes": 2377,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "V27_J12_ORIGINAL",
+      "group": "jenseits",
+      "sha256": "4999fb18de7b0fbcdb09f3b59b3c06aaba10ebcb5d47eb55861792f8e9a2bfe6",
+      "bytes": 4891,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "V28_J13_J16_ORIGINAL",
+      "group": "jenseits",
+      "sha256": "8619cdf817f5a98b09c66c755b19d34f45399a9dbf4a41cb75c845525e634443",
+      "bytes": 5557,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "V29_J17_J20_ORIGINAL",
+      "group": "jenseits",
+      "sha256": "d30dfe2e51cc2ffcf170f9586aac7c9b2c9a1c7b7f5f93071bf5e8c2706e991d",
+      "bytes": 6407,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "V30_J21_J24_ORIGINAL",
+      "group": "jenseits",
+      "sha256": "e9ccb45134cfee2a68c432b7e4aaec8e1b2586026773e6a5560cb8452df5f45d",
+      "bytes": 6798,
+      "copies_in_zip": 4
+    },
+    {
+      "id": "WELTBIBEL_FLUSSDORF",
+      "group": "welt_flussdorf",
+      "sha256": "1a7353f23fb25a9990f296ee5ed3a5ebdecbf00acf9de9ab35ec91b9eee07e29",
+      "bytes": 7795,
+      "copies_in_zip": 6
+    },
+    {
+      "id": "V24_NPC_UND_EREIGNISSIMULATION",
+      "group": "welt_flussdorf",
+      "sha256": "f727437c4e6fe6ba9ade218d3ab82ade596f040515a1504e96388089203d4eeb",
+      "bytes": 8595,
+      "copies_in_zip": 6
+    },
+    {
+      "id": "V48_KANON_NPCS_UND_ORTSBINDUNG",
+      "group": "welt_flussdorf",
+      "sha256": "aa8591a7d18b154fafbbe11c5a9727649700b5d67c424e874e783bb07a97797e",
+      "bytes": 1388,
+      "copies_in_zip": 2
+    },
+    {
+      "id": "V21_MISSIONSBIBEL",
+      "group": "missionen",
+      "sha256": "8bda3b05c85c63af276002de244f01bb26d4be161228381395859922b2861feb",
+      "bytes": 31423,
+      "copies_in_zip": 5
+    },
+    {
+      "id": "V21_MISSIONEN_GENERATIONEN_JSON",
+      "group": "missionen",
+      "sha256": "be9d95112aba7ce9e0aa0c88862b12ae4b0667c4a4a52edfa8cff62e0fc7a87d",
+      "bytes": 22325,
+      "copies_in_zip": 10
+    },
+    {
+      "id": "V24_MISSIONSBIBEL",
+      "group": "missionen",
+      "sha256": "fe9ee53b75c0432c2f960dd5ac1c7718627ad3be270f320486ccf9002fb420bd",
+      "bytes": 7165,
+      "copies_in_zip": 6
+    }
+  ],
+  "missing": []
+}
