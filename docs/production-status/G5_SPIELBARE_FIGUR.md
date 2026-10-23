@@ -1,4 +1,4 @@
-# G5 – Spielbare Figur · Status: ENGINE_TESTED (automatisch) · Menschentest offen
+# G5 – Spielbare Figur · Status: ACCEPTED
 
 Datum: 2026-10-23 · Zweig `v4/neustart` · UE 5.8.3 · Testlevel `/Game/Genesis/TechSmoke/Maps/L_TechSmoke`
 
@@ -39,9 +39,12 @@ Echtes Level, echter GameMode, echter Spieler: Mannequin geladen, Animation läu
 - Die Phasen des Spieltests liefen nach Echtzeit; beim Ruckeln des Editors stimmte die Strecke nicht (10,5 m) → Spielzeit statt Echtzeit.
 - C++-Warnung als Fehler (lokale Variable verdeckt Klassenmitglied) → umbenannt.
 
+## Menschentest
+
+**Bestanden – 2026-10-23, Game Director (Nutzer):** „Ich habe selbst gespielt: Steuerung, Kamera und Tempo passen. G5 ist abgenommen.“ Gespielt im Editor (PIE) im Level `L_TechSmoke`.
+
 ## Nicht geprüft / offen
 
-- **Menschentest (Pflicht für G5):** Steuerung mit echter Tastatur, Maus und Controller, Mausempfindlichkeit, Kameragefühl. Das kann nur ein Mensch beurteilen.
 - **Controller:** Der rechte Stick deines Xbox-360-Controllers driftet (~27 %). Die Totzone 0,3 fängt das ab, aber der Stick hat dadurch etwas weniger feinen Bereich. Die echte Lösung ist kalibrieren oder ersetzen.
 - **Testlevel endet nach 30 m:** Am Horizont sieht man den Rand der Bodenplatte. Für Technik-Tests unkritisch, für den Goldstandard-Slice nicht.
 - **Platzhalter-Figur:** Mannequin, keine GENESIS-Figur, kein Reality Check der Figur. Die Animationen sind Epic-Vorlagen (Fußgleiten bei 1,75 m/s nicht geprüft).
