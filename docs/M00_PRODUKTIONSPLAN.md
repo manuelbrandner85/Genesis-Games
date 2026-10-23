@@ -152,7 +152,7 @@ Abnahme, bestanden wenn 13 GLB-Dateien dieses Präfixes im Baum liegen, die SHA2
 
 Quelle: 15 Dateien `VS01_R03_WERKSTATT_001` bis `_015`, N01 und N02. Abhängigkeit: WK-M03-005. QAEvidenceID: `EV-WK-M04-001`, Datei `docs/evidence/WK-M04-001/werkstatt.json` (fehlt). Reviewer: `OFFEN`. Rolle: 3D & Animation.
 
-Abnahme, bestanden wenn alle drei gelten: die 15 GLBs liegen noch im Baum; `usage` = `Reparatur- und Generatorwerkstatt` und die Zeichenkette `Schreinerei` kommt in `werkstatt.json` 0 Mal vor; die Felder `start_ge`, `repair_reward_ge` und `part_cost_ge` sind ganze Zahlen und gleich den drei ganzen Zahlen, die das Evidence-Skript aus `GENESIS_V23_Paket__02_Vertical_Slice_Ablauf_und_Backlog.md` in die Felder `source_start_ge`, `source_repair_reward_ge` und `source_part_cost_ge` schreibt. Zusätzlich je ersetztem Mesh die sieben Tore aus WK-M04-003 und eine Rechtezeile aus WK-M03-001 mit `gesperrt` ungleich `ja`.
+Abnahme, bestanden wenn alle drei gelten: die 15 GLBs liegen noch im Baum; `usage` = `Reparatur- und Generatorwerkstatt` und die Zeichenkette `Schreinerei` kommt in `werkstatt.json` 0 Mal vor; die Felder `start_ge`, `repair_reward_ge` und `part_cost_ge` sind ganze Zahlen und gleich `source_start_ge`, `source_repair_reward_ge` und `source_part_cost_ge`. Das Auszugsskript, das diese drei Quellfelder schreibt, ist `PLANNED` und liegt nicht im Baum. In `GENESIS_V23_Paket__02_Vertical_Slice_Ablauf_und_Backlog.md` stehen 120 GE und eine Buchung von 60 GE. Eine Zeile, die 18 GE als Teilepreis nennt, steht in dieser Datei nicht. Solange das Skript fehlt, ist der Zahlenvergleich nicht ausgeführt. Zusätzlich je ersetztem Mesh die sieben Tore aus WK-M04-003 und eine Rechtezeile aus WK-M03-001 mit `gesperrt` ungleich `ja`.
 
 ### WK-M04-002 — Erscheinung N01–N08 — `BLOCKED`
 
@@ -190,7 +190,7 @@ Abnahme, bestanden wenn nach Laden `age_ms` und `stage` gleich den Werten vor de
 
 ### WK-M06-001 — Echo nach CON33-01 — `PLANNED`
 
-Quelle: Beschluss PR #3, 23.10.2026, 01:51 Berlin. Abhängigkeit: WK-M00-003. QAEvidenceID: `EV-WK-M06-001`, Datei `docs/evidence/WK-M06-001/echo.json` (fehlt). Reviewer: `OFFEN`. Rolle: Story & Kanon, Raum 3D & Animation.
+Quelle: Beschluss in PR #3, getroffen am 23.10.2026, 01:51 Berlin. Der Merge von PR #3 ist offen. Abhängigkeit: WK-M00-003. QAEvidenceID: `EV-WK-M06-001`, Datei `docs/evidence/WK-M06-001/echo.json` (fehlt). Reviewer: `OFFEN`. Rolle: Story & Kanon, Raum 3D & Animation.
 
 Abnahme, bestanden wenn alle fünf gelten: ScriptLock-SHA256 = `b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d`; `rooms_library` enthält C15, C16, C17 und C19; `temple_mesh_count` = 0; `column_mesh_count` = 0; `library_outside_exception` = 0 (Bibliothek nur in diesen vier Kapiteln). Die Registerzeile N09 bleibt im Originalregister stehen. Der Beschluss ersetzt sie für den Bau.
 

@@ -38,7 +38,7 @@ Die ID-Belegung steht in [M00_PRODUKTIONSPLAN.md](M00_PRODUKTIONSPLAN.md). Kurz:
 
 ## 3D & Animation
 
-Die 38 GLBs und 38 Tafeln bleiben unter `assets/source_glb/`. Eine Entfernung entscheidet Manuel separat.
+Die 38 GLBs und 38 Tafeln bleiben unter `assets/source_glb/`. Manuel hat entschieden, dass das Repo öffentlich bleibt, einschließlich dieser Dateien. Die Rechteklärung bleibt für das Release offen.
 
 | WorkID | Auftrag | Status |
 |---|---|---|

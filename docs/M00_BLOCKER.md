@@ -4,7 +4,7 @@ Stand der Änderung: 2026-10-23. Quellenworte wie `UNVERIFIED` oder `NOT_RUN` bl
 
 ## Entschieden: CON33-01
 
-ID: `BL59-04`, Entscheidung `DEC-01`. Manuel Brandner hat am 23.10.2026 um 01:51 Uhr (Berlin) entschieden. Quelle: Pull Request #3, `docs/kanon/BESCHLUESSE.md` auf dem Zweig `kanon/con33-01-entschieden`. Dieser Zweig ist hier nicht gemergt. Der Beschluss lautet:
+ID: `BL59-04`, Entscheidung `DEC-01`. Manuel Brandner hat die Entscheidung am 23.10.2026 um 01:51 Uhr (Berlin) getroffen. Der Beschluss ist in Pull Request #3 dokumentiert (`docs/kanon/BESCHLUESSE.md` auf dem Zweig `kanon/con33-01-entschieden`). Der Merge von PR #3 ist offen. Dieser Zweig ist hier nicht gemergt. Der Beschluss lautet:
 
 - C15 und C16 behalten Räume und Bibliothek so, wie sie im ScriptLock stehen.
 - Dasselbe gilt für die Bibliotheks- und Regalbilder in C17 und C19.
@@ -19,7 +19,7 @@ Der Entscheidungstor ist damit zu. Die Umsetzung ist `WK-M06-001`, Status `PLANN
 
 ID: `BL59-02`, Entscheidung `DEC-05`. Der V39-Prüfplan hat 28 Zeilen. Jede Zeile ist `UNVERIFIED`, `NOT_REVIEWED`, `PENDING`, `Authorization` `NONE`. Schließung: je Datei Herkunft, Fassung, Nutzungsraum und ein Beleg. Ein Unreal-Import der 38 GLBs bleibt zu, solange die Zeile der Datei `Authorization` `NONE` trägt.
 
-Die 38 GLBs und 38 Tafeln bleiben in `assets/source_glb/`. Ob sie aus dem öffentlichen Repo genommen werden, entscheidet Manuel separat. Dieser Lauf löscht sie nicht.
+Manuel hat entschieden, dass dieses Repo öffentlich bleibt, einschließlich der 38 GLBs und 38 Tafeln in `assets/source_glb/`. Dieser Lauf löscht sie nicht. Die Rechteklärung bleibt für das Release offen.
 
 ### 2. Soul/World/Life-Speicherung — `BLOCKED`
 
