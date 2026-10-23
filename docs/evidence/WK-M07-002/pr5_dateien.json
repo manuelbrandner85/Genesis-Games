@@ -1,0 +1,72 @@
+{
+  "evidence_id": "EV-WK-M07-002",
+  "work_id": "WK-M07-002",
+  "related_work_ids": [
+    "WK-M07-003",
+    "WK-M07-004 (neu vorgeschlagen)"
+  ],
+  "status": "FILE_CREATED",
+  "reviewer": "OFFEN",
+  "hashed_on": "2026-10-23",
+  "note": "SHA256 aller Dateien aus PR #5 nach Review-Korrektur. Reine Planungsdateien, keine Audiodatei. Diese Datei ist nicht in der Liste.",
+  "input": {
+    "path": "GENESIS_ScriptLock_11_Drehbuch_v1.1.md (Release handover-v62)",
+    "sha256": "b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d"
+  },
+  "counts": {
+    "bildschirmtexte": 38,
+    "geraeusche_ui": 77,
+    "rechte_punkte": 20,
+    "wav_files": 0
+  },
+  "files": [
+    {
+      "path": "docs/audio_cinematics/GERAEUSCHE_UI_KLAENGE.md",
+      "bytes": 2069,
+      "sha256": "2232c1dfbb9a7ff84e1a2b0f0a81bc818603251af7571c86b26b94539fc70ec1",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/MUSIKPLAN_M01-M12.md",
+      "bytes": 7620,
+      "sha256": "71786d13d2ecce712ffdd259b3c6635add102ba9e97c7b5d90048d300782dc09",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/README.md",
+      "bytes": 4448,
+      "sha256": "89ad66b215175cb0052cc8e7876e504f5ca17126caadb32f6eb3faf9c286adc1",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/RECHTE_CHECKLISTE.md",
+      "bytes": 3926,
+      "sha256": "eeb62823df904d77d88b7241e29feb6bc2444bd46d829e4576b94045f46c9099",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/UNTERTITEL_REGELN.md",
+      "bytes": 3626,
+      "sha256": "da15777623d9f42034e7ae0c6594c38dfb85f39f52ec03f6006180c59b4c7a9c",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/genesis_bildschirmtexte.csv",
+      "bytes": 5113,
+      "sha256": "966c731cf607652e3315b61d65e4d2d6fbbe8a62f513e6d58c212a13f8c84b23",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/genesis_geraeusche_ui_klaenge.csv",
+      "bytes": 37042,
+      "sha256": "443beed587c5bd7ebbdb1e0d15eb57a31dfd622399ed448cf020f44f5e5258c0",
+      "exists": true
+    },
+    {
+      "path": "docs/audio_cinematics/werkzeuge/paket2.py",
+      "bytes": 8707,
+      "sha256": "2ec62bc983a49ba81dfc40016d97319b993bc7665bb6414b5cea07e37baa3052",
+      "exists": true
+    }
+  ]
+}
