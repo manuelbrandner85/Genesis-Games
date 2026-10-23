@@ -11,6 +11,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Genesis.h"
 #include "Save/GenesisSaveSubsystem.h"
+#include "World/GenesisFlussdorf.h"
+#include "World/GenesisWorld.h"
 
 // ---------------------------------------------------------------- Definitionen
 
@@ -22,6 +24,19 @@ const FGenesisDialogNode* UGenesisDialogDefinition::FindNode(FName NodeId) const
 const FGenesisQuestStep* UGenesisQuestDefinition::FindStep(FName StepId) const
 {
 	return Steps.FindByPredicate([StepId](const FGenesisQuestStep& S) { return S.StepId == StepId; });
+}
+
+TArray<FGenesisStepContact> FGenesisQuestStep::GetAllContacts() const
+{
+	TArray<FGenesisStepContact> Result;
+	if (!TalkToNpcId.IsNone())
+	{
+		FGenesisStepContact& Main = Result.AddDefaulted_GetRef();
+		Main.TargetId = TalkToNpcId;
+		Main.Dialog = Dialog;
+	}
+	Result.Append(Contacts);
+	return Result;
 }
 
 UGenesisQuestDefinition* UGenesisStorySettings::LoadQuest(FName QuestId) const
@@ -68,6 +83,19 @@ const FGenesisQuestStep* FGenesisStory::GetCurrentStep(const FGenesisSaveBundle&
 	return State && !State->bCompleted ? Quest.FindStep(State->CurrentStepId) : nullptr;
 }
 
+bool FGenesisStory::ConditionsMet(const FGenesisSaveBundle& Bundle, const TArray<FGenesisStateCondition>& Conditions)
+{
+	for (const FGenesisStateCondition& Condition : Conditions)
+	{
+		const int32 Value = FGenesisWorldStateLib::GetValue(Bundle, Condition.Key);
+		if (Value < Condition.Min || Value > Condition.Max)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool FGenesisStory::FireTrigger(FGenesisSaveBundle& Bundle, const UGenesisQuestDefinition& Quest, FName Trigger)
 {
 	FGenesisQuestState* State = FindQuestState(Bundle, Quest.QuestId);
@@ -83,6 +111,10 @@ bool FGenesisStory::FireTrigger(FGenesisSaveBundle& Bundle, const UGenesisQuestD
 			continue;
 		}
 		if (!Edge.RequiredFlag.IsNone() && Bundle.World.EventFlags.FindRef(Edge.RequiredFlag) != Edge.RequiredFlagValue)
+		{
+			continue;
+		}
+		if (!ConditionsMet(Bundle, Edge.Conditions))
 		{
 			continue;
 		}
@@ -111,7 +143,7 @@ TArray<const FGenesisDialogChoice*> FGenesisStory::GetAvailableChoices(const FGe
 	TArray<const FGenesisDialogChoice*> Result;
 	for (const FGenesisDialogChoice& Choice : Node.Choices)
 	{
-		if (Choice.RequiredTrust < -1.f || Trust >= Choice.RequiredTrust)
+		if ((Choice.RequiredTrust < -1.f || Trust >= Choice.RequiredTrust) && ConditionsMet(Bundle, Choice.Conditions))
 		{
 			Result.Add(&Choice);
 		}
@@ -124,10 +156,7 @@ FName FGenesisStory::ApplyChoice(FGenesisSaveBundle& Bundle, const FGenesisDialo
 {
 	for (const FGenesisConsequence& Consequence : Choice.Consequences)
 	{
-		if (!Consequence.FlagName.IsNone())
-		{
-			Bundle.World.EventFlags.Add(Consequence.FlagName, Consequence.FlagValue);
-		}
+		FName EventId;
 		if (!Consequence.EventType.IsNone())
 		{
 			FGenesisEventSpec Spec;
@@ -138,7 +167,12 @@ FName FGenesisStory::ApplyChoice(FGenesisSaveBundle& Bundle, const FGenesisDialo
 				Spec.TargetIds.Add(SpeakerId);
 			}
 			Spec.TargetIds.Append(Consequence.ExtraTargets);
-			RecordEvent(Spec);
+			EventId = RecordEvent(Spec);
+		}
+		if (!Consequence.FlagName.IsNone())
+		{
+			// Weltobjekte merken sich das verursachende Ereignis (Datenvertrag).
+			FGenesisWorldStateLib::SetValue(Bundle, Consequence.FlagName, Consequence.FlagValue, EventId);
 		}
 	}
 	OutQuestTrigger = Choice.QuestTrigger;
@@ -174,7 +208,7 @@ TArray<FString> FGenesisStory::ValidateDialog(const UGenesisDialogDefinition& Di
 		{
 			Errors.Add(FString::Printf(TEXT("%s/%s: keine Antwort - das Gespraech kaeme nicht weiter"), *Name, *Node.NodeId.ToString()));
 		}
-		if (!Node.Choices.ContainsByPredicate([](const FGenesisDialogChoice& C) { return C.RequiredTrust < -1.f; }))
+		if (!Node.Choices.ContainsByPredicate([](const FGenesisDialogChoice& C) { return C.IsUnconditional(); }))
 		{
 			Errors.Add(FString::Printf(TEXT("%s/%s: alle Antworten haben Bedingungen - Sackgasse moeglich"), *Name, *Node.NodeId.ToString()));
 		}
@@ -260,6 +294,11 @@ TArray<FString> FGenesisStory::ValidateQuest(const UGenesisQuestDefinition& Ques
 	}
 
 	const TArray<FGenesisCharacterRegistryEntry>& Characters = GetDefault<UGenesisCharacterRegistry>()->Entries;
+	const TArray<FName>& WorldTriggers = GetDefault<UGenesisWorldSettings>()->WorldTriggers;
+	if (!Quest.StartTrigger.IsNone() && !WorldTriggers.Contains(Quest.StartTrigger))
+	{
+		Errors.Add(FString::Printf(TEXT("%s: Start-Ausloeser %s ist kein bekannter Welt-Ausloeser"), *Name, *Quest.StartTrigger.ToString()));
+	}
 	for (const FGenesisQuestStep& Step : Quest.Steps)
 	{
 		const FString StepName = FString::Printf(TEXT("%s/%s"), *Name, *Step.StepId.ToString());
@@ -267,22 +306,33 @@ TArray<FString> FGenesisStory::ValidateQuest(const UGenesisQuestDefinition& Ques
 		{
 			Errors.Add(StepName + TEXT(": kein Weg weiter - Sackgasse"));
 		}
-		if (!Characters.ContainsByPredicate([&Step](const FGenesisCharacterRegistryEntry& E) { return E.CharacterAssetId == Step.TalkToNpcId; }))
+		else if (!Step.Edges.ContainsByPredicate([](const FGenesisQuestEdge& E) { return E.IsUnconditional(); }))
 		{
-			Errors.Add(FString::Printf(TEXT("%s: Figur %s ist nicht in der Registry"), *StepName, *Step.TalkToNpcId.ToString()));
+			Errors.Add(StepName + TEXT(": alle Wege weiter haben Bedingungen - Sackgasse moeglich"));
 		}
 
+		// Ansprechpartner: Figuren aus der Registry oder Weltobjekte; jedes Gespraech einzeln geprueft.
 		TSet<FName> Produced;
-		if (const UGenesisDialogDefinition* Dialog = Step.Dialog.LoadSynchronous())
+		const TArray<FGenesisStepContact> Contacts = Step.GetAllContacts();
+		for (const FGenesisStepContact& Contact : Contacts)
 		{
-			for (const FString& Error : ValidateDialog(*Dialog, &Produced))
+			const bool bKnown = FGenesisWorldStateLib::IsWorldObjectId(Contact.TargetId)
+				|| Characters.ContainsByPredicate([&Contact](const FGenesisCharacterRegistryEntry& E) { return E.CharacterAssetId == Contact.TargetId; });
+			if (!bKnown)
 			{
-				Errors.Add(StepName + TEXT(": ") + Error);
+				Errors.Add(FString::Printf(TEXT("%s: Figur %s ist nicht in der Registry"), *StepName, *Contact.TargetId.ToString()));
 			}
-		}
-		else
-		{
-			Errors.Add(StepName + TEXT(": Gespraech fehlt"));
+			if (const UGenesisDialogDefinition* Dialog = Contact.Dialog.LoadSynchronous())
+			{
+				for (const FString& Error : ValidateDialog(*Dialog, &Produced))
+				{
+					Errors.Add(StepName + TEXT(": ") + Error);
+				}
+			}
+			else
+			{
+				Errors.Add(FString::Printf(TEXT("%s: Gespraech fuer %s fehlt"), *StepName, *Contact.TargetId.ToString()));
+			}
 		}
 
 		TSet<FName> Consumed;
@@ -297,7 +347,7 @@ TArray<FString> FGenesisStory::ValidateQuest(const UGenesisQuestDefinition& Ques
 			{
 				Errors.Add(FString::Printf(TEXT("%s: Folgeschritt %s fehlt"), *StepName, *Edge.NextStepId.ToString()));
 			}
-			if (!Produced.Contains(Edge.Trigger))
+			if (!Produced.Contains(Edge.Trigger) && !WorldTriggers.Contains(Edge.Trigger))
 			{
 				Errors.Add(FString::Printf(TEXT("%s: Ausloeser %s wird im Gespraech nie ausgeloest"), *StepName, *Edge.Trigger.ToString()));
 			}
@@ -308,7 +358,7 @@ TArray<FString> FGenesisStory::ValidateQuest(const UGenesisQuestDefinition& Ques
 			{
 				Errors.Add(FString::Printf(TEXT("%s: Ausloeser %s bleibt ohne Wirkung"), *StepName, *Trigger.ToString()));
 			}
-			else if (!Step.Edges.ContainsByPredicate([Trigger](const FGenesisQuestEdge& E) { return E.Trigger == Trigger && E.RequiredFlag.IsNone(); }))
+			else if (!Step.Edges.ContainsByPredicate([Trigger](const FGenesisQuestEdge& E) { return E.Trigger == Trigger && E.IsUnconditional(); }))
 			{
 				Errors.Add(FString::Printf(TEXT("%s: Ausloeser %s wirkt nur unter Bedingung - Sackgasse moeglich"), *StepName, *Trigger.ToString()));
 			}
@@ -390,17 +440,57 @@ bool UGenesisStorySubsystem::InteractWith(FName NpcId)
 		}
 		UGenesisQuestDefinition* Quest = GetDefault<UGenesisStorySettings>()->LoadQuest(State.QuestId);
 		const FGenesisQuestStep* Step = Quest ? FGenesisStory::GetCurrentStep(*Bundle, *Quest) : nullptr;
-		UGenesisDialogDefinition* Dialog = Step && Step->TalkToNpcId == NpcId ? Step->Dialog.LoadSynchronous() : nullptr;
-		if (Dialog)
+		if (!Step)
 		{
-			ActiveDialog = Dialog;
-			ActiveDialogQuest = Quest;
-			ActiveNodeId = Dialog->StartNodeId;
-			ActiveSpeakerId = NpcId;
-			return true;
+			continue;
+		}
+		for (const FGenesisStepContact& Contact : Step->GetAllContacts())
+		{
+			UGenesisDialogDefinition* Dialog = Contact.TargetId == NpcId ? Contact.Dialog.LoadSynchronous() : nullptr;
+			if (Dialog)
+			{
+				ActiveDialog = Dialog;
+				ActiveDialogQuest = Quest;
+				ActiveNodeId = Dialog->StartNodeId;
+				ActiveSpeakerId = NpcId;
+				return true;
+			}
 		}
 	}
+	// Weltobjekte (Aushang, Station, Bruecke) haben ein eigenes Gespraech, auch ohne Quest.
+	const FGenesisWorldObjectDef* Object = GetDefault<UGenesisWorldSettings>()->FindObject(NpcId);
+	if (UGenesisDialogDefinition* Dialog = Object ? Object->DefaultDialog.LoadSynchronous() : nullptr)
+	{
+		ActiveDialog = Dialog;
+		ActiveDialogQuest = nullptr;
+		ActiveNodeId = Dialog->StartNodeId;
+		ActiveSpeakerId = NpcId;
+		return true;
+	}
 	return false;
+}
+
+void UGenesisStorySubsystem::FireWorldTrigger(FName Trigger)
+{
+	FGenesisSaveBundle* Bundle = GetBundle();
+	if (!Bundle || Trigger.IsNone())
+	{
+		return;
+	}
+	for (const TSoftObjectPtr<UGenesisQuestDefinition>& Ref : GetDefault<UGenesisStorySettings>()->Quests)
+	{
+		const UGenesisQuestDefinition* Quest = Ref.LoadSynchronous();
+		if (!Quest)
+		{
+			continue;
+		}
+		if (Quest->StartTrigger == Trigger && FGenesisStory::StartQuest(*Bundle, *Quest))
+		{
+			UE_LOG(LogGenesis, Display, TEXT("Quest %s bietet sich an (%s)."), *Quest->QuestId.ToString(), *Trigger.ToString());
+			continue;
+		}
+		FGenesisStory::FireTrigger(*Bundle, *Quest, Trigger);
+	}
 }
 
 FName UGenesisStorySubsystem::GetDialogSpeaker() const
@@ -409,10 +499,37 @@ FName UGenesisStorySubsystem::GetDialogSpeaker() const
 	return Node && !Node->SpeakerId.IsNone() ? Node->SpeakerId : ActiveSpeakerId;
 }
 
+FText UGenesisStorySubsystem::GetDialogSpeakerName() const
+{
+	const FName Speaker = GetDialogSpeaker();
+	if (const FGenesisCharacterRegistryEntry* Entry = UGenesisCharacterRegistry::FindEntry(Speaker))
+	{
+		if (!Entry->DisplayName.IsEmpty())
+		{
+			return Entry->DisplayName;
+		}
+	}
+	if (const FGenesisWorldObjectDef* Object = GetDefault<UGenesisWorldSettings>()->FindObject(Speaker))
+	{
+		if (!Object->DisplayName.IsEmpty())
+		{
+			return Object->DisplayName;
+		}
+	}
+	return FText::FromName(Speaker);
+}
+
 FText UGenesisStorySubsystem::GetDialogText() const
 {
 	const FGenesisDialogNode* Node = ActiveDialog ? ActiveDialog->FindNode(ActiveNodeId) : nullptr;
-	return Node ? Node->Text : FText::GetEmpty();
+	if (!Node)
+	{
+		return FText::GetEmpty();
+	}
+	// Platzhalter wie {Wind} oder {BridgeStatus} kommen aus dem aktuellen Weltzustand.
+	FFormatNamedArguments Args;
+	UGenesisFlussdorfSubsystem::AppendTextArgs(GetGameInstance()->GetWorld(), Args);
+	return Args.Num() > 0 ? FText::Format(Node->Text, Args) : Node->Text;
 }
 
 TArray<const FGenesisDialogChoice*> UGenesisStorySubsystem::AvailableChoices() const
@@ -455,6 +572,11 @@ bool UGenesisStorySubsystem::Choose(int32 Index)
 	if (!Trigger.IsNone() && ActiveDialogQuest)
 	{
 		FGenesisStory::FireTrigger(*Bundle, *ActiveDialogQuest, Trigger);
+	}
+	else if (!Trigger.IsNone())
+	{
+		// Gespraech ohne Quest (z. B. Messstation): der Ausloeser gilt fuer alle laufenden Quests.
+		FireWorldTrigger(Trigger);
 	}
 	if (Next.IsNone())
 	{
@@ -505,9 +627,27 @@ void AGenesisHUD::DrawHUD()
 		float Y = Canvas->ClipY * 0.68f;
 		const float X = Canvas->ClipX * 0.18f;
 		DrawRect(FLinearColor(0.f, 0.f, 0.f, 0.55f), X - 20.f, Y - 15.f, Canvas->ClipX * 0.64f, Canvas->ClipY * 0.28f);
-		DrawText(Story->GetDialogSpeaker().ToString() + TEXT(":"), FLinearColor(0.85f, 0.8f, 0.6f), X, Y, Font, Scale);
+		DrawText(Story->GetDialogSpeakerName().ToString() + TEXT(":"), FLinearColor(0.85f, 0.8f, 0.6f), X, Y, Font, Scale);
 		Y += 30.f * Scale;
-		DrawText(Story->GetDialogText().ToString(), FLinearColor::White, X, Y, Font, Scale);
+		// Einfacher Zeilenumbruch nach Woertern (Platzhalter-HUD).
+		TArray<FString> Words;
+		Story->GetDialogText().ToString().ParseIntoArrayWS(Words);
+		FString Line;
+		for (int32 i = 0; i < Words.Num(); ++i)
+		{
+			const FString Candidate = Line.IsEmpty() ? Words[i] : Line + TEXT(" ") + Words[i];
+			if (Candidate.Len() > 72 && !Line.IsEmpty())
+			{
+				DrawText(Line, FLinearColor::White, X, Y, Font, Scale);
+				Y += 26.f * Scale;
+				Line = Words[i];
+			}
+			else
+			{
+				Line = Candidate;
+			}
+		}
+		DrawText(Line, FLinearColor::White, X, Y, Font, Scale);
 		Y += 45.f * Scale;
 		const TArray<FText> Choices = Story->GetDialogChoiceTexts();
 		for (int32 i = 0; i < Choices.Num(); ++i)

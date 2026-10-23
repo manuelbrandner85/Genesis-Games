@@ -223,6 +223,32 @@ struct GENESIS_API FGenesisSoulState
 	TArray<FName> UnlockedRevealGuards;
 };
 
+/**
+ * Dauerhafter Zustand eines Weltobjekts (z. B. VS01_BRIDGE_01). Jede Aenderung erhoeht die Version und nennt
+ * das verursachende Ereignis: Zustaende aendern sich nur belegt (Datenvertrag ObjectID/Version/EventID).
+ */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisWorldObjectState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	FName ObjectId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	int32 Version = 0;
+
+	/** Zustandswerte, z. B. Passable=1, Closed=0, Damage=1. Fehlende Werte gelten als 0. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	TMap<FName, int32> Values;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	FName LastEventId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	FDateTime LastChange;
+};
+
 /** Zustand der Welt, unabhaengig vom aktuellen Leben. */
 USTRUCT(BlueprintType)
 struct GENESIS_API FGenesisWorldState
@@ -249,6 +275,10 @@ struct GENESIS_API FGenesisWorldState
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
 	TArray<FGenesisNpcState> Npcs;
+
+	/** Weltobjekte mit Zustand (Bruecke, Werkstatt, Wege). Fehlt ein Objekt, gelten seine Startwerte. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|World")
+	TArray<FGenesisWorldObjectState> Objects;
 };
 
 /** Das aktuelle Leben: Koerper, Lebensdaten, Ort, Beziehungen, Besitz. Das Alter wird aus Weltzeit und Geburt berechnet. */
@@ -307,6 +337,10 @@ struct GENESIS_API FGenesisLifeState
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Life")
 	TArray<FGenesisQuestState> Quests;
+
+	/** Was der Spieler in diesem Leben selbst weiss (z. B. CrackSeen). Ein neues Leben weiss davon nichts. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Life")
+	TMap<FName, int32> Knowledge;
 };
 
 /**
@@ -322,8 +356,9 @@ struct GENESIS_API FGenesisSaveBundle
 	 * 1: Jahr/Tag/Uhrzeit + Alter als Zahl. 2: Weltdatum + Zeugung/Geburt (Migration 1 -> 2 beim Laden).
 	 * 3: Kausalgraph, NPC-Gedaechtnis, Verhaltensprofil (Schema 2 laedt mit leerem Graphen).
 	 * 4: Questfortschritt (aeltere Staende laden ohne Quests).
+	 * 5: Weltobjekte mit Version und Spielerwissen je Leben (aeltere Staende: Startwerte, nichts gewusst).
 	 */
-	static constexpr int32 CurrentSchemaVersion = 4;
+	static constexpr int32 CurrentSchemaVersion = 5;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Genesis|Save")
 	int32 SchemaVersion = CurrentSchemaVersion;

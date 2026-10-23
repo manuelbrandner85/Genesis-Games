@@ -45,6 +45,10 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|NPC")
 	TArray<FGenesisNpcSchedule> Schedules;
 
+	/** Alle Aktivitaeten des Tagesablauf-StateTrees (je eine mit Gameplay-Tag Genesis.Activity.<Name>). */
+	UPROPERTY(Config, EditAnywhere, Category = "Genesis|NPC")
+	TArray<FName> Activities = { TEXT("Sleep"), TEXT("Work"), TEXT("Market"), TEXT("Leisure") };
+
 	/** Was eine Figur tut, wenn ihr Plan zu dieser Stunde nichts vorsieht. */
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|NPC")
 	FName DefaultActivity = TEXT("Leisure");

@@ -37,6 +37,10 @@ void AGenesisNpcCharacter::BeginPlay()
 
 FName AGenesisNpcCharacter::GetScheduledActivity() const
 {
+	if (!ReactionActivity.IsNone())
+	{
+		return ReactionActivity;
+	}
 	const UGenesisWorldClockSubsystem* Clock = GetWorld() ? GetWorld()->GetSubsystem<UGenesisWorldClockSubsystem>() : nullptr;
 	const float Hour = Clock ? Clock->GetTimeOfDayHours() : 12.f;
 	return GetDefault<UGenesisNpcSettings>()->GetActivity(CharacterAssetId, Hour);

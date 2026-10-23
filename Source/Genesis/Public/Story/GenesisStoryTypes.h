@@ -5,7 +5,26 @@
 #include "Engine/DeveloperSettings.h"
 #include "GenesisStoryTypes.generated.h"
 
-/** Folge einer Antwort: ein Ereignis im Kausalgraphen und/oder ein Weltzustand (EventFlag). */
+/**
+ * Bedingung auf Weltzustand: Wert von Key liegt in [Min, Max]. Key wie bei FGenesisWorldStateLib:
+ * "Know.<Name>" (Spielerwissen), "<ObjectId>.<Wert>" (Weltobjekt) oder ein EventFlag (z. B. WX.Phase). Fehlt = 0.
+ */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisStateCondition
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName Key;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	int32 Min = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	int32 Max = MAX_int32;
+};
+
+/** Folge einer Antwort: ein Ereignis im Kausalgraphen und/oder ein Zustandswert (EventFlag, Weltobjekt oder Spielerwissen). */
 USTRUCT(BlueprintType)
 struct GENESIS_API FGenesisConsequence
 {
@@ -22,7 +41,7 @@ struct GENESIS_API FGenesisConsequence
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	TArray<FName> ExtraTargets;
 
-	/** Weltzustand setzen (World.EventFlags), leer = keiner. */
+	/** Zustand setzen (Schluessel wie FGenesisStateCondition: EventFlag, "<ObjectId>.<Wert>" oder "Know.<Name>"), leer = keiner. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	FName FlagName;
 
@@ -55,6 +74,12 @@ struct GENESIS_API FGenesisDialogChoice
 	/** Nur waehlbar, wenn die angesprochene Figur dem Spieler mindestens so sehr vertraut. Unter -1 = immer. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	float RequiredTrust = -2.f;
+
+	/** Nur waehlbar, wenn alle Bedingungen erfuellt sind (z. B. Know.CrackSeen). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	TArray<FGenesisStateCondition> Conditions;
+
+	bool IsUnconditional() const { return RequiredTrust < -1.f && Conditions.Num() == 0; }
 };
 
 USTRUCT(BlueprintType)
@@ -96,6 +121,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	bool bPlaceholderContent = false;
 
+	/** Herkunft: Quellen und Status des Wortlauts (z. B. "Arbeitstext, nicht Kanon"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FString SourceNote;
+
 	const FGenesisDialogNode* FindNode(FName NodeId) const;
 };
 
@@ -121,6 +150,25 @@ struct GENESIS_API FGenesisQuestEdge
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	int32 RequiredFlagValue = 1;
+
+	/** Zusaetzliche Bedingungen (alle muessen gelten). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	TArray<FGenesisStateCondition> Conditions;
+
+	bool IsUnconditional() const { return RequiredFlag.IsNone() && Conditions.Num() == 0; }
+};
+
+/** Weiterer Ansprechpartner eines Questschritts: Figur oder Weltobjekt und das Gespraech, das dann startet. */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisStepContact
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName TargetId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	TSoftObjectPtr<UGenesisDialogDefinition> Dialog;
 };
 
 USTRUCT(BlueprintType)
@@ -141,8 +189,15 @@ struct GENESIS_API FGenesisQuestStep
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	TSoftObjectPtr<UGenesisDialogDefinition> Dialog;
 
+	/** Weitere Ansprechpartner in diesem Schritt (der Spieler waehlt, mit wem er spricht - oder mit niemandem). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	TArray<FGenesisStepContact> Contacts;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	TArray<FGenesisQuestEdge> Edges;
+
+	/** Alle Ansprechpartner (TalkToNpcId/Dialog zuerst). */
+	TArray<FGenesisStepContact> GetAllContacts() const;
 };
 
 UCLASS(BlueprintType)
@@ -167,7 +222,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
 	bool bPlaceholderContent = false;
 
+	/** Quest bietet sich an, sobald dieser Welt-Ausloeser eintritt (z. B. WX_PRECURSOR); leer = nur per StartQuest. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName StartTrigger;
+
+	/** Herkunft: Quellen und Status (z. B. "V21 L08 + V24 Kette B/C; Wortlaut Arbeitstext"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FString SourceNote;
+
 	const FGenesisQuestStep* FindStep(FName StepId) const;
+};
+
+/** Quest, die in einem bestimmten Level beim Spielstart beginnt (Testlevel). */
+USTRUCT(BlueprintType)
+struct GENESIS_API FGenesisQuestAutoStart
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FName QuestId;
+
+	/** Kurzname des Levels, z. B. L_GenesisTest. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Story")
+	FString MapName;
 };
 
 /** Projekteinstellungen > Genesis Story. */
@@ -181,9 +258,9 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Story")
 	TArray<TSoftObjectPtr<UGenesisQuestDefinition>> Quests;
 
-	/** Im Testlevel automatisch gestartet. */
+	/** Beim Spielstart im jeweiligen Level automatisch gestartet. */
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Story")
-	TArray<FName> AutoStartQuestIds;
+	TArray<FGenesisQuestAutoStart> AutoStartQuests;
 
 	/** Reichweite zum Ansprechen einer Figur, cm. */
 	UPROPERTY(Config, EditAnywhere, Category = "Genesis|Story")

@@ -46,9 +46,13 @@ void AGenesisGameMode::StartPlay()
 	// Im Testlevel konfigurierte Quests starten (Projekteinstellungen > Genesis Story).
 	if (UGenesisStorySubsystem* Story = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisStorySubsystem>() : nullptr)
 	{
-		for (const FName QuestId : GetDefault<UGenesisStorySettings>()->AutoStartQuestIds)
+		const FString Map = UWorld::RemovePIEPrefix(FPackageName::GetShortName(GetWorld()->GetOutermost()->GetName()));
+		for (const FGenesisQuestAutoStart& AutoStart : GetDefault<UGenesisStorySettings>()->AutoStartQuests)
 		{
-			Story->StartQuest(QuestId);
+			if (AutoStart.MapName.IsEmpty() || AutoStart.MapName == Map)
+			{
+				Story->StartQuest(AutoStart.QuestId);
+			}
 		}
 	}
 

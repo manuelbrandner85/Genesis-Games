@@ -27,9 +27,16 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Genesis|NPC")
 	FName GetNpcId() const { return CharacterAssetId; }
 
-	/** Was der Tagesplan jetzt (Weltzeit) vorsieht. */
+	/** Was die Figur jetzt tut: eine Reaktion auf die Lage (falls gesetzt), sonst der Tagesplan (Weltzeit). */
 	UFUNCTION(BlueprintPure, Category = "Genesis|NPC")
 	FName GetScheduledActivity() const;
+
+	/**
+	 * Reaktion auf die Lage (Wetter, eigenes Wissen), z. B. Schutz suchen oder Werkstatt sichern.
+	 * Wird von der Ortssimulation gesetzt und hat Vorrang vor dem Tagesplan; leer = Tagesplan.
+	 */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Genesis|NPC")
+	FName ReactionActivity;
 
 	UGenesisNpcMemoryComponent* GetMemory() const { return Memory; }
 
@@ -82,6 +89,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|NPC")
 	TObjectPtr<USmartObjectDefinition> Definition;
+
+	/** Nur diese Figuren nutzen den Platz (z. B. eigenes Zuhause, eigene Werkbank); leer = alle. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|NPC")
+	TArray<FName> OwnerNpcIds;
 
 	/** Definition an das Smart Object uebergeben (auch fuer Editor-Skripte). */
 	UFUNCTION(BlueprintCallable, Category = "Genesis|NPC")

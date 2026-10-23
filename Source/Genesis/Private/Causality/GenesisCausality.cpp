@@ -4,6 +4,7 @@
 #include "Genesis.h"
 #include "Npc/GenesisNpc.h"
 #include "Save/GenesisSaveSubsystem.h"
+#include "World/GenesisWorld.h"
 
 const FGenesisEventTypeDef* UGenesisCausalitySettings::FindType(FName EventType) const
 {
@@ -120,7 +121,7 @@ FName FGenesisCausality::RecordEvent(FGenesisSaveBundle& Bundle, const FGenesisE
 	// Betroffene: volle Wirkung. Zeugen: abgeschwaecht. Der Spieler selbst hat keinen NPC-Zustand.
 	for (const FName Target : EventCopy.TargetIds)
 	{
-		if (Target == EventCopy.ActorId || IsPlayerId(Target))
+		if (Target == EventCopy.ActorId || IsPlayerId(Target) || FGenesisWorldStateLib::IsWorldObjectId(Target))
 		{
 			continue;
 		}
@@ -130,7 +131,7 @@ FName FGenesisCausality::RecordEvent(FGenesisSaveBundle& Bundle, const FGenesisE
 	}
 	for (const FName Witness : EventCopy.WitnessIds)
 	{
-		if (Witness == EventCopy.ActorId || EventCopy.TargetIds.Contains(Witness) || IsPlayerId(Witness))
+		if (Witness == EventCopy.ActorId || EventCopy.TargetIds.Contains(Witness) || IsPlayerId(Witness) || FGenesisWorldStateLib::IsWorldObjectId(Witness))
 		{
 			continue;
 		}
@@ -139,7 +140,7 @@ FName FGenesisCausality::RecordEvent(FGenesisSaveBundle& Bundle, const FGenesisE
 		ApplyAttitude(Npc, EventCopy.ActorId, *Def, Settings.WitnessFactor);
 	}
 	// Eine handelnde Figur erinnert sich an das, was sie getan hat.
-	if (!IsPlayerId(EventCopy.ActorId))
+	if (!IsPlayerId(EventCopy.ActorId) && !FGenesisWorldStateLib::IsWorldObjectId(EventCopy.ActorId))
 	{
 		AddMemory(FindOrAddNpc(Bundle, EventCopy.ActorId), EventCopy, EGenesisMemorySource::Experienced, EventCopy.Magnitude, EventCopy.Valence, NAME_None);
 	}

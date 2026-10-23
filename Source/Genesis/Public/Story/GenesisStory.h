@@ -22,6 +22,9 @@ struct GENESIS_API FGenesisStory
 
 	static const FGenesisQuestStep* GetCurrentStep(const FGenesisSaveBundle& Bundle, const UGenesisQuestDefinition& Quest);
 
+	/** Sind alle Bedingungen im Spielstand erfuellt? */
+	static bool ConditionsMet(const FGenesisSaveBundle& Bundle, const TArray<FGenesisStateCondition>& Conditions);
+
 	/** Ausloeser anwenden: passende Kante des aktuellen Schritts nehmen (Weltbedingung beachtet). Liefert true bei Fortschritt. */
 	static bool FireTrigger(FGenesisSaveBundle& Bundle, const UGenesisQuestDefinition& Quest, FName Trigger);
 
@@ -51,6 +54,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Genesis|Story")
 	bool StartQuest(FName QuestId);
 
+	/**
+	 * Ein Ausloeser aus der Welt (Wetter, Objekt-Gespraech): startet Quests mit diesem StartTrigger und
+	 * bringt laufende Quests weiter, deren aktueller Schritt darauf wartet.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Genesis|Story")
+	void FireWorldTrigger(FName Trigger);
+
 	/** Spieler spricht eine Figur an: startet das Gespraech des aktuellen Questschritts, falls es eines gibt. */
 	UFUNCTION(BlueprintCallable, Category = "Genesis|Story")
 	bool InteractWith(FName NpcId);
@@ -60,6 +70,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Genesis|Story")
 	FName GetDialogSpeaker() const;
+
+	/** Anzeigename des Sprechers (Rolle oder Objekt), sonst die ID. */
+	UFUNCTION(BlueprintPure, Category = "Genesis|Story")
+	FText GetDialogSpeakerName() const;
 
 	UFUNCTION(BlueprintPure, Category = "Genesis|Story")
 	FText GetDialogText() const;

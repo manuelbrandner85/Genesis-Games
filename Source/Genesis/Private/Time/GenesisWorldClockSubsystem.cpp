@@ -90,7 +90,7 @@ void UGenesisWorldClockSubsystem::Tick(float DeltaTime)
 	{
 		return;
 	}
-	const double GameSeconds = double(DeltaTime) * GetDefault<UGenesisTimeSettings>()->GameSecondsPerRealSecond;
+	const double GameSeconds = double(DeltaTime) * GetDefault<UGenesisTimeSettings>()->GameSecondsPerRealSecond * TimeScale;
 	AdvanceAndBroadcast(FTimespan::FromSeconds(GameSeconds));
 }
 

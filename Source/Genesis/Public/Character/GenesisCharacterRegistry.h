@@ -17,6 +17,10 @@ struct GENESIS_API FGenesisCharacterRegistryEntry
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Characters")
 	FName CharacterAssetId;
 
+	/** Anzeigename im Gespraech (Rolle, solange kein Name feststeht, z. B. "Werkstatt"). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Characters")
+	FText DisplayName;
+
 	/** Austauschbares Aussehen. Ein Modellwechsel aendert nur diesen Wert. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Genesis|Characters")
 	TSoftObjectPtr<UGenesisCharacterAppearance> Appearance;

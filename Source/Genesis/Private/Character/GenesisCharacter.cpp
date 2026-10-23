@@ -18,6 +18,7 @@
 #include "Engine/GameInstance.h"
 #include "Npc/GenesisNpc.h"
 #include "Story/GenesisStory.h"
+#include "World/GenesisWorld.h"
 #include "InputActionValue.h"
 #include "Materials/MaterialInterface.h"
 #include "PhysicsEngine/PhysicsAsset.h"
@@ -235,7 +236,7 @@ bool AGenesisCharacter::TryInteract()
 	{
 		return false;
 	}
-	// Naechste Figur vor dem Spieler innerhalb der Reichweite.
+	// Naechste Figur oder benutzbares Weltobjekt (Aushang, Station, Bruecke) vor dem Spieler innerhalb der Reichweite.
 	const float Range = GetDefault<UGenesisStorySettings>()->InteractRangeCm;
 	AGenesisNpcCharacter* Best = nullptr;
 	float BestDistance = Range;
@@ -249,5 +250,24 @@ bool AGenesisCharacter::TryInteract()
 			BestDistance = Distance;
 		}
 	}
-	return Best && Story->InteractWith(Best->GetNpcId());
+	FName BestId = Best ? Best->GetNpcId() : NAME_None;
+	for (TActorIterator<AGenesisWorldObject> It(GetWorld()); It; ++It)
+	{
+		if (!It->bInteractable || !It->IsShown())
+		{
+			continue;
+		}
+		// Grosse Objekte (Bruecke): Abstand zur naechsten Stelle, nicht zur Mitte.
+		const FBox Bounds = It->GetComponentsBoundingBox();
+		const FVector Closest = Bounds.GetClosestPointTo(GetActorLocation());
+		const FVector ToObject = Closest - GetActorLocation();
+		const float Distance = ToObject.Size2D();
+		const bool bInFront = Distance < 30.f || (GetActorForwardVector() | ToObject.GetSafeNormal2D()) > 0.3f;
+		if (Distance <= BestDistance && bInFront)
+		{
+			BestId = It->ObjectId;
+			BestDistance = Distance;
+		}
+	}
+	return !BestId.IsNone() && Story->InteractWith(BestId);
 }

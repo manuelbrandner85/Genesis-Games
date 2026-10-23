@@ -5,6 +5,7 @@
 #include "Genesis.h"
 #include "Npc/GenesisNpc.h"
 #include "Npc/GenesisNpcTypes.h"
+#include "SmartObjectComponent.h"
 #include "SmartObjectDefinition.h"
 #include "SmartObjectRequestTypes.h"
 #include "SmartObjectSubsystem.h"
@@ -91,6 +92,13 @@ namespace
 		for (const FSmartObjectRequestResult& Result : Results)
 		{
 			if (Result.SlotHandle == Data.AvoidSlot && Results.Num() > 1)
+			{
+				continue;
+			}
+			// Eigene Plaetze (Zuhause, eigene Werkbank) nur fuer ihre Besitzer.
+			const USmartObjectComponent* Component = SmartObjects->GetSmartObjectComponentByRequestResult(Result);
+			const AGenesisActivitySpot* Spot = Component ? Cast<AGenesisActivitySpot>(Component->GetOwner()) : nullptr;
+			if (Spot && Spot->OwnerNpcIds.Num() > 0 && !Spot->OwnerNpcIds.Contains(Npc->GetNpcId()))
 			{
 				continue;
 			}
@@ -251,16 +259,19 @@ UStateTree* UGenesisNpcAssetBuilder::BuildDailyLifeStateTree(const FString& Pack
 	EditorData->EditorSchema = NewObject<UStateTreeEditorSchema>(EditorData, EditorModule.GetEditorSchemaClass(SchemaClass.Get()), FName(), RF_Transactional);
 
 	UStateTreeState& Root = EditorData->AddSubTree(FName(TEXT("Tagesablauf")));
-	// Reihenfolge = Prioritaet. Freizeit zuletzt und ohne Bedingung: es gibt immer etwas zu tun.
-	const TCHAR* Activities[] = { TEXT("Sleep"), TEXT("Work"), TEXT("Market"), TEXT("Leisure") };
-	for (const TCHAR* Activity : Activities)
+	// Reihenfolge = Prioritaet. Die Rueckfall-Aktivitaet zuletzt und ohne Bedingung: es gibt immer etwas zu tun.
+	const UGenesisNpcSettings& Settings = *GetDefault<UGenesisNpcSettings>();
+	TArray<FName> Activities = Settings.Activities;
+	Activities.Remove(Settings.DefaultActivity);
+	Activities.Add(Settings.DefaultActivity);
+	for (const FName Activity : Activities)
 	{
-		UStateTreeState& State = Root.AddChildState(FName(Activity));
-		if (FName(Activity) != FName(TEXT("Leisure")))
+		UStateTreeState& State = Root.AddChildState(Activity);
+		if (Activity != Settings.DefaultActivity)
 		{
-			State.AddEnterCondition<FGenesisScheduledActivityCondition>().GetInstanceData().Activity = FName(Activity);
+			State.AddEnterCondition<FGenesisScheduledActivityCondition>().GetInstanceData().Activity = Activity;
 		}
-		State.AddTask<FGenesisActivityTask>().GetInstanceData().Activity = FName(Activity);
+		State.AddTask<FGenesisActivityTask>().GetInstanceData().Activity = Activity;
 		State.AddTransition(EStateTreeTransitionTrigger::OnStateCompleted, EStateTreeTransitionType::GotoState, &Root);
 		State.AddTransition(EStateTreeTransitionTrigger::OnStateFailed, EStateTreeTransitionType::GotoState, &Root);
 	}

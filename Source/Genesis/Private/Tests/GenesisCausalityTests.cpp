@@ -44,7 +44,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisCausalityConfigTest, "Genesis.Causality
 bool FGenesisCausalityConfigTest::RunTest(const FString&)
 {
 	using namespace GenesisCausalityTests;
-	TestEqual(TEXT("8 Ereignistypen aus der Konfiguration"), Settings().EventTypes.Num(), 8);
+	TestEqual(TEXT("8 Grund- und 21 Flussdorf-Ereignistypen aus der Konfiguration"), Settings().EventTypes.Num(), 29);
 	const FGenesisEventTypeDef* Broken = Settings().FindType(TEXT("PROMISE_BROKEN"));
 	TestTrue(TEXT("PROMISE_BROKEN mit Vertrauensverlust"), Broken && Broken->TrustDelta < 0.f && Broken->ConductDeltas.Contains(TEXT("Reliability")));
 	return true;

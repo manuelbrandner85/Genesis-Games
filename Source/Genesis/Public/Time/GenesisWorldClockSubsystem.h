@@ -52,6 +52,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Genesis|Time")
 	bool IsClockRunning() const { return bClockRunning; }
 
+	/** Zusaetzlicher Zeitraffer-Faktor auf die eingestellte Uhrgeschwindigkeit (1 = normal), z. B. fuer Tests. */
+	UFUNCTION(BlueprintCallable, Category = "Genesis|Time")
+	void SetTimeScale(float Scale) { TimeScale = FMath::Max(Scale, 0.f); }
+
+	UFUNCTION(BlueprintPure, Category = "Genesis|Time")
+	float GetTimeScale() const { return TimeScale; }
+
 	UFUNCTION(BlueprintPure, Category = "Genesis|Time")
 	FDateTime GetWorldDateTime() const;
 
@@ -82,6 +89,8 @@ private:
 	FGenesisSaveBundle* GetBundle() const;
 
 	bool bClockRunning = true;
+
+	float TimeScale = 1.f;
 
 	/** Noch nicht uebernommene Bruchteile einer Millisekunde. */
 	int64 PendingTicks = 0;
