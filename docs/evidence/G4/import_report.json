@@ -1,0 +1,66 @@
+{
+  "engine": "5.8.3-58210709+++UE5+Release-5.8",
+  "mesh": "/Game/Genesis/TechSmoke/PalletEUR/SM_TechSmoke_PalletEUR.SM_TechSmoke_PalletEUR",
+  "bounds_min_cm": [
+    -60.104,
+    -40.048,
+    -0.0
+  ],
+  "bounds_max_cm": [
+    60.104,
+    40.048,
+    14.584
+  ],
+  "size_cm": [
+    120.209,
+    80.096,
+    14.584
+  ],
+  "nanite_enabled": true,
+  "lods": 1,
+  "verts_lod0": 974,
+  "material_slots": [
+    "/Game/Genesis/TechSmoke/PalletEUR/MI_TechSmoke_PalletWood.MI_TechSmoke_PalletWood"
+  ],
+  "collision": "convex_decomposition",
+  "simple_collision_count": 0,
+  "convex_collision_count": 15,
+  "recompute_normals": false,
+  "recompute_tangents": false,
+  "textures": {
+    "T_SM_TechSmoke_PalletEUR_BC": {
+      "srgb": true,
+      "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    "T_SM_TechSmoke_PalletEUR_ORM": {
+      "srgb": false,
+      "compression": "<TextureCompressionSettings.TC_MASKS: 2>",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    "T_SM_TechSmoke_PalletEUR_N": {
+      "srgb": false,
+      "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+      "size": [
+        4096,
+        4096
+      ]
+    }
+  },
+  "imported": [
+    "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_BC.T_SM_TechSmoke_PalletEUR_BC",
+    "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_ORM.T_SM_TechSmoke_PalletEUR_ORM",
+    "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_N.T_SM_TechSmoke_PalletEUR_N",
+    "/Game/Genesis/TechSmoke/PalletEUR/M_TechSmoke_PalletWood.M_TechSmoke_PalletWood",
+    "/Game/Genesis/TechSmoke/PalletEUR/SM_TechSmoke_PalletEUR.SM_TechSmoke_PalletEUR"
+  ],
+  "removed_placeholder_materials": [
+    "/Game/Genesis/TechSmoke/PalletEUR/M_TechSmoke_PalletWood.M_TechSmoke_PalletWood"
+  ]
+}

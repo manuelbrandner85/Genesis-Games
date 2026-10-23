@@ -1,0 +1,48 @@
+{
+  "size_cm": [
+    120.209,
+    80.096,
+    14.584
+  ],
+  "blender_ref_cm": [
+    120.20899999999999,
+    80.096,
+    14.584
+  ],
+  "bounds_min_cm": [
+    -60.104,
+    -40.048,
+    -0.0
+  ],
+  "nanite": {
+    "enabled": true,
+    "fallback_percent_triangles": 1.0
+  },
+  "fallback_verts_lod0": 974,
+  "collision_convex_hulls": 15,
+  "collision_simple": 0,
+  "pocket_traces_hit": {
+    "along_x_between_rows_y-17": false,
+    "along_x_between_rows_y+17": false,
+    "along_y_between_cols_x-26": true,
+    "along_y_between_cols_x+26": true
+  },
+  "solid_traces_hit": {
+    "down_onto_deck": true,
+    "into_corner_block": true
+  },
+  "material": "/Game/Genesis/TechSmoke/PalletEUR/MI_TechSmoke_PalletWood.MI_TechSmoke_PalletWood",
+  "checks": {
+    "size_matches_blender_0.1mm": true,
+    "origin_bottom_centre": true,
+    "length_on_x_width_on_y": true,
+    "nanite_enabled": true,
+    "nanite_full_fallback": true,
+    "one_material_is_instance": true,
+    "collision_present": true,
+    "fork_pockets_open": false,
+    "deck_and_blocks_solid": true,
+    "rests_on_floor": true
+  },
+  "passed": false
+}
