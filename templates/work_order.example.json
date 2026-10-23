@@ -1,0 +1,47 @@
+{
+  "work_id": "WK-001",
+  "owner": "GENESIS-04",
+  "status": "PLANNED",
+  "repo_commit": "UNVERIFIED",
+  "input_files": [
+    {
+      "path": "",
+      "sha256": ""
+    }
+  ],
+  "locks": [
+    "UE_EDITOR_WRITE"
+  ],
+  "required_outputs": [
+    {
+      "path": "",
+      "type": "file",
+      "must_exist": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "NOT_CHECKED",
+      "invoked": false,
+      "log": ""
+    },
+    {
+      "name": "UnrealEditor",
+      "version": "NOT_CHECKED",
+      "invoked": false,
+      "log": ""
+    }
+  ],
+  "qa": {
+    "checks": [],
+    "reviewer": "GENESIS-24",
+    "result": "NOT_RUN"
+  },
+  "rights": {
+    "source": "self-made",
+    "license": "self-created",
+    "verified": false
+  },
+  "blockers": []
+}

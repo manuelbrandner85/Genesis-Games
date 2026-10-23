@@ -1,0 +1,3 @@
+# GENESIS V3 – Ressourcen und Kosten
+
+Vorgaben: keine zusätzlichen kostenpflichtigen APIs, Assets und Musik ohne Freigabe; lokale kostenlose Tools zuerst, Claude-Code-Abo/Limit kann Produktionsjobs unterbrechen. `StudioBrain` protokolliert Token-/Toolbudget, VRAM, RAM, CPU/GPU-Belegung, Dateigrößen, Laufzeiten und Fehler. Automatische Jobs stoppen sauber bei Zeit-/Speicher-/Kostenlimiten und markieren `BLOCKED_RESOURCE`. Bei nur einer GPU keine gleichzeitigen Blender-High-Res-Renders und Unreal-Spieltests. Texturen/Polygone/LOD-Budgets anhand Baseline verhandeln und als konkrete Zahlen im Assetvertrag hinterlegen. Eine V3-Spezifikation ist kein Anspruch, der automatisch unendlichen Render-/Berechnungsaufwand erlaubt.

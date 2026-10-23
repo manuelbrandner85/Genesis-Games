@@ -1,0 +1,16 @@
+/Binaries/
+/Build/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/.vs/
+.vscode/
+*.VC.db
+*.suo
+**/__pycache__/
+**/*.pyc
+canon_sources/*
+!canon_sources/README.md
+ArtSource/Temp/
+logs/
+*.log

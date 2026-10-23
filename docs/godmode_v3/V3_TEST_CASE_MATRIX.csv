@@ -1,0 +1,49 @@
+Verbesserung,TestID,Abnahmefall,Beweis,Status,Verantwortlich
+V3-01,V3-01-T01,Maße/Pivot/Skeleton/Anker mit freigegebenem Charaktervertrag vergleichen; numerische Abweichungen protokollieren.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-01,V3-01-T02,Vorder-/Seiten-/Rückansicht human-review gegen identische Referenz-ID und Objektversion.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-01,V3-01-T03,"Unreal-Proportionen, Kapsel, Fußhöhe, AnimBP-Skeleton, LOD, Gewichte und Knochenhierarchie testen.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-01,V3-01-T04,Gesichtsausdrücke/Änderungen von Outfit oder Alter dürfen CharacterAssetId-Identität nicht unbemerkt ersetzen.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-02,V3-02-T01,Stehen/Gehen/Laufen/Sprint/Stop/Pivot/Sprung/Treppe/Steigung/Unebenheit je Input-Gerät.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-02,V3-02-T02,Stuhl-/Tür-/Gegenstandsszenen ohne offensichtliche Penetration; Testcamera inklusive.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-02,V3-02-T03,"Controller und Tastatur/Maus manuell durch Tester; automatische Eingabe ergänzt, ersetzt nicht.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-02,V3-02-T04,Save/Load während Interaktion führt zu definiertem Recovery und nicht zu dauerhaft gesperrter Aufgabe.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-03,V3-03-T01,"Begehbarkeit jedes vorgesehenen Eingangs, NavMesh, Interaktionshöhe, Innen/Außen-Licht und Kollision.",REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-03,V3-03-T02,Revisit nach World-Partition-Unload: gleiche relevante Objekte und NPC-IDs.,REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-03,V3-03-T03,"Vier Tageszeiten, Wetterlagen, Detailstufen und auf genehmigter Zielhardware gemessene Framezeiten.",REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-03,V3-03-T04,Keine unberechtigten Bibliotheks-/Gebäudeelemente für gesperrte Storybereiche.,REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-04,V3-04-T01,Anfahren/Bremsen/Kurven bei trockener und nasser Straße auf Referenzstrecke.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-04,V3-04-T02,Physik bei unterschiedlichen FPS und Pause/Resume; kein Teleport-/Kollisions-Exploit.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-04,V3-04-T03,"Ein-/Aussteigen, Türen, NPC-Wegfindung und Parken nach Save/Load.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-04,V3-04-T04,Hardwaretest mit Fahrzeug plus NPC-Verkehr und dokumentierter CPU-/GPU-Last.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-05,V3-05-T01,Mehrere NPCs mit konkurrierender Smart-Object-Belegung und Fallback.,REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-05,V3-05-T02,"Spieler hilft/ignoriert jemanden, NPC erinnert sich nach Reload und nach Tagen.",REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-05,V3-05-T03,Zeitvorlauf 1/10/100 In-Game-Tage ohne exponentielles Wachstum.,REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-05,V3-05-T04,Laden und Streamen dupliziert keinen NPC und macht niemanden gleichzeitig an zwei Orten.,REQUIRES_REAL_RUN,NOT_RUN,genesis-performance-specialist
+V3-06,V3-06-T01,Erstes Spiel C00/Prolog-Bedingungen bleiben korrekt; erste spielbare Inkarnation beginnt in Gegenwart 2026.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-06,V3-06-T02,"Tod bei Geburt, frühem Erwachsenenalter, Alter: korrektes Jenseits und keine erfundene Biografie.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-06,V3-06-T03,SoulID stabil und neue LifeID nach Rebirth; Weltzeit nie zum Ausgangs-2026 zurückgesetzt.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-06,V3-06-T04,"Crash, Save/Load und Mid-Commit-Retry ändern weder Ereignisanzahl noch Soul-/Life-Verknüpfung.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-07,V3-07-T01,Sämtliche Missionszweige in automatischen Graph-Tests begehbar; keine doppelte Auszahlung.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-07,V3-07-T02,Dialog über Beziehung nur wenn Beziehung im Save nachweisbar.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-07,V3-07-T03,"Mission abbrechen, Spiel speichern, neu laden, Ort verlassen, Teilnehmer weg: definierter Zustand.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-07,V3-07-T04,"ScriptLock-Szenen nie stillschweigend ändern, Skip committen, Spoiler vor C19 sperren.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-08,V3-08-T01,C00 und C20 referenzieren exakt denselben geprüften Master-Asset-Hash.,REQUIRES_REAL_RUN,NOT_RUN,genesis-script-guardian
+V3-08,V3-08-T02,Skip/Save/Load/Sprachwahl in jeder Phase keine kaputten Weltzustände.,REQUIRES_REAL_RUN,NOT_RUN,genesis-script-guardian
+V3-08,V3-08-T03,Gesichts-/Mundbewegung wird gegen tatsächlich vorhandenes Sprach-Audio von Menschen geprüft.,REQUIRES_REAL_RUN,NOT_RUN,genesis-script-guardian
+V3-08,V3-08-T04,C19/C20 Offenbarungszeitpunkte und C21 Originaloptionen bleiben unverändert.,REQUIRES_REAL_RUN,NOT_RUN,genesis-script-guardian
+V3-09,V3-09-T01,"Dialogpausen/Choice/Resume halten Audio, Untertitel, Gesicht synchron.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-09,V3-09-T02,"Musik-Ducking unter Dialog, ohne knallende Lautstärkesprünge.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-09,V3-09-T03,"Hören mit Kopfhörer/Stereo, Lautstärkeoptionen, Sound aus/an, Sprachwechsel.",REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-09,V3-09-T04,Lizenzbelege pro finalem Audioasset; fehlender Nachweis blockiert Release.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-10,V3-10-T01,Input-Konsistenz bei variablen FPS; Drehung und Geschwindigkeit nicht framerateabhängig.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-10,V3-10-T02,Laufen/Rampe/Treppen/Türen/Indoor/Cinematic-Return aus echten Build-Tests.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-10,V3-10-T03,Keine Pflicht-QTE in Verlust-/Sterbeszenen; Untertitel und vereinfachte Interaktion funktionieren.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-10,V3-10-T04,Playtester können Hauptaktionen ohne Entwicklerhilfe erledigen.,REQUIRES_REAL_RUN,NOT_RUN,genesis-qa-release
+V3-11,V3-11-T01,"Framezeiten/GPU-Speicher/CPU-Last auf konkreter Hardware messen, kein globaler FPS-Fixwert ohne Spezifikation.",REQUIRES_REAL_RUN,NOT_RUN,genesis-open-world
+V3-11,V3-11-T02,World Partition: Bewegung/Teleport/QuickSave/Last unter Worst-Case-Dichte reproduzierbar.,REQUIRES_REAL_RUN,NOT_RUN,genesis-open-world
+V3-11,V3-11-T03,Visuelle Falschfarben-/Shader-/Normalkarten-/Tonemapping-Anomalien auf 4 Tageszeiten.,REQUIRES_REAL_RUN,NOT_RUN,genesis-open-world
+V3-11,V3-11-T04,Ungetestete Konfigurationen bleiben NOT_MEASURED.,REQUIRES_REAL_RUN,NOT_RUN,genesis-open-world
+V3-12,V3-12-T01,Build/Package erzeugt überprüfbares Artefakt statt bloßes Konsolenversprechen.,REQUIRES_REAL_RUN,NOT_RUN,genesis-tool-integration
+V3-12,V3-12-T02,Crash/Save/Load/Teleport/Story-Regression auf eigenem Testsave und dokumentiertem Seed.,REQUIRES_REAL_RUN,NOT_RUN,genesis-tool-integration
+V3-12,V3-12-T03,"Negative Testfälle führen zu FAILED/BLOCKED, kein Fortschritt durch Statusmanipulation.",REQUIRES_REAL_RUN,NOT_RUN,genesis-tool-integration
+V3-12,V3-12-T04,Goldstandard-Slice wird von mindestens einem menschlichen Test überprüft.,REQUIRES_REAL_RUN,NOT_RUN,genesis-tool-integration

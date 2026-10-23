@@ -1,0 +1,14 @@
+{
+  "asset_id": "TEST_SMOKE_CRATE_001",
+  "phase": "SMOKE_ONLY",
+  "type": "static_mesh",
+  "story_ref": null,
+  "dimensions_m": {"x": 1.0, "y": 1.0, "z": 1.0},
+  "reference_images": [],
+  "license_status": "SELF_CREATED",
+  "blender_master": "",
+  "exports": [],
+  "ue_path": "/Game/Genesis/Prototyping/SMOKE_TEST",
+  "status": "DRAFT_REFERENCE",
+  "qa_evidence": []
+}

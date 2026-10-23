@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "project": "GENESIS",
+  "game_version": "GODMODE_V3",
+  "gate_mode": "FAIL_CLOSED",
+  "status": "NOT_RUN",
+  "gates": [
+    {
+      "gate_id": "GS01",
+      "name": "Source lock & licenses",
+      "criterion": "Original story sources verified with SHA and conflicts recorded",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS02",
+      "name": "Agent and tooling",
+      "criterion": "24 roles loaded in Claude Code; appropriate approved MCP/endpoints smoke tested",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS03",
+      "name": "Blender ↔ Unreal pipeline",
+      "criterion": "Actual .blend → static FBX → real UE imported asset → runtime readback",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS04",
+      "name": "Hero character",
+      "criterion": "Approved reference, topology, rig, animation and in-game comparison",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS05",
+      "name": "Living NPC & world",
+      "criterion": "NPC schedules, WorldClock/save/LOD persistence measured",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS06",
+      "name": "Cinematic and sound",
+      "criterion": "Canon/voices/rights/scene contracts and C00/C20 replay evidence",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS07",
+      "name": "Gold slice runtime",
+      "criterion": "Functional region, dialogue, quest, interactions, UI, accessibility",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS08",
+      "name": "Performance and user playtest",
+      "criterion": "Measured on named target hardware and reviewed by human tester",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    },
+    {
+      "gate_id": "GS09",
+      "name": "Shipping release gate",
+      "criterion": "Licenses, source archive, build logs and final owner approval",
+      "evidence_required": true,
+      "source_approval_required": true,
+      "status": "NOT_RUN",
+      "evidence_paths": [],
+      "reviewer": null
+    }
+  ]
+}

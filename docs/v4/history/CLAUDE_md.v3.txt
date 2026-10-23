@@ -1,0 +1,38 @@
+# GENESIS – CLAUDE CODE GODMODE V3 (vom Game Director genehmigt 23.10.2026)
+
+**ZUERST:** `GENESIS_CLAUDE_CODE_MASTERPROMPT_V3.md` lesen, danach `docs/godmode_v3/QUICK_START_WINDOWS.md`, `GOLDSTANDARD_SLICE_2026.md`, **alle zwölf** `docs/godmode_v3/verbesserungen/V3-*.md`, Gold-Slice-Gates, 10 V2-Verbesserungen und die unveränderte Original-MD `original_md_unveraendert/GAMEFORGE_Verbesserung_03_Ultimate_Living_World_Simulation_GODMODE.md` (SHA256 `3f57041e3534c66220e83d7e7d3c9a0f45da613477bfe7d58aa9333f41b511af`). Die 50 Living-World-Funktionen und 12 GENESIS-Missionsfunktionen bleiben aktiv.
+
+**Projekt:** bestehendes `manuelbrandner85/Genesis-Games`. Keine neue Welt, kein AION-Scope. Bestehende 24 Claude-Agents, Skills, Hooks und GAMEFORGE 42 Agenten (falls tatsächlich vorhanden) weiterverwenden. V3 installiert kein eigenständiges Runtime-LLM oder einen zweiten StudioBrain. Alle lokalen Verbindungen zuerst selbst prüfen.
+
+**Story-Schutz:** Original-C00–C21, J00–J24 und sämtliche Freigaben unverändert. Erste spielbare Inkarnation 2026; vorangestellter Prolog aus 2026 bleibt erhalten. Weltzeit chronologisch fortlaufend, Jenseits oder freiwillige Wiedergeburt, keine Epochenwahl. C15/C16 CON33-01, C17 Epochen-Wortlaut und C21-Finale Konflikte ungeklärt dokumentieren. C00/C20 dasselbe Audio-/Bild-Master. Keine erfundenen Storydokumente, Stimme, Bild oder Quellen.
+
+**Priorität:** `WK-V3-G0` lesender Audit, SHA256-SourceVault und Lizenzinventur → `GS01` bis `GS09` Goldstandard-Slice; wenn Quelle/Hardware/Tool fehlt, nur neutraler tech Smoke oder BLOCKED. Nicht sofort 1000 Content-Assets erzeugen. Kein Push, keine kostenpflichtigen APIs, kein destruktives Überschreiben, keine Veröffentlichung ohne ausdrückliche Freigabe.
+
+**Quality:** Kein Asset `ACCEPTED`, bevor es echt in Blender geprüft, in UE importiert, in PIE/Standalone getestet und – wo visuell erforderlich – von Mensch beurteilt wurde. Kein Tool-Ergebnis erfinden. Laufzeitsysteme Unreal C++/Blueprint; Blender/Unreal Python nur Editor-/Build-Zeit.
+
+**Sicherheits-Hinweis:** Hooks und Readme-Regeln sind Defense in Depth, keine vollständige Sandbox; native Rechte-/Git-/Review-Kontrollen weiterhin nutzen.
+
+---
+
+## Erhaltene GENESIS-V2-Regeln
+
+
+1. `START_HIER.md` und `GENESIS_CLAUDE_CODE_MASTERPROMPT_V2.md` vollständig lesen. Bei frühere Aufgaben älteren Masterprompt nur als Nachschlagequelle.
+2. Original `original_md_unveraendert/GAMEFORGE_Verbesserung_03_Ultimate_Living_World_Simulation_GODMODE.md` (SHA-256 `3f57041e3534c66220e83d7e7d3c9a0f45da613477bfe7d58aa9333f41b511af`) **in voller Länge** lesen und Funktionen 01–50 mit Matrix `docs/produktion/GAMEFORGE03_50_FEATURES_MATRIX.csv` abgleichen.
+3. **Alle 10** bestätigten Dokumente unter `docs/verbesserungen_01_bis_10/` lesen. GENESIS-Missionsverbesserung 3/12 Anforderungen ist separat unter `docs/produktion/GENESIS_MISSIONEN_12_ABNAHME.md`.
+4. `docs/produktion/QUELLEN_KONFLIKTE.md`, Roadmap, Referenzstandard und Original-Repo-Zustand prüfen.
+5. Original-Storybibel/ScriptLock C00–C21/J00–J24/V61/V62 und GAMEFORGE 01/02 können als vollständige Dateien im Paket fehlen: lokal aus erlaubten Quellen finden, sonst **BLOCKED_SOURCE_MISSING** – nicht erfinden.
+
+## Strenge GENESIS-Regeln
+- Originalstory C00–C21 unverändert; C00/C20 identischer Aufnahme-Master; keine Kollektiv-Enthüllung vor C19.
+- Erstes spielbares Leben 2026, Weltzeit chronologisch, Jenseits oder freiwillige Wiedergeburt in derselben Welt, **keine wählbaren Epochen**.
+- `SoulID` bleibt, neue `LifeID` nach Rebirth; Spielstand transaktional, keine Game-Over-Strafe.
+- C15/C16 `CON33-01`, C17-Wortlaut/Epoche, C21-Ein-Welt-Konflikt nicht eigenmächtig lösen.
+- Keine doppelte Save-/WorldClock-/StudioBrain-Infrastruktur. 24 `.claude/agents/` als Fachrollen, vorhandene GAMEFORGE-42-Agenten vorrangig verwenden, falls real installiert.
+- Nur kostenlose/lizenzierte Assets ohne neue API-Kosten; Installationen, kritische Migration, Löschungen, Push, Story-/Release-Änderungen nur nach Freigabe.
+- Aktive Blender-/UE-MCP-Verbindungen, Modelle, Videos, Builds und QA **nur** melden, wenn wirklich auf dem Zielrechner ausgeführt und anhand Logs/Dateien geprüft.
+
+## Schritte
+Read-only Audit → Skills/Agenten/Hooks/MCP verifizieren → Blender→UE-Smoke (freigegeben) → 2026 Vertical Slice → Living World 50 + Missionen 12 → hochwertige Figuren/Cinematics/Audio nach Kanonfreigabe → Longrun/Performance/QA → Release.
+
+WorkID-Nachweis: SourceHashes, Basiscommit, Owner, Lock, Output-Dateien, Logs, Tests, Lizenz, Status. `ACCEPTED` nur nach unabhängiger Prüfung. Bei Unklarheit `BLOCKED` statt Erfolgsbehauptung. Starte mit `WK-V2-000`.

@@ -1,0 +1,44 @@
+{
+  "project": "GENESIS_V4_NEW_GAME",
+  "status": "SOURCE_BLOCKED_UNTIL_VERIFIED",
+  "sources": [
+    {
+      "id": "SCRIPTLOCK_C00_C21",
+      "path": "<LOCAL_READ_ONLY_PATH>",
+      "expected_chapters": "C00-C21",
+      "sha256": null,
+      "approval": "UNVERIFIED"
+    },
+    {
+      "id": "JENSEITS_J00_J24",
+      "path": "<LOCAL_READ_ONLY_PATH>",
+      "expected_chapters": "J00-J24",
+      "sha256": null,
+      "approval": "UNVERIFIED"
+    },
+    {
+      "id": "BIBEL_ORIGINAL",
+      "path": "<LOCAL_READ_ONLY_PATH>",
+      "sha256": null,
+      "approval": "UNVERIFIED"
+    },
+    {
+      "id": "GAMEFORGE_V01",
+      "path": "<OPTIONAL_LOCAL_PATH>",
+      "sha256": null,
+      "approval": "UNVERIFIED"
+    },
+    {
+      "id": "GAMEFORGE_V02",
+      "path": "<OPTIONAL_LOCAL_PATH>",
+      "sha256": null,
+      "approval": "UNVERIFIED"
+    }
+  ],
+  "conflicts": [
+    "CON33-01",
+    "C17_EPOCH_WORDING",
+    "C21_ONE_WORLD_FINALE"
+  ],
+  "confirmed_runtime_rule": "NO_SELECTABLE_EPOCHS_WORLD_CONTINUES_AFTER_2026"
+}

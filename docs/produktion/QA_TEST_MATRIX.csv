@@ -1,0 +1,23 @@
+TestID,Bereich,Test,Nachweis,Status,Owner,Fehlerfolge
+QA-001,Quelle,Unveraenderte Original GAMEFORGE-03-MD SHA256,sha256 Bericht,NOT_RUN,GENESIS-24,BLOCKED_SOURCE
+QA-002,Quelle,Alle 50 GAMEFORGE03-IDs mit Originaltiteln,CSV Testbericht,NOT_RUN,GENESIS-24,TEST_FAILED
+QA-003,Quelle,Gesperrte C00-C21 und J00-J24 Quellen vorhanden,source_index+Hashes,NOT_RUN,GENESIS-02,BLOCKED_SOURCE
+QA-004,Agenten,24 Claude Code Agenten geladen,/agents Screen oder CLI Protokoll,NOT_RUN,GENESIS-01,BLOCKED_TOOL
+QA-005,Agenten,Vorhandene GAMEFORGE-42 Rollen dedupliziert,Mapping Datei,NOT_RUN,GENESIS-01,WAITING_APPROVAL
+QA-006,Hook,PreToolUse Policy gegen unautorisierte Story Writes,Hook Test Log,NOT_RUN,GENESIS-24,TEST_FAILED
+QA-007,MCP,Blender und Unreal Endpunkte real erreichbar,/mcp+Tool Smoke Logs,NOT_RUN,GENESIS-04,BLOCKED_TOOL
+QA-008,3D,6 konsistente Referenzansichten plus Massblatt,PNG+ref manifest,NOT_RUN,GENESIS-05,WAITING_REFERENCE
+QA-009,Blender,Master blend Datei neu ladbar,Blender Readback Log,NOT_RUN,GENESIS-06,TEST_FAILED
+QA-010,Blender,Topologie UV MaBe Material Pivot,Blender Asset Audit JSON,NOT_RUN,GENESIS-08,TEST_FAILED
+QA-011,Blender,Character Rig Skin Face Animation,Pose Bilder plus Blend,NOT_RUN,GENESIS-08,TEST_FAILED
+QA-012,Unreal,FBX Import und AssetRegistry readback,Unreal Python Log,NOT_RUN,GENESIS-04,TEST_FAILED
+QA-013,Unreal,Gameplay PIE und Standalone Build,Build+PIE Log,NOT_RUN,GENESIS-12,TEST_FAILED
+QA-014,Save,Worldtime und Rebirth Migration unbeschaedigt,Automation Report,NOT_RUN,GENESIS-24,TEST_FAILED
+QA-015,Simulation,NPC-ID behalt bei WorldPartition Streaming,Automation Report,NOT_RUN,GENESIS-14,TEST_FAILED
+QA-016,Simulation,Near Mid Far Lastprofil,Unreal Insights Trace,NOT_RUN,GENESIS-22,TEST_FAILED
+QA-017,Missionen,Alle 12 Missionsvertraege mit Gate und Idempotenz,PIE Testbericht,NOT_RUN,GENESIS-15,TEST_FAILED
+QA-018,Film,C00/C20 identischer Filmtonhash,Quellassetvergleich,NOT_RUN,GENESIS-19,TEST_FAILED
+QA-019,Film,C19 Spoiler Guard und SkipCommit,Story QA Report,NOT_RUN,GENESIS-02,TEST_FAILED
+QA-020,Audio,Lizenz und deutsche LipSync validiert,Audio + Lizenz + Artist Check,NOT_RUN,GENESIS-20,BLOCKED_SOURCE
+QA-021,Performance,CPU GPU VRAM und FrameTime auf Zielhardware,Insights Trace/Hardware,NOT_RUN,GENESIS-22,TEST_FAILED
+QA-022,Release,Game Director und unabhaengige QA Zustimmung,Signoff Bericht,NOT_RUN,GENESIS-24,WAITING_APPROVAL

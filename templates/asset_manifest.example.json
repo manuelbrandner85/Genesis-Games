@@ -1,0 +1,28 @@
+{
+  "asset_id": "TEST_SMOKE_CRATE_001",
+  "phase": "SMOKE_ONLY",
+  "name": "Pipeline-Test-Kiste",
+  "type": "static_mesh",
+  "story_ref": null,
+  "dimensions_m": {
+    "x": 1,
+    "y": 1,
+    "z": 1
+  },
+  "reference_angles": [
+    "front",
+    "back",
+    "left",
+    "right",
+    "top",
+    "iso"
+  ],
+  "reference_images": [],
+  "sources": [],
+  "license_status": "SELF_CREATED",
+  "blender_master": "",
+  "exports": [],
+  "ue_path": "",
+  "status": "DRAFT_REFERENCE",
+  "qa_evidence": []
+}

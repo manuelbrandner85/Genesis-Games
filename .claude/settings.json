@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/tools/v4/hooks/claude_pretool_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
