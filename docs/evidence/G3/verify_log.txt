@@ -1,0 +1,5 @@
+﻿FBX version: 7400
+G3_VERIFY {"fbx": "C:\\Users\\manue\\Desktop\\Genesis-Games\\ArtSource\\TechSmoke\\SM_TechSmoke_PalletEUR\\Export\\SM_TechSmoke_PalletEUR.fbx", "blender": "5.2.1 LTS", "object": "SM_TechSmoke_PalletEUR", "size_mm": [1201.35, 801.8, 144.3], "wood_top_mm": 144.0, "verts": 2940, "faces": 3400, "triangles": 5680, "uv_layers": ["UVMap"], "custom_normals": true, "checks": {"single_mesh": true, "length_x": true, "width_y": true, "wood_height_z": true, "origin_bottom_centre": true, "unit_transform": true, "uv_map": true, "no_degenerate_triangles": true, "max_4_corners": true}, "passed": true}
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

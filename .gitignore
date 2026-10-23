@@ -14,3 +14,4 @@ canon_sources/*
 ArtSource/Temp/
 logs/
 *.log
+*.blend1
