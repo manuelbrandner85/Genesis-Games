@@ -62,7 +62,8 @@ const FGenesisWorldEvent* UGenesisWorldStateSubsystem::FindLastEvent(FName Actio
 }
 
 const FGenesisWorldEvent* UGenesisWorldStateSubsystem::ApplyEvent(FName ActionID, FName ActorID, FName ObjectID, const FString& AfterState,
-                                                                  FName IdempotencyKey, const TArray<FName>& Sources)
+                                                                  FName IdempotencyKey, const TArray<FName>& Sources,
+                                                                  const FVector* Location)
 {
     if (WasApplied(IdempotencyKey)) {
         return nullptr;
@@ -77,6 +78,10 @@ const FGenesisWorldEvent* UGenesisWorldStateSubsystem::ApplyEvent(FName ActionID
     E.WorldMinute = State.WorldMinute;
     E.IdempotencyKey = IdempotencyKey;
     E.SourceEventIDs = Sources;
+    if (Location) {
+        E.Location = *Location;
+        E.bHasLocation = true;
+    }
     if (!ObjectID.IsNone()) {
         State.ObjectStates.Add(ObjectID, AfterState);
     }

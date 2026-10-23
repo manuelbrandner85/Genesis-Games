@@ -41,7 +41,8 @@ public:
     /** Records a change of ObjectID to AfterState. Returns the event, or nullptr if the
      *  IdempotencyKey was applied before (nothing changes then). */
     const FGenesisWorldEvent* ApplyEvent(FName ActionID, FName ActorID, FName ObjectID, const FString& AfterState,
-                                         FName IdempotencyKey = NAME_None, const TArray<FName>& Sources = {});
+                                         FName IdempotencyKey = NAME_None, const TArray<FName>& Sources = {},
+                                         const FVector* Location = nullptr);
     bool WasApplied(FName IdempotencyKey) const;
     const FGenesisWorldEvent* FindLastEvent(FName ActionID) const;
 

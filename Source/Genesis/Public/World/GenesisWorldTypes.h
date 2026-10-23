@@ -16,6 +16,8 @@ struct GENESIS_API FGenesisWorldEvent
     UPROPERTY() int64 WorldMinute = 0;    // absolute world time in minutes since day 1, 00:00
     UPROPERTY() FName IdempotencyKey;     // same key twice -> applied once
     UPROPERTY() TArray<FName> SourceEventIDs;
+    UPROPERTY() FVector Location = FVector::ZeroVector;   // where it happened (for perception)
+    UPROPERTY() bool bHasLocation = false;
 };
 
 /** What a NPC knows. Kept apart as in the source: observed, heard, verified. */

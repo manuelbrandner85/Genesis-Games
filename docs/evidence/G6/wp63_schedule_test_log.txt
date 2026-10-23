@@ -1,0 +1,6 @@
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: BeginEvents: Genesis.Flussdorf.DailySchedule
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: Tag 1, 08:30: arrived after 0.0 s real time
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: Tag 1, 10:00: arrived after 49.1 s real time
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: Tag 1, 12:30: arrived after 34.0 s real time
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: Tag 1, 18:30: arrived after 48.1 s real time
+[2026.10.23-22.03.18:759][ 24]LogAutomationController: EndEvents: Genesis.Flussdorf.DailySchedule
