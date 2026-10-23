@@ -1,0 +1,39 @@
+SubtitleID;Szene;Shot/Ort;Typ;Text;Start-Zeitcode;End-Zeitcode;Zeitcode-Status;Sprache;Hinweis;Quelle (Zeile im Drehbuch)
+TXT_C01_001;C01;01-D;Titel;GENESIS – DER KREISLAUF DES LEBENS;00:01:06:00;00:01:08:18;vorläufig/geschätzt;de-DE;schwarzes Titelbild;112
+TXT_C01_002;C01;01-D;Titel-Unterzeile;Jede Entscheidung hinterlässt ein Echo.;00:01:06:00;00:01:09:02;vorläufig/geschätzt;de-DE;unter dem Titel;112
+TXT_C01_003;C01;01-D;Aufforderung;Beliebige Taste drücken;00:01:06:00;00:01:08:01;vorläufig/geschätzt;de-DE;nach kurzer Stille;112
+TXT_C01_004;C01;Übergabe;Menüpunkt;Neues Leben;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_005;C01;Übergabe;Menüpunkt;Fortsetzen;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_006;C01;Übergabe;Menüpunkt;Lebensarchiv;;;interaktiv – kein Filmzeitcode;de-DE;"je nach Fortschritt; spoilerfrei";116
+TXT_C01_007;C01;Übergabe;Menüpunkt;Einstellungen;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_008;C01;Übergabe;Menüpunkt;Barrierefreiheit;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_009;C01;Übergabe;Menüpunkt;Mitwirkende;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_010;C01;Übergabe;Menüpunkt;Beenden;;;interaktiv – kein Filmzeitcode;de-DE;;116
+TXT_C01_011;C01;Übergabe;Kapitelkarte;KAPITEL I – DER ANFANG;;;interaktiv – kein Filmzeitcode;de-DE;nach „Neues Leben“;116
+TXT_C02_001;C02;02-C;Erklärtext (optional);Befruchtung;00:00:56:00;00:00:57:12;vorläufig/geschätzt;de-DE;"nur Dokumentationsmodus/bei Bedarf; Zeit Annahme";131
+TXT_C02_002;C02;02-D;Erklärtext (optional);Zygote;;;interaktiv – kein Filmzeitcode;de-DE;"nur Dokumentationsmodus/bei Bedarf; Shot-Zuordnung offen";131
+TXT_C02_003;C02;02-E;Erklärtext (optional);Erste Teilung;00:01:49:00;00:01:50:12;vorläufig/geschätzt;de-DE;"nur Dokumentationsmodus/bei Bedarf; Zeit Annahme";131
+TXT_C09_001;C09;09-B;Nachricht (Smartphone);Alles klar für morgen?;00:00:29:00;00:00:30:23;vorläufig/geschätzt;de-DE;"falls passend; auch in Sprachliste (VO_C09)";302
+TXT_C09_002;C09;09-B;Antwortoption (Nachricht);Ja. Bin aufgeregt.;00:00:29:00;00:00:30:17;vorläufig/geschätzt;de-DE;auch in Sprachliste;303
+TXT_C09_003;C09;09-B;Antwortoption (Nachricht);Ich geb dir Bescheid.;00:00:29:00;00:00:30:22;vorläufig/geschätzt;de-DE;auch in Sprachliste;303
+TXT_C09_004;C09;09-B;Antwortoption (Nachricht);[keine Nachricht senden];00:00:29:00;00:00:31:02;vorläufig/geschätzt;de-DE;Aktion, Wortlaut der UI offen;303
+TXT_C11_001;C11;11-A;Nachricht/Gespräch;Wir können Ihnen den Platz anbieten. Bitte geben Sie uns bis {{FRIST}} Bescheid.;00:00:01:00;00:00:06:20;vorläufig/geschätzt;de-DE;"Text oder Anruf – offen; auch in Sprachliste";355
+TXT_C16_001;C16;16-E;Auswahlpunkt;Weiter betrachten;00:03:34:00;00:03:35:15;vorläufig/geschätzt;de-DE;keine Punktewertung;515
+TXT_C16_002;C16;16-E;Auswahlpunkt;Zum nächsten Leben;00:03:34:00;00:03:35:17;vorläufig/geschätzt;de-DE;;515
+TXT_C16_003;C16;16-E;Auswahlpunkt;Hier verweilen;00:03:34:00;00:03:35:12;vorläufig/geschätzt;de-DE;;515
+TXT_C17_001;C17;17-A;Auswahlpunkt;Neues Leben beginnen;00:00:01:00;00:00:02:20;vorläufig/geschätzt;de-DE;Auswahl in der Bibliothek;525
+TXT_C21_001;C21;21-F;Titelzeile 1;Wir erben eine Welt, die andere vor uns geformt haben.;00:03:46:00;00:03:50:02;vorläufig/geschätzt;de-DE;"nacheinander; Zeiten Annahme";707
+TXT_C21_002;C21;21-F;Titelzeile 2;Wir verändern sie durch unser Leben.;00:03:54:00;00:03:56:22;vorläufig/geschätzt;de-DE;;708
+TXT_C21_003;C21;21-F;Titelzeile 3;Und wir hinterlassen eine Welt, in der andere weiterleben.;00:04:02:00;00:04:06:09;vorläufig/geschätzt;de-DE;;709
+TXT_C21_004;C21;21-F;Titel;GENESIS – Jede Entscheidung hinterlässt ein Echo.;00:04:10:00;00:04:13:18;vorläufig/geschätzt;de-DE;;710
+TXT_C21_005;C21;Nachfilm-Wahl;Auswahlpunkt A;In der neuen Welt leben;;;interaktiv – kein Filmzeitcode;de-DE;nur wenn bewohnbar;714
+TXT_C21_006;C21;Nachfilm-Wahl;Auswahlpunkt A (Ersatz);Weiterentwickeln lassen;;;interaktiv – kein Filmzeitcode;de-DE;wenn nicht bewohnbar;714
+TXT_C21_007;C21;Nachfilm-Wahl;Auswahlpunkt B;Zur Bibliothek zurückkehren;;;interaktiv – kein Filmzeitcode;de-DE;;714
+TXT_C21_008;C21;Nachfilm-Wahl;Auswahlpunkt C;Den Kreislauf loslassen;;;interaktiv – kein Filmzeitcode;de-DE;;714
+TXT_MENU_001;MENÜ;Ingame-Pause;Menüpunkt;Fortsetzen;;;interaktiv – kein Filmzeitcode;de-DE;;790
+TXT_MENU_002;MENÜ;Ingame-Pause;Menüpunkt;Speichern;;;interaktiv – kein Filmzeitcode;de-DE;nur wenn konsistent;790
+TXT_MENU_003;MENÜ;Ingame-Pause;Menüpunkt;Laden;;;interaktiv – kein Filmzeitcode;de-DE;;790
+TXT_MENU_004;MENÜ;Ingame-Pause;Menüpunkt;Einstellungen;;;interaktiv – kein Filmzeitcode;de-DE;;790
+TXT_MENU_005;MENÜ;Ingame-Pause;Menüpunkt;Lebensarchiv;;;interaktiv – kein Filmzeitcode;de-DE;freigeschaltet;790
+TXT_MENU_006;MENÜ;Ingame-Pause;Menüpunkt;Hauptmenü;;;interaktiv – kein Filmzeitcode;de-DE;;790
+TXT_MENU_007;MENÜ;Hauptmenü;Dialog;Neue Geschichte beginnen;;;interaktiv – kein Filmzeitcode;de-DE;nur wenn Spielstand überschrieben würde;788
