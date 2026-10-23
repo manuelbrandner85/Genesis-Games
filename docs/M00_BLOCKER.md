@@ -4,7 +4,7 @@ Stand der Änderung: 2026-10-23. Quellenworte wie `UNVERIFIED` oder `NOT_RUN` bl
 
 ## Entschieden: CON33-01
 
-ID: `BL59-04`, Entscheidung `DEC-01`. Manuel Brandner hat die Entscheidung am 23.10.2026 um 01:51 Uhr (Berlin) getroffen. Der Beschluss ist in Pull Request #3 dokumentiert (`docs/kanon/BESCHLUESSE.md` auf dem Zweig `kanon/con33-01-entschieden`). Der Merge von PR #3 ist offen. Dieser Zweig ist hier nicht gemergt. Der Beschluss lautet:
+ID: `BL59-04`, Entscheidung `DEC-01`. Manuel Brandner hat die Entscheidung am 23.10.2026 um 01:51 Uhr (Berlin) getroffen. Der Beschluss ist in Pull Request #3 dokumentiert (`docs/kanon/BESCHLUESSE.md` auf dem Zweig `kanon/con33-01-entschieden`). PR #3 ist gemergt (23.10.2026). Der Beschluss lautet:
 
 - C15 und C16 behalten Räume und Bibliothek so, wie sie im ScriptLock stehen.
 - Dasselbe gilt für die Bibliotheks- und Regalbilder in C17 und C19.

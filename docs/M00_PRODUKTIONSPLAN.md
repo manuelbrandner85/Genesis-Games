@@ -190,7 +190,7 @@ Abnahme, bestanden wenn nach Laden `age_ms` und `stage` gleich den Werten vor de
 
 ### WK-M06-001 — Echo nach CON33-01 — `PLANNED`
 
-Quelle: Beschluss in PR #3, getroffen am 23.10.2026, 01:51 Berlin. Der Merge von PR #3 ist offen. Abhängigkeit: WK-M00-003. QAEvidenceID: `EV-WK-M06-001`, Datei `docs/evidence/WK-M06-001/echo.json` (fehlt). Reviewer: `OFFEN`. Rolle: Story & Kanon, Raum 3D & Animation.
+Quelle: Beschluss in PR #3, getroffen am 23.10.2026, 01:51 Berlin. PR #3 ist gemergt. Abhängigkeit: WK-M00-003. QAEvidenceID: `EV-WK-M06-001`, Datei `docs/evidence/WK-M06-001/echo.json` (fehlt). Reviewer: `OFFEN`. Rolle: Story & Kanon, Raum 3D & Animation.
 
 Abnahme, bestanden wenn alle fünf gelten: ScriptLock-SHA256 = `b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d`; `rooms_library` enthält C15, C16, C17 und C19; `temple_mesh_count` = 0; `column_mesh_count` = 0; `library_outside_exception` = 0 (Bibliothek nur in diesen vier Kapiteln). Die Registerzeile N09 bleibt im Originalregister stehen. Der Beschluss ersetzt sie für den Bau.
 
