@@ -7,7 +7,7 @@ Stand der Prüfung: 2026-10-22. Änderung der IDs, Abnahmen und des Blockers CON
 | Dokument | Inhalt |
 |---|---|
 | [M00_IST_SOLL.md](M00_IST_SOLL.md) | Was als Datei vorliegt und was der Masterprompt als Ziel nennt |
-| [M00_BLOCKER.md](M00_BLOCKER.md) | CON33-01 entschieden und in PR #3 dokumentiert, Merge offen; übrige Tore |
+| [M00_BLOCKER.md](M00_BLOCKER.md) | CON33-01 entschieden und in PR #3 dokumentiert, gemergt; übrige Tore |
 | [M00_PRODUKTIONSPLAN.md](M00_PRODUKTIONSPLAN.md) | M00–M09 mit WorkIDs, Abhängigkeiten und Abnahme |
 | [M00_INVENTAR.md](M00_INVENTAR.md) | Zählung, Prüfsummen, Sonderbefunde |
 | [M00_INVENTAR_DATEIEN.csv](M00_INVENTAR_DATEIEN.csv) | Jede geprüfte Datei mit SHA256 |
