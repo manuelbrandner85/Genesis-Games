@@ -1,0 +1,46 @@
+{
+  "evidence_id": "M00-EV-006",
+  "work_id": "WK-M00-005",
+  "status": "FILE_CREATED",
+  "reviewer": "OFFEN",
+  "hashed_on": "2026-10-23",
+  "note": "SHA256 der sechs Plandateien. Kein Reviewer hat APPROVED eingetragen. Diese Datei ist nicht eine der sechs.",
+  "files": [
+    {
+      "path": "docs/M00_README.md",
+      "bytes": 2085,
+      "sha256": "f3502eba631fd2ba400dfefcce97314bc16ef5e9feb62dee7e07c8b3b4f8d5eb",
+      "exists": true
+    },
+    {
+      "path": "docs/M00_IST_SOLL.md",
+      "bytes": 6018,
+      "sha256": "5d90e4d10f39272ec79d87c8860bf19967a760c3173cd8e7c4257bd40118b7fc",
+      "exists": true
+    },
+    {
+      "path": "docs/M00_BLOCKER.md",
+      "bytes": 4125,
+      "sha256": "e8e784426bdb7cef82fc6fef23df0283dac86a2186663b133f8a4d91dea4f9b7",
+      "exists": true
+    },
+    {
+      "path": "docs/M00_PRODUKTIONSPLAN.md",
+      "bytes": 23763,
+      "sha256": "3d4acabad6734c0e8951a14336605f0c89365a30602d3a9d688a862f56c7750f",
+      "exists": true
+    },
+    {
+      "path": "docs/M00_INVENTAR.md",
+      "bytes": 8727,
+      "sha256": "db26a982c65e7579cdce8e6ca9be1dbc4a139895c4c02bbf7ad0e98690f9f2e3",
+      "exists": true
+    },
+    {
+      "path": "docs/M00_ROLLEN.md",
+      "bytes": 4930,
+      "sha256": "c409cbe5f4a685bfbbb61ff17f291d0219435e4d7f8714a5a103662526acd767",
+      "exists": true
+    }
+  ]
+}

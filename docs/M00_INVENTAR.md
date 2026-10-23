@@ -5,7 +5,7 @@ Stand: 2026-10-22. Entpackt unter einem Ordner außerhalb des Repos. Vollständi
 - [M00_INVENTAR_DATEIEN.csv](M00_INVENTAR_DATEIEN.csv) — 1845 Dateien, 366 945 914 Bytes
 - [M00_INVENTAR_ZIPS.csv](M00_INVENTAR_ZIPS.csv) — 66 ZIP-Einträge
 
-EvidenceID der Prüfung: `M00-EV-001` (Hülle), `M00-EV-002` (Kette), `M00-EV-003` (diese CSV-Dateien), `M00-EV-004` (GLB-Registerabgleich).
+EvidenceID der Prüfung: `M00-EV-001` (Hülle, WK-M00-001), `M00-EV-002` (Kette, WK-M00-002), `M00-EV-003` (diese CSV-Dateien, WK-M00-002), `M00-EV-004` (GLB-Registerabgleich, WK-M00-004), `M00-EV-005` (Registerzählung und ScriptLock, WK-M00-003), `M00-EV-006` (Plan-Dateien, WK-M00-005).
 
 ## Release und Hülle
 
@@ -15,7 +15,7 @@ EvidenceID der Prüfung: `M00-EV-001` (Hülle), `M00-EV-002` (Kette), `M00-EV-00
 | V61-Quell-ZIP | `f1884e9f0cc4ca4ad9f7015f1d2cd3f601703df86b55808508ef0824ce950114` | Gleich Manifest und gleich V62-Summenzeile |
 | ScriptLock | `b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d` | V62-Kopie und V61-Original bytegleich |
 
-Die Hülle enthält 92 Dateien. 91 Summenzeilen in `05_PRUEFBERICHT/SHA256SUMS.txt` stimmen. `SHA256SUMS.txt` und `MANIFEST.json` stehen nicht in der Liste; ihre Hashes stehen in der Datei-CSV. Abweichende Nutzlast in der Hülle: keine.
+Die Hülle enthält 92 Dateien. 91 Summenzeilen in `05_PRUEFBERICHT/SHA256SUMS.txt` stimmen, darunter Zeile 91 für `05_PRUEFBERICHT/MANIFEST.json` mit SHA256 `718ef85c6979e256d965555e77cc9e693e0965a84a0160299ba09a2b1ce82662`. Nur `SHA256SUMS.txt` selbst steht nicht in der Liste. Abweichende Nutzlast in der Hülle: keine.
 
 ## Kette
 
