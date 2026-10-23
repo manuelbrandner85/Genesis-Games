@@ -7,6 +7,7 @@ Datum: 2026-10-23 · Zweig `v4/neustart` · Blender 5.2.1 LTS · Cycles auf RTX 
 `SM_TechSmoke_PalletEUR` – **gebrauchte** Europalette nach EN 13698-1 (außen 1200 × 800 × 144 mm). Neutral (kein GENESIS-Kanon), mit genormten, nachmessbaren Maßen, aus echtem Werkstoff. Ein Skript erzeugt das Objekt vollständig und wiederholbar (fester Zufallsstartwert): `tools/v4/g3/build_pallet.py`.
 - Im Hintergrund: `blender -b --factory-startup --python tools/v4/g3/build_pallet.py -- --out ArtSource/TechSmoke/SM_TechSmoke_PalletEUR --bake 4096`
 - Sichtbar: Die Funktionen werden Schritt für Schritt über Blender-MCP im offenen Fenster aufgerufen. So ist der Endstand entstanden.
+- Wiederholbarkeit geprüft: Ein kompletter Hintergrundlauf (103 s) in einen separaten Ordner ergab dieselben Werte (1202,09 × 800,96 × 145,84 mm, 5 758 Flächen, 1 129 Bruchflächen, gleiche Texturstatistik).
 
 | Bauteil | Maß (mm) |
 |---|---|
