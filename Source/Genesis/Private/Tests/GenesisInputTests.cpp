@@ -37,13 +37,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisInputMappingTest, "Genesis.Input.Protot
 bool FGenesisInputMappingTest::RunTest(const FString&)
 {
     const FGenesisPrototypeInput Input = FGenesisPrototypeInput::Create(GetTransientPackage());
-    if (!TestNotNull(TEXT("Mapping context"), Input.Context.Get()) || !Input.Move || !Input.Look || !Input.Jump) {
+    if (!TestNotNull(TEXT("Mapping context"), Input.Context.Get()) || !Input.Move || !Input.Look || !Input.Jump || !Input.Sprint || !Input.SprintToggle) {
         return false;
     }
     TestEqual(TEXT("Move is Axis2D"), Input.Move->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Look is Axis2D"), Input.Look->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Jump is Boolean"), Input.Jump->ValueType, EInputActionValueType::Boolean);
-    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 9);
+    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 11);
 
     struct FCase { FKey Key; FVector Raw; FVector Expected; float DeltaTime; const UInputAction* Action; };
     const float Rate = FGenesisPrototypeInput::GamepadLookRateDegPerSec;
@@ -57,8 +57,12 @@ bool FGenesisInputMappingTest::RunTest(const FString&)
         { EKeys::Mouse2D, FVector(3, 2, 0), FVector(3, -2, 0), 0.f, Input.Look },
         { EKeys::Gamepad_Right2D, FVector(1, 0, 0), FVector(Rate * 0.1f, 0, 0), 0.1f, Input.Look },
         { EKeys::Gamepad_Right2D, FVector(0, 1, 0), FVector(0, -Rate * 0.1f, 0), 0.1f, Input.Look },
+        // Worn right stick at rest (measured on the dev PC: X -1536, Y 8960 of 32767) must not turn the camera.
+        { EKeys::Gamepad_Right2D, FVector(-0.047, 0.273, 0), FVector::ZeroVector, 0.1f, Input.Look },
         { EKeys::SpaceBar, FVector(1, 0, 0), FVector(1, 0, 0), 0.f, Input.Jump },
         { EKeys::Gamepad_FaceButton_Bottom, FVector(1, 0, 0), FVector(1, 0, 0), 0.f, Input.Jump },
+        { EKeys::LeftShift, FVector(1, 0, 0), FVector(1, 0, 0), 0.f, Input.Sprint },
+        { EKeys::Gamepad_LeftThumbstick, FVector(1, 0, 0), FVector(1, 0, 0), 0.f, Input.SprintToggle },
     };
     for (const FCase& Case : Cases) {
         const FEnhancedActionKeyMapping* Mapping = FindMapping(Input.Context, Case.Action, Case.Key);
@@ -84,7 +88,7 @@ bool FGenesisInputBindingTest::RunTest(const FString&)
         UEnhancedInputComponent* Component = NewObject<UEnhancedInputComponent>(Character);
         Character->SetupPlayerInputComponent(Component);
         const FGenesisPrototypeInput& Input = Character->GetPrototypeInput();
-        int32 Move = 0, Look = 0, JumpStarted = 0, JumpCompleted = 0;
+        int32 Move = 0, Look = 0, JumpStarted = 0, JumpCompleted = 0, Sprint = 0;
         for (const TUniquePtr<FEnhancedInputActionEventBinding>& Binding : Component->GetActionEventBindings()) {
             const UInputAction* Action = Binding->GetAction();
             const ETriggerEvent Event = Binding->GetTriggerEvent();
@@ -92,12 +96,15 @@ bool FGenesisInputBindingTest::RunTest(const FString&)
             Look += Action == Input.Look && Event == ETriggerEvent::Triggered;
             JumpStarted += Action == Input.Jump && Event == ETriggerEvent::Started;
             JumpCompleted += Action == Input.Jump && Event == ETriggerEvent::Completed;
+            Sprint += (Action == Input.Sprint && (Event == ETriggerEvent::Started || Event == ETriggerEvent::Completed))
+                || (Action == Input.SprintToggle && Event == ETriggerEvent::Started);
         }
-        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 4);
+        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 7);
         TestEqual(TEXT("Move bound on Triggered"), Move, 1);
         TestEqual(TEXT("Look bound on Triggered"), Look, 1);
         TestEqual(TEXT("Jump bound on Started"), JumpStarted, 1);
         TestEqual(TEXT("StopJumping bound on Completed"), JumpCompleted, 1);
+        TestEqual(TEXT("Sprint hold (2) + toggle (1)"), Sprint, 3);
     }
 
     GEngine->DestroyWorldContext(World);

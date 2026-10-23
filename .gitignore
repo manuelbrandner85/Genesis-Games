@@ -15,3 +15,6 @@ ArtSource/Temp/
 logs/
 *.log
 *.blend1
+
+# Epic template content (mannequin proxy) - copied locally by tools/setup/Copy-EngineMannequin.ps1
+/Content/Characters/Mannequins/

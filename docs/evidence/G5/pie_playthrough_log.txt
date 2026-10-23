@@ -1,0 +1,6 @@
+[2026.10.23-21.35.11:429][ 60]LogAutomationController: Display: Test Started. Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.23-21.35.11:435][ 61]LogAutomationWorker: Received RunTests PIEPlaythrough from B71C53C54547A4F862E810BF93A264B5
+[2026.10.23-21.35.23:764][265]LogAutomationController: Display: Test Completed. Result={Success} Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.23-21.35.23:764][265]LogAutomationController: BeginEvents: Genesis.Gameplay.PIEPlaythrough
+[2026.10.23-21.35.23:764][265]LogAutomationController: PIE: walk 175.0 cm/s, run 450.0 cm/s, distance 1415 cm, jump 45.0 cm
+[2026.10.23-21.35.23:764][265]LogAutomationController: EndEvents: Genesis.Gameplay.PIEPlaythrough
