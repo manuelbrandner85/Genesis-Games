@@ -1,0 +1,243 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "BB7E53204083DCF0117A6FB2F630D891",
+			"instanceName": "DESKTOP-9JVIIPU-11364",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26340.9750] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.23-21.44.50",
+	"succeeded": 10,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 12.837722778320312,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "CameraRig",
+			"fullTestPath": "Genesis.Gameplay.CameraRig",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 1.0149953365325928,
+			"dateTime": "2026.10.23-21.44.37",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JumpHeight",
+			"fullTestPath": "Genesis.Gameplay.JumpHeight",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.073808901011943817,
+			"dateTime": "2026.10.23-21.44.38",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Jump: 45.00 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.23-21.44.38"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LandsOnFloor",
+			"fullTestPath": "Genesis.Gameplay.LandsOnFloor",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.048673000186681747,
+			"dateTime": "2026.10.23-21.44.38",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Landed: feet at 2.15 cm, movement mode 1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.23-21.44.38"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PIEPlaythrough",
+			"fullTestPath": "Genesis.Gameplay.PIEPlaythrough",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 11.428686141967773,
+			"dateTime": "2026.10.23-21.44.38",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "PIE: walk 175.0 cm/s, run 450.0 cm/s, distance 1409 cm, jump 45.0 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.23-21.44.49"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WalkAndRunSpeed",
+			"fullTestPath": "Genesis.Gameplay.WalkAndRunSpeed",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.2010934054851532,
+			"dateTime": "2026.10.23-21.44.49",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walk: max 175.00 cm/s, 519.0 cm in 3 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.23-21.44.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Run: max 450.00 cm/s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.23-21.44.49"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrototypeBindings",
+			"fullTestPath": "Genesis.Input.PrototypeBindings",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.013735096901655197,
+			"dateTime": "2026.10.23-21.44.49",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrototypeMapping",
+			"fullTestPath": "Genesis.Input.PrototypeMapping",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.0018391981720924377,
+			"dateTime": "2026.10.23-21.44.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RoundtripAndRecovery",
+			"fullTestPath": "Genesis.Save.RoundtripAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.037849597632884979,
+			"dateTime": "2026.10.23-21.44.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Clock",
+			"fullTestPath": "Genesis.World.Clock",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.0082609020173549652,
+			"dateTime": "2026.10.23-21.44.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LedgerIdempotent",
+			"fullTestPath": "Genesis.World.LedgerIdempotent",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"BB7E53204083DCF0117A6FB2F630D891"
+			],
+			"duration": 0.0087816007435321808,
+			"dateTime": "2026.10.23-21.44.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
