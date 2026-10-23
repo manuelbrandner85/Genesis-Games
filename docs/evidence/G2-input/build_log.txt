@@ -1,0 +1,35 @@
+﻿Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" GenesisEditor Win64 Development -Project=C:\Users\manue\Desktop\Genesis-Games\Genesis.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\manue\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\manue\Desktop\Genesis-Games).
+Creating makefile for GenesisEditor (.uproject file is newer)
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+Building GenesisEditor...
+===== Toolchain Information =====
+Using ISPC compiler (C:\Program Files\Epic Games\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.50.35739 toolchain (C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.50.35717) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from Genesis unity file: GenesisPrototypeCharacter.cpp, GenesisInputTests.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  CPU 8 physical cores, 16 logical cores
+  Memory 31.88 GB physical, 23.23 GB/61.88 GB committed
+  UBA Storage capacity 40 GB
+[1/7] Compile [x64] GenesisGameMode.cpp
+[2/7] Compile [x64] Module.Genesis.gen.cpp
+[3/7] Compile [x64] GenesisInputTests.cpp
+[4/7] Compile [x64] GenesisPrototypeCharacter.cpp
+[5/7] Link [x64] UnrealEditor-Genesis.lib
+   Bibliothek "C:/Users/manue/Desktop/Genesis-Games/Intermediate/Build/Win64/x64/UnrealEditor/Development/Genesis/UnrealEditor-Genesis.lib" und Objekt "C:/Users/manue/Desktop/Genesis-Games/Intermediate/Build/Win64/x64/UnrealEditor/Development/Genesis/UnrealEditor-Genesis.exp" werden erstellt.
+[6/7] Link [x64] UnrealEditor-Genesis.dll
+[7/7] WriteMetadata GenesisEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 7.40 seconds
+Output binary: C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 11.32 seconds
+Trace written to file C:\Users\manue\AppData\Local\UnrealBuildTool\Trace.uba with size 6.9kb

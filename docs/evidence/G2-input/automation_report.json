@@ -1,0 +1,59 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "19D91134468FAB10DAA66892028C09C6",
+			"instanceName": "DESKTOP-9JVIIPU-30132",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26340.9750] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.23-19.54.05",
+	"succeeded": 2,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.029278099536895752,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "PrototypeBindings",
+			"fullTestPath": "Genesis.Input.PrototypeBindings",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"19D91134468FAB10DAA66892028C09C6"
+			],
+			"duration": 0.020524200052022934,
+			"dateTime": "2026.10.23-19.54.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrototypeMapping",
+			"fullTestPath": "Genesis.Input.PrototypeMapping",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"19D91134468FAB10DAA66892028C09C6"
+			],
+			"duration": 0.008753899484872818,
+			"dateTime": "2026.10.23-19.54.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
