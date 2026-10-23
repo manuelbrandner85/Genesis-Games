@@ -21,6 +21,7 @@ at = unreal.AssetToolsHelpers.get_asset_tools()
 # Nanite fallback = full mesh.
 mesh = eal.load_asset(MESH)
 ns = mesh.get_editor_property("nanite_settings")
+ns.set_editor_property("fallback_target", unreal.NaniteFallbackTarget.PERCENT_TRIANGLES)
 ns.set_editor_property("fallback_percent_triangles", 1.0)
 ns.set_editor_property("fallback_relative_error", 0.0)
 mesh.set_editor_property("nanite_settings", ns)

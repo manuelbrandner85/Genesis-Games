@@ -53,7 +53,9 @@ checks = {
     "origin_bottom_centre": abs(box.min.z) < 0.01 and abs(box.min.x + box.max.x) < 0.01 and abs(box.min.y + box.max.y) < 0.01,
     "length_on_x_width_on_y": size[0] > size[1] > size[2],
     "nanite_enabled": bool(ns.get_editor_property("enabled")),
-    "nanite_full_fallback": abs(ns.get_editor_property("fallback_percent_triangles") - 1.0) < 1e-6,
+    "nanite_full_fallback": ns.get_editor_property("fallback_target") == unreal.NaniteFallbackTarget.PERCENT_TRIANGLES
+                            and abs(ns.get_editor_property("fallback_percent_triangles") - 1.0) < 1e-6
+                            and sms.get_number_verts(mesh, 0) >= ref["verts"],
     "one_material_is_instance": len(mats) == 1 and mats[0] is not None and mats[0].get_path_name().split(".")[0] == MI,
     "collision_present": sms.get_convex_collision_count(mesh) + sms.get_simple_collision_count(mesh) > 0,
     "fork_pockets_open": not any(pockets.values()),

@@ -358,6 +358,49 @@ def build_geometry():
     return ob
 
 
+def add_collision(ob):
+    """One UCX_ box per board, stringer and block (the wood parts' loose islands), so the fork
+    pockets stay open in Unreal. Nails and splinters are too small to matter and are skipped."""
+    for old in [o for o in bpy.data.objects if o.name.startswith("UCX_")]:
+        bpy.data.objects.remove(old)
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    nail_layer = bm.faces.layers.float.get("is_nail")
+    seen, boxes = set(), []
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        stack, island = [f], []
+        seen.add(f.index)
+        while stack:
+            cur = stack.pop()
+            island.append(cur)
+            for e in cur.edges:
+                for nf in e.link_faces:
+                    if nf.index not in seen:
+                        seen.add(nf.index)
+                        stack.append(nf)
+        if nail_layer and island[0][nail_layer] > 0.5:
+            continue
+        co = np.array([v.co[:] for g in island for v in g.verts])
+        lo, hi = co.min(0), co.max(0)
+        if (hi - lo).min() < 0.01:          # splinters (< 1 cm thick)
+            continue
+        boxes.append((lo, hi))
+    bm.free()
+    out = []
+    for i, (lo, hi) in enumerate(boxes):
+        b = bmesh.new()
+        bmesh.ops.create_cube(b, size=1.0)
+        for v in b.verts:
+            v.co = Vector(lo + (np.array(v.co[:]) + 0.5) * (hi - lo))
+        c = new_object(f"UCX_{ASSET}_{i:02d}", b)
+        c.display_type = "WIRE"
+        c.hide_render = True
+        out.append(c)
+    return out
+
+
 def unwrap(ob):
     bpy.context.view_layer.objects.active = ob
     ob.select_set(True)
@@ -734,7 +777,7 @@ def save_and_export(ob, out, files, stats, device, gpus, bake_size):
     bpy.ops.wm.save_as_mainfile(filepath=str(blend), compress=True)
     fbx = out / "Export" / f"{ASSET}.fbx"
     for o in bpy.context.view_layer.objects:
-        o.select_set(o == ob)
+        o.select_set(o == ob or o.name.startswith("UCX_"))
     bpy.ops.export_scene.fbx(filepath=str(fbx), use_selection=True, apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS",
                              mesh_smooth_type="FACE", use_tspace=True, use_custom_props=False, add_leaf_bones=False,
                              object_types={"MESH"}, path_mode="STRIP", bake_anim=False)
@@ -745,6 +788,7 @@ def save_and_export(ob, out, files, stats, device, gpus, bake_size):
         "asset_id": ASSET, "blender": bpy.app.version_string, "device": device, "gpus": gpus,
         "dimensions_mm_xyz": [round(v / MM, 2) for v in ob.dimensions], "origin": "bottom centre (0,0,0)",
         "verts": len(me.vertices), "faces": len(me.polygons), "fresh_break_faces": int((fresh > 0.5).sum()),
+        "collision_boxes": len([o for o in bpy.data.objects if o.name.startswith("UCX_")]),
         "uv_layers": [u.name for u in me.uv_layers], "bake_size": bake_size, "texture_stats": stats,
         "files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in [blend, fbx, *files.values()]},
     }
@@ -765,6 +809,7 @@ def main():
     assign_material(ob, mat)
     device, gpus = enable_gpu(scene)
     files, stats = bake_maps(scene, ob, mat, metallic_node, args.bake, out / "Textures")
+    add_collision(ob)
     save_and_export(ob, out, files, stats, device, gpus, args.bake)
 
 

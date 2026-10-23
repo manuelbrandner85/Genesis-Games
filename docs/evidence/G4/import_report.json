@@ -22,9 +22,9 @@
   "material_slots": [
     "/Game/Genesis/TechSmoke/PalletEUR/MI_TechSmoke_PalletWood.MI_TechSmoke_PalletWood"
   ],
-  "collision": "convex_decomposition",
+  "collision": "ucx_from_fbx",
   "simple_collision_count": 0,
-  "convex_collision_count": 15,
+  "convex_collision_count": 20,
   "recompute_normals": false,
   "recompute_tangents": false,
   "textures": {
@@ -57,10 +57,7 @@
     "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_BC.T_SM_TechSmoke_PalletEUR_BC",
     "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_ORM.T_SM_TechSmoke_PalletEUR_ORM",
     "/Game/Genesis/TechSmoke/PalletEUR/Textures/T_SM_TechSmoke_PalletEUR_N.T_SM_TechSmoke_PalletEUR_N",
-    "/Game/Genesis/TechSmoke/PalletEUR/M_TechSmoke_PalletWood.M_TechSmoke_PalletWood",
     "/Game/Genesis/TechSmoke/PalletEUR/SM_TechSmoke_PalletEUR.SM_TechSmoke_PalletEUR"
   ],
-  "removed_placeholder_materials": [
-    "/Game/Genesis/TechSmoke/PalletEUR/M_TechSmoke_PalletWood.M_TechSmoke_PalletWood"
-  ]
+  "removed_placeholder_materials": []
 }

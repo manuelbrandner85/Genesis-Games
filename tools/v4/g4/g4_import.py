@@ -91,6 +91,8 @@ mel.update_material_instance(mi)
 eal.save_loaded_asset(mi)
 
 # --- Static mesh ---------------------------------------------------------------------------------
+if eal.does_asset_exist(f"{DST}/{ASSET}"):
+    sms.remove_collisions(load(f"{DST}/{ASSET}"))     # old automatic hulls must not survive the reimport
 imported_mesh = import_files([os.path.join(SRC, "Export", f"{ASSET}.fbx")], DST)
 mesh = load(f"{DST}/{ASSET}")
 # The importer may create a placeholder material from the FBX slot; replace it with ours.
@@ -105,16 +107,18 @@ sms.set_lod_build_settings(mesh, 0, bs)
 
 ns = mesh.get_editor_property("nanite_settings")
 ns.set_editor_property("enabled", True)
+ns.set_editor_property("fallback_target", unreal.NaniteFallbackTarget.PERCENT_TRIANGLES)  # AUTO ignores the percentage
+ns.set_editor_property("fallback_percent_triangles", 1.0)   # ~8k tris: ray tracing uses the real mesh
+ns.set_editor_property("fallback_relative_error", 0.0)
 mesh.set_editor_property("nanite_settings", ns)
 
-sms.remove_collisions(mesh)
-collision_kind = "convex_decomposition"
-try:
+# Collision comes with the FBX as UCX_ boxes (one per board/stringer/block), which keeps the
+# fork pockets open. Only if they are missing fall back to an automatic decomposition.
+collision_kind = "ucx_from_fbx"
+if sms.get_simple_collision_count(mesh) == 0 and sms.get_convex_collision_count(mesh) == 0:
+    unreal.log_warning("no UCX collision imported; using convex decomposition")
     sms.set_convex_decomposition_collisions(mesh, 24, 24, 200000)
-except Exception as ex:                                    # API differs between versions
-    unreal.log_warning(f"convex decomposition failed ({ex}); falling back to one box")
-    sms.add_simple_collisions(mesh, unreal.ScriptCollisionShapeType.BOX)
-    collision_kind = "box"
+    collision_kind = "convex_decomposition"
 eal.save_loaded_asset(mesh)
 
 for p in created_mats:

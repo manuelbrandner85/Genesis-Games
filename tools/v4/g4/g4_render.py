@@ -12,8 +12,10 @@ LEVEL = "/Game/Genesis/TechSmoke/Maps/L_TechSmoke"
 SEQ_DIR = "/Game/Genesis/TechSmoke/Maps"
 OUT_DIR = os.path.join(unreal.Paths.project_dir(), "Saved", "G4", "Render")
 CAMERAS = {  # label: (location cm, look-at target cm, focal length mm, aperture f)
-    "Review_Cam": ((175.0, -195.0, 145.0), (0.0, 0.0, 6.0), 50.0, 8.0),
-    "Review_Detail": ((98.0, -95.0, 42.0), (52.0, -36.0, 7.0), 50.0, 5.6),
+    # f/16: with physical camera exposure the CINE CAMERA's aperture sets the exposure in MRQ
+    # (Sunny 16 with ISO 100, 1/100 s from the post process volume).
+    "Review_Cam": ((175.0, -195.0, 145.0), (0.0, 0.0, 6.0), 50.0, 16.0),
+    "Review_Detail": ((98.0, -95.0, 42.0), (52.0, -36.0, 7.0), 50.0, 16.0),
 }
 
 at = unreal.AssetToolsHelpers.get_asset_tools()

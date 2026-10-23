@@ -18,14 +18,14 @@
     "enabled": true,
     "fallback_percent_triangles": 1.0
   },
-  "fallback_verts_lod0": 974,
-  "collision_convex_hulls": 15,
+  "fallback_verts_lod0": 8223,
+  "collision_convex_hulls": 20,
   "collision_simple": 0,
   "pocket_traces_hit": {
     "along_x_between_rows_y-17": false,
     "along_x_between_rows_y+17": false,
-    "along_y_between_cols_x-26": true,
-    "along_y_between_cols_x+26": true
+    "along_y_between_cols_x-26": false,
+    "along_y_between_cols_x+26": false
   },
   "solid_traces_hit": {
     "down_onto_deck": true,
@@ -40,9 +40,9 @@
     "nanite_full_fallback": true,
     "one_material_is_instance": true,
     "collision_present": true,
-    "fork_pockets_open": false,
+    "fork_pockets_open": true,
     "deck_and_blocks_solid": true,
     "rests_on_floor": true
   },
-  "passed": false
+  "passed": true
 }

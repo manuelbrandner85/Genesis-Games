@@ -26,7 +26,8 @@ def main():
     a = ap.parse_args(sys.argv[sys.argv.index("--") + 1:])
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.fbx(filepath=str(a.fbx))
-    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    ucx = [o for o in bpy.context.scene.objects if o.type == "MESH" and o.name.startswith("UCX_")]
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH" and not o.name.startswith("UCX_")]
     ob = meshes[0]
     me = ob.data
     co = np.empty(len(me.vertices) * 3)
@@ -49,6 +50,8 @@ def main():
         "no_degenerate_triangles": bool((areas > 1e-10).all()),
         "max_4_corners": max(len(p.vertices) for p in me.polygons) <= 4,
         "one_material": len(me.materials) == 1 and me.materials[0] is not None,
+        # 5 deck + 3 stringer + 9 block + 3 bottom parts, each an 8-point box named for this mesh
+        "collision_boxes_20": len(ucx) == 20 and all(len(u.data.vertices) == 8 and u.name.startswith(f"UCX_{ob.name}_") for u in ucx),
     }
     checks = {k: bool(v) for k, v in checks.items()}
     report = {
@@ -56,6 +59,7 @@ def main():
         "size_mm": [round(float(v), 2) for v in size], "wood_top_mm": round(wood_top, 2),
         "verts": len(me.vertices), "faces": len(me.polygons), "triangles": len(me.loop_triangles),
         "uv_layers": [u.name for u in me.uv_layers], "custom_normals": me.has_custom_normals,
+        "collision_boxes": len(ucx),
         "checks": checks, "passed": all(checks.values()),
     }
     a.out.parent.mkdir(parents=True, exist_ok=True)

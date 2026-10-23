@@ -15,6 +15,7 @@
     "UVMap"
   ],
   "custom_normals": true,
+  "collision_boxes": 20,
   "checks": {
     "single_mesh": true,
     "length_x": true,
@@ -25,7 +26,8 @@
     "uv_map": true,
     "no_degenerate_triangles": true,
     "max_4_corners": true,
-    "one_material": true
+    "one_material": true,
+    "collision_boxes_20": true
   },
   "passed": true
 }

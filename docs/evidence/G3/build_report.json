@@ -14,6 +14,7 @@
   "verts": 4188,
   "faces": 5758,
   "fresh_break_faces": 1129,
+  "collision_boxes": 20,
   "uv_layers": [
     "UVMap"
   ],
@@ -33,8 +34,8 @@
     "metallic_texel_share": 0.00055
   },
   "files": {
-    "SM_TechSmoke_PalletEUR.blend": "01b4cdb02e1f003d80a717c92a6bcfaf624e54a292d3aa65eeb337b95d37bde9",
-    "SM_TechSmoke_PalletEUR.fbx": "e53926f9be198902e2fc22477628b72c1d9ba5d086356556ad6c9eec7ae48ef0",
+    "SM_TechSmoke_PalletEUR.blend": "bfa40833e4e6cff3b655d682571c5705e81a1765e7906820ea5f46b1cb62cc32",
+    "SM_TechSmoke_PalletEUR.fbx": "8a794ecb41a92d0eed0e584e30536430c2e8e72dd492003aef097daa3f2ac59b",
     "T_SM_TechSmoke_PalletEUR_BC.png": "cde92fd61c91f6528ada578505cf258b19e22479409e759132570005a6355822",
     "T_SM_TechSmoke_PalletEUR_ORM.png": "3d92ee058a7ac96be53938e6183404b6f98c4868daa4ca4c7712050eaacc2144",
     "T_SM_TechSmoke_PalletEUR_N.png": "2f9ada95b90fc1717bb3b65f26ba506af8c5f5413a358b7454f20447c672d47f"
