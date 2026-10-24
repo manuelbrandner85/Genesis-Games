@@ -1,0 +1,211 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "7CABB4E047E1B520C49B4997C7D7215D",
+			"instanceName": "DESKTOP-9JVIIPU-13904",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26340.9750] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.24-00.23.35",
+	"succeeded": 4,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.23646599054336548,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "NoSoftlockExhaustive",
+			"fullTestPath": "Genesis.Flussdorf.Contract.NoSoftlockExhaustive",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"7CABB4E047E1B520C49B4997C7D7215D"
+			],
+			"duration": 0.14274299144744873,
+			"dateTime": "2026.10.24-00.23.35",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Explored 2580 states (2580 expanded), max paid 1, max money 82 GE",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReferDeclineWithdraw",
+			"fullTestPath": "Genesis.Flussdorf.Contract.ReferDeclineWithdraw",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"7CABB4E047E1B520C49B4997C7D7215D"
+			],
+			"duration": 0.0080666989088058472,
+			"dateTime": "2026.10.24-00.23.35",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RepairAndPayOnce",
+			"fullTestPath": "Genesis.Flussdorf.Contract.RepairAndPayOnce",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"7CABB4E047E1B520C49B4997C7D7215D"
+			],
+			"duration": 0.0074991993606090546,
+			"dateTime": "2026.10.24-00.23.35",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 08:30 N02.Ask -> Offered | Mein Generator springt nicht mehr an. Er steht schon in der Werkstatt. Würden Sie ihn reparieren? Mehr als 70 GE kann ich nicht ausgeben.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 08:30 N02.Accept60 -> Accepted | Einverstanden, 60 GE. Sagen Sie mir Bescheid, wenn er läuft – ich sehe ihn mir dann selbst an.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N01.BorrowTool -> Accepted | Hier, der Zündkerzenschlüssel. Bring ihn bitte zurück, wenn du fertig bist.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.InspectFilter -> Accepted | Der Kraftstofffilter ist klar, Kraftstoff läuft durch. Daran liegt es nicht.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.InspectPlug -> Accepted | Die Zündkerze ist verrußt, die Elektrode abgebrannt. Sie zündet nicht mehr zuverlässig.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N03.BuyPlug -> Accepted | Bitte schön, eine Zündkerze. 18 GE.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.Repair -> Accepted | Neue Zündkerze eingesetzt. Der Generator springt an und läuft gleichmäßig.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N01.ReturnTool -> Accepted | Danke, zurück an seinen Platz.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N02.ReportDone -> Completed | Wirklich? Ich gehe gleich in die Werkstatt und sehe ihn mir an.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.23.35"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SaveLoadEveryStep",
+			"fullTestPath": "Genesis.Flussdorf.Contract.SaveLoadEveryStep",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"7CABB4E047E1B520C49B4997C7D7215D"
+			],
+			"duration": 0.078157097101211548,
+			"dateTime": "2026.10.24-00.23.35",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
