@@ -32,3 +32,11 @@ ArtSource/External/PolyHaven/*
 
 # MetaHuman preset copies of the C00 lab (reproducible from the engine, tools/v4_2/c00_mh_lab.py)
 Content/Genesis/Characters/C00/Candidates/
+
+# MetaHuman-derived content (Epic content: may be used in UE projects, NOT redistributed in this public
+# repository). Reproducible locally from the engine with tools/v4_2/c00_mh_mann.py, c00_mh_tochter.py,
+# build_c00_garments.py and c00_garments_import.py.
+Content/Genesis/Characters/C00/MHC_*
+Content/Genesis/Characters/C00/Kleidung/
+ArtSource/Export/C00/
+ArtSource/Blender/C00/

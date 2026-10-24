@@ -45,8 +45,8 @@ else:
     look = unreal.MathLibrary.find_look_at_rotation
     head_target = V(0, 0, 160)
     # soft studio daylight like the approved references: big key front-left, fill front-right, rim behind
-    for label, loc, lm, k, size in (("Key", V(150, -110, 200), 6000.0, 5200.0, 120.0),
-                                    ("Fill", V(170, 130, 160), 2500.0, 5600.0, 150.0),
+    for label, loc, lm, k, size in (("Key", V(150, -110, 200), 16000.0, 5200.0, 120.0),
+                                    ("Fill", V(170, 130, 160), 7000.0, 5600.0, 150.0),
                                     ("Rim", V(-110, 80, 210), 2500.0, 6000.0, 60.0)):
         lt = eas.spawn_actor_from_class(unreal.RectLight, loc, look(loc, head_target))
         lt.set_actor_label(label)
@@ -98,6 +98,15 @@ for name in PRESETS:
     actor.set_actor_label("MH_" + name)
     actor.set_actor_location_and_rotation(V(0, 0, 0), R(0, 0, -90), False, True)  # MetaHuman faces +Y at yaw 0: yaw -90 turns the face to +X (camera side)
     mh.assemble_for_preview(ch)
+    if os.environ.get("GENESIS_MH_GARMENT"):                    # own clothing follows the body (leader pose)
+        body = next(c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
+        wear = eas.spawn_actor_from_class(unreal.SkeletalMeshActor, actor.get_actor_location(), actor.get_actor_rotation())
+        wear.set_actor_label("MH_Garment")
+        garment = wear.skeletal_mesh_component
+        garment.set_skeletal_mesh_asset(eal.load_asset(os.environ["GENESIS_MH_GARMENT"]))
+        garment.attach_to_component(body, "", unreal.AttachmentRule.SNAP_TO_TARGET, unreal.AttachmentRule.SNAP_TO_TARGET,
+                                    unreal.AttachmentRule.SNAP_TO_TARGET, False)
+        garment.set_leader_pose_component(body)
     bc = {str(c.name): round(float(c.target_measurement), 1) for c in mh.get_body_constraints(ch, False)
           if str(c.name) in ("Height", "Masculine/Feminine", "Fat", "Muscularity")}
     sk = ch.skin_settings.skin
@@ -106,6 +115,9 @@ for name in PRESETS:
     # The screenshot is written a few frames later, so the actor stays until the next lab run.
     head = actor.get_actor_location() + V(0, 0, bc.get("Height", 175.0) * 0.93)
     cam_loc = head + V(130, 0, 2)
+    if os.environ.get("GENESIS_MH_WIDE"):                       # waist-up framing for clothing checks
+        head = actor.get_actor_location() + V(0, 0, 125)
+        cam_loc = head + V(330, -60, 10)
     cam = eas.spawn_actor_from_class(unreal.CineCameraActor, cam_loc, unreal.MathLibrary.find_look_at_rotation(cam_loc, head))
     cam.set_actor_label("MH_Cam")
     cc = cam.get_cine_camera_component()
@@ -114,10 +126,25 @@ for name in PRESETS:
     cc.set_editor_property("constrain_aspect_ratio", False)
     fs = cc.focus_settings
     fs.focus_method = unreal.CameraFocusMethod.MANUAL
-    fs.manual_focus_distance = 130.0
+    fs.manual_focus_distance = (head - cam_loc).length()
     cc.set_editor_property("focus_settings", fs)
     shot = name + os.environ.get("GENESIS_MH_SUFFIX", "")
-    unreal.AutomationLibrary.take_high_res_screenshot(1024, 1280, f"{OUT}/{shot}.png", cam, False, False,
-                                                      unreal.ComparisonTolerance.LOW, "", 1.0)
+    if os.environ.get("GENESIS_MH_EYES") != "only":
+      unreal.AutomationLibrary.take_high_res_screenshot(1024, 1280, f"{OUT}/{shot}.png", cam, False, False,
+                                                        unreal.ComparisonTolerance.LOW, "", 1.0)
     results[name]["png"] = f"{OUT}/{name}.png"
+    if os.environ.get("GENESIS_MH_EYES"):                       # close-up of the eyes (iris colour check), own run
+        eyes = head + V(8, 0, float(os.environ.get("GENESIS_MH_EYE_DZ", "4")))
+        cam2_loc = eyes + V(55, 0, 0)
+        cam2 = eas.spawn_actor_from_class(unreal.CineCameraActor, cam2_loc, unreal.MathLibrary.find_look_at_rotation(cam2_loc, eyes))
+        cam2.set_actor_label("MH_CamEyes")
+        c2 = cam2.get_cine_camera_component()
+        c2.set_editor_property("current_focal_length", 100.0)
+        c2.set_editor_property("constrain_aspect_ratio", False)
+        f2 = c2.focus_settings
+        f2.focus_method = unreal.CameraFocusMethod.MANUAL
+        f2.manual_focus_distance = 55.0
+        c2.set_editor_property("focus_settings", f2)
+        unreal.AutomationLibrary.take_high_res_screenshot(1280, 512, f"{OUT}/{shot}_augen.png", cam2, False, False,
+                                                          unreal.ComparisonTolerance.LOW, "", 1.0)
 print("MH_LAB", results)
