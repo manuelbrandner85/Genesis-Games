@@ -38,5 +38,6 @@ Content/Genesis/Characters/C00/Candidates/
 # build_c00_garments.py and c00_garments_import.py.
 Content/Genesis/Characters/C00/MHC_*
 Content/Genesis/Characters/C00/Kleidung/
+Content/Genesis/Characters/C00/Haar/
 ArtSource/Export/C00/
 ArtSource/Blender/C00/

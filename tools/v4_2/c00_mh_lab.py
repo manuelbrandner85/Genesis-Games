@@ -107,6 +107,16 @@ for name in PRESETS:
         garment.attach_to_component(body, "", unreal.AttachmentRule.SNAP_TO_TARGET, unreal.AttachmentRule.SNAP_TO_TARGET,
                                     unreal.AttachmentRule.SNAP_TO_TARGET, False)
         garment.set_leader_pose_component(body)
+    if os.environ.get("GENESIS_MH_GROOM"):                      # own hair groom on the head (rest pose)
+        face = next(c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
+        ga = eas.spawn_actor_from_class(unreal.GroomActor, actor.get_actor_location(), actor.get_actor_rotation())
+        ga.set_actor_label("MH_Groom")
+        gc = ga.get_component_by_class(unreal.GroomComponent)
+        gc.set_editor_property("groom_asset", eal.load_asset(os.environ["GENESIS_MH_GROOM"]))
+        if os.environ.get("GENESIS_MH_GROOM_MAT"):
+            gc.set_material(0, eal.load_asset(os.environ["GENESIS_MH_GROOM_MAT"]))
+        ga.attach_to_component(face, "", unreal.AttachmentRule.SNAP_TO_TARGET, unreal.AttachmentRule.SNAP_TO_TARGET,
+                               unreal.AttachmentRule.KEEP_WORLD, False)
     bc = {str(c.name): round(float(c.target_measurement), 1) for c in mh.get_body_constraints(ch, False)
           if str(c.name) in ("Height", "Masculine/Feminine", "Fat", "Muscularity")}
     sk = ch.skin_settings.skin
