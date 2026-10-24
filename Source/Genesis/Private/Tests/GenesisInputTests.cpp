@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #if WITH_DEV_AUTOMATION_TESTS
+#include "Tests/GenesisTestCommon.h"
 #include "GenesisPrototypeCharacter.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -10,7 +11,6 @@
 
 namespace
 {
-    constexpr EAutomationTestFlags GenesisTestFlags = EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter;
 
     const FEnhancedActionKeyMapping* FindMapping(const UInputMappingContext* Context, const UInputAction* Action, const FKey& Key)
     {
@@ -43,7 +43,7 @@ bool FGenesisInputMappingTest::RunTest(const FString&)
     TestEqual(TEXT("Move is Axis2D"), Input.Move->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Look is Axis2D"), Input.Look->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Jump is Boolean"), Input.Jump->ValueType, EInputActionValueType::Boolean);
-    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 11);
+    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 27);
 
     struct FCase { FKey Key; FVector Raw; FVector Expected; float DeltaTime; const UInputAction* Action; };
     const float Rate = FGenesisPrototypeInput::GamepadLookRateDegPerSec;
@@ -99,7 +99,7 @@ bool FGenesisInputBindingTest::RunTest(const FString&)
             Sprint += (Action == Input.Sprint && (Event == ETriggerEvent::Started || Event == ETriggerEvent::Completed))
                 || (Action == Input.SprintToggle && Event == ETriggerEvent::Started);
         }
-        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 7);
+        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 19);
         TestEqual(TEXT("Move bound on Triggered"), Move, 1);
         TestEqual(TEXT("Look bound on Triggered"), Look, 1);
         TestEqual(TEXT("Jump bound on Started"), JumpStarted, 1);

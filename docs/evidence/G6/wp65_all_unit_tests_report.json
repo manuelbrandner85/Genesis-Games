@@ -1,0 +1,397 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "DESKTOP-9JVIIPU",
+			"instance": "B99D4D6B491A38A0BC32198E0C92CFFB",
+			"instanceName": "DESKTOP-9JVIIPU-7992",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (26H2) [10.0.26340.9750] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5070",
+			"cPUModel": "AMD Ryzen 7 5700X 8-Core Processor             ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.24-00.32.19",
+	"succeeded": 13,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.2374372482299805,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "NoSoftlockExhaustive",
+			"fullTestPath": "Genesis.Flussdorf.Contract.NoSoftlockExhaustive",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.14146840572357178,
+			"dateTime": "2026.10.24-00.32.17",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Explored 2580 states (2580 expanded), max paid 1, max money 82 GE",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReferDeclineWithdraw",
+			"fullTestPath": "Genesis.Flussdorf.Contract.ReferDeclineWithdraw",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.0081351995468139648,
+			"dateTime": "2026.10.24-00.32.18",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RepairAndPayOnce",
+			"fullTestPath": "Genesis.Flussdorf.Contract.RepairAndPayOnce",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.0084611997008323669,
+			"dateTime": "2026.10.24-00.32.18",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 08:30 N02.Ask -> Offered | Mein Generator springt nicht mehr an. Er steht schon in der Werkstatt. Würden Sie ihn reparieren? Mehr als 70 GE kann ich nicht ausgeben.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 08:30 N02.Accept60 -> Accepted | Einverstanden, 60 GE. Sagen Sie mir Bescheid, wenn er läuft – ich sehe ihn mir dann selbst an.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N01.BorrowTool -> Accepted | Hier, der Zündkerzenschlüssel. Bring ihn bitte zurück, wenn du fertig bist.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.InspectFilter -> Accepted | Der Kraftstofffilter ist klar, Kraftstoff läuft durch. Daran liegt es nicht.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.InspectPlug -> Accepted | Die Zündkerze ist verrußt, die Elektrode abgebrannt. Sie zündet nicht mehr zuverlässig.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N03.BuyPlug -> Accepted | Bitte schön, eine Zündkerze. 18 GE.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 Gen.Repair -> Accepted | Neue Zündkerze eingesetzt. Der Generator springt an und läuft gleichmäßig.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N01.ReturnTool -> Accepted | Danke, zurück an seinen Platz.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Tag 1, 09:10 N02.ReportDone -> Completed | Wirklich? Ich gehe gleich in die Werkstatt und sehe ihn mir an.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.18"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SaveLoadEveryStep",
+			"fullTestPath": "Genesis.Flussdorf.Contract.SaveLoadEveryStep",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.083953499794006348,
+			"dateTime": "2026.10.24-00.32.18",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CameraRig",
+			"fullTestPath": "Genesis.Gameplay.CameraRig",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.7252269983291626,
+			"dateTime": "2026.10.24-00.32.18",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JumpHeight",
+			"fullTestPath": "Genesis.Gameplay.JumpHeight",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.049024499952793121,
+			"dateTime": "2026.10.24-00.32.18",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Jump: 45.00 cm",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.19"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LandsOnFloor",
+			"fullTestPath": "Genesis.Gameplay.LandsOnFloor",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.02947390079498291,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Landed: feet at 2.15 cm, movement mode 1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.19"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WalkAndRunSpeed",
+			"fullTestPath": "Genesis.Gameplay.WalkAndRunSpeed",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.11181080341339111,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walk: max 175.00 cm/s, 519.0 cm in 3 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.19"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Run: max 450.00 cm/s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.24-00.32.19"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrototypeBindings",
+			"fullTestPath": "Genesis.Input.PrototypeBindings",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.010829299688339233,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrototypeMapping",
+			"fullTestPath": "Genesis.Input.PrototypeMapping",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.0039855986833572388,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RoundtripAndRecovery",
+			"fullTestPath": "Genesis.Save.RoundtripAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.049121897667646408,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Clock",
+			"fullTestPath": "Genesis.World.Clock",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.0081579014658927917,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LedgerIdempotent",
+			"fullTestPath": "Genesis.World.LedgerIdempotent",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"B99D4D6B491A38A0BC32198E0C92CFFB"
+			],
+			"duration": 0.0077881030738353729,
+			"dateTime": "2026.10.24-00.32.19",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

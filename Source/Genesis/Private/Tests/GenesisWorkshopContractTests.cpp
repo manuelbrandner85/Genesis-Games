@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #if WITH_DEV_AUTOMATION_TESTS
+#include "Tests/GenesisTestCommon.h"
 #include "Mission/GenesisWorkshopContract.h"
 #include "Npc/GenesisNpcSchedule.h"
 #include "Save/GenesisSaveStore.h"
@@ -9,7 +10,6 @@
 
 namespace
 {
-    constexpr EAutomationTestFlags GenesisTestFlags = EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter;
     using CT = FGenesisWorkshopContract;
 
     UGenesisWorldStateSubsystem* NewWorld()
@@ -60,7 +60,7 @@ namespace
         return WS.GetState().Ledger.FilterByPredicate([](const FGenesisWorldEvent& E) { return E.ActionID == TEXT("Contract.Paid"); }).Num();
     }
 
-    bool Offered(const UGenesisWorldStateSubsystem& WS, FName Target, const TCHAR* Action, bool* bEnabled = nullptr)
+    bool IsChoiceOffered(const UGenesisWorldStateSubsystem& WS, FName Target, const TCHAR* Action, bool* bEnabled = nullptr)
     {
         for (const FGenesisChoice& C : CT::Choices(WS, Target, Presence(WS))) {
             if (C.Action == Action) {
@@ -88,7 +88,7 @@ bool FGenesisContractHappyPath::RunTest(const FString&)
 {
     UGenesisWorldStateSubsystem* WS = NewWorld();
     bool bRepairEnabled = true;
-    Offered(*WS, CT::Generator, TEXT("Gen.Repair"), &bRepairEnabled);
+    IsChoiceOffered(*WS, CT::Generator, TEXT("Gen.Repair"), &bRepairEnabled);
     TestFalse(TEXT("Cannot repair before an agreement"), bRepairEnabled);
     for (const FStep& S : HappyPath) {
         const FString Line = Do(WS, S.Target, S.Action);
@@ -162,8 +162,8 @@ bool FGenesisContractOtherWays::RunTest(const FString&)
         const FString Line = Do(WS, TEXT("N02"), TEXT("N02.Quote90"));
         TestEqual(TEXT("Price rejected"), CT::State(*WS), FString(TEXT("PriceRejected")));
         TestTrue(TEXT("She says why"), Line.Contains(TEXT("zu teuer")));
-        TestTrue(TEXT("60 GE still possible"), Offered(*WS, TEXT("N02"), TEXT("N02.Accept60")));
-        TestFalse(TEXT("90 GE not offered twice"), Offered(*WS, TEXT("N02"), TEXT("N02.Quote90")));
+        TestTrue(TEXT("60 GE still possible"), IsChoiceOffered(*WS, TEXT("N02"), TEXT("N02.Accept60")));
+        TestFalse(TEXT("90 GE not offered twice"), IsChoiceOffered(*WS, TEXT("N02"), TEXT("N02.Quote90")));
         Do(WS, TEXT("N02"), TEXT("N02.Decline"));
         TestTrue(TEXT("Declined is an end"), CT::IsTerminal(CT::State(*WS)));
     }
@@ -181,7 +181,7 @@ bool FGenesisContractOtherWays::RunTest(const FString&)
         UGenesisWorldStateSubsystem* WS = NewWorld();
         WS->GetMutableState().PlayerMoneyGE = 10;
         bool bEnabled = true;
-        TestTrue(TEXT("Buy shown"), Offered(*WS, TEXT("N03"), TEXT("N03.BuyPlug"), &bEnabled));
+        TestTrue(TEXT("Buy shown"), IsChoiceOffered(*WS, TEXT("N03"), TEXT("N03.BuyPlug"), &bEnabled));
         TestFalse(TEXT("but not possible with 10 GE"), bEnabled);
         CT::Execute(*WS, TEXT("N03"), TEXT("N03.BuyPlug"), Presence(*WS));
         TestEqual(TEXT("Nothing bought"), WS->GetItemCount(CT::Part), 0);

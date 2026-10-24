@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #if WITH_DEV_AUTOMATION_TESTS
+#include "Tests/GenesisTestCommon.h"
 #include "World/GenesisWorldStateSubsystem.h"
 #include "Save/GenesisSaveStore.h"
 #include "HAL/FileManager.h"
@@ -8,7 +9,6 @@
 
 namespace
 {
-    constexpr EAutomationTestFlags GenesisTestFlags = EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter;
 
     UGenesisWorldStateSubsystem* NewState()
     {

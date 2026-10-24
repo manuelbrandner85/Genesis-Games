@@ -1,0 +1,8 @@
+[2026.10.24-00.37.02:564][230]LogAutomationController: Tag 1, 10:00: arrived after 48.3 s real time
+[2026.10.24-00.37.02:564][230]LogAutomationController: Tag 1, 12:30: arrived after 34.2 s real time
+[2026.10.24-00.37.02:564][230]LogAutomationController: Tag 1, 18:30: arrived after 48.3 s real time
+[2026.10.24-00.37.02:565][230]LogAutomationController: Sending RunTest PIEPlaythrough to 502D342F46C23562C790E49F24694361
+[2026.10.24-00.37.02:565][230]LogAutomationController: Display: Test Started. Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.24-00.37.02:578][231]LogAutomationWorker: Received RunTests PIEPlaythrough from 578D3ACF4139029082A413ADDF31C36C
+[2026.10.24-00.37.14:240][995]LogAutomationController: Display: Test Completed. Result={Success} Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.24-00.37.14:241][995]LogAutomationController: PIE: walk 175.0 cm/s, run 450.0 cm/s, distance 1417 cm, jump 45.0 cm

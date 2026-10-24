@@ -1,0 +1,30 @@
+[2026.10.24-00.32.54:800][156]Automation: RunTests='Genesis.Flussdorf.MissionPlaythrough' Queued.
+[2026.10.24-00.33.05:089][776]LogAutomationCommandLine: Display: Found 1 automation tests based on 'Genesis.Flussdorf.MissionPlaythrough'
+[2026.10.24-00.33.05:091][776]LogAutomationCommandLine: Display: 	Genesis.Flussdorf.MissionPlaythrough
+[2026.10.24-00.33.05:097][776]LogAutomationController: Sending RunTest MissionPlaythrough to 502D342F46C23562C790E49F24694361
+[2026.10.24-00.33.05:097][776]LogAutomationController: Display: Test Started. Name={MissionPlaythrough} Path={Genesis.Flussdorf.MissionPlaythrough}
+[2026.10.24-00.33.05:112][777]LogAutomationWorker: Received RunTests MissionPlaythrough from 578D3ACF4139029082A413ADDF31C36C
+[2026.10.24-00.34.13:338][794]LogAutomationController: Display: Test Completed. Result={Success} Name={MissionPlaythrough} Path={Genesis.Flussdorf.MissionPlaythrough}
+[2026.10.24-00.34.13:338][794]LogAutomationController: step 0 done at Tag 1, 08:30 after 0.0 s
+[2026.10.24-00.34.13:338][794]LogAutomationController:   N02.Ask -> "Mein Generator springt nicht mehr an. Er steht schon in der Werkstatt. Würden Sie ihn reparieren? Mehr als 70 GE kann ich nicht ausgeben."
+[2026.10.24-00.34.13:338][794]LogAutomationController:   N02.Accept60 -> "Einverstanden, 60 GE. Sagen Sie mir Bescheid, wenn er läuft – ich sehe ihn mir dann selbst an."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 1 done at Tag 1, 09:05 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 2 done at Tag 1, 09:13 after 48.5 s
+[2026.10.24-00.34.13:339][794]LogAutomationController:   N01.BorrowTool -> "Hier, der Zündkerzenschlüssel. Bring ihn bitte zurück, wenn du fertig bist."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 3 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController:   Gen.TryStart -> "Der Motor dreht, springt aber nicht an."
+[2026.10.24-00.34.13:339][794]LogAutomationController:   Gen.InspectFilter -> "Der Kraftstofffilter ist klar, Kraftstoff läuft durch. Daran liegt es nicht."
+[2026.10.24-00.34.13:339][794]LogAutomationController:   Gen.InspectPlug -> "Die Zündkerze ist verrußt, die Elektrode abgebrannt. Sie zündet nicht mehr zuverlässig."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 4 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController:   N03.BuyPlug -> "Bitte schön, eine Zündkerze. 18 GE."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 5 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 6 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 7 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController:   Gen.Repair -> "Neue Zündkerze eingesetzt. Der Generator springt an und läuft gleichmäßig."
+[2026.10.24-00.34.13:339][794]LogAutomationController:   N01.ReturnTool -> "Danke, zurück an seinen Platz."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 8 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 9 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController:   N02.ReportDone -> "Wirklich? Ich gehe gleich in die Werkstatt und sehe ihn mir an."
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 10 done at Tag 1, 09:13 after 0.0 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: step 11 done at Tag 1, 09:15 after 16.2 s
+[2026.10.24-00.34.13:339][794]LogAutomationController: PIE mission done at Tag 1, 09:15: 82 GE, paid 1 time(s), 13 ledger events

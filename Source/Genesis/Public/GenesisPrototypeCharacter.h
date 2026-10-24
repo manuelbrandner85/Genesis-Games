@@ -19,9 +19,16 @@ struct GENESIS_API FGenesisPrototypeInput
     UPROPERTY(Transient) TObjectPtr<UInputAction> Jump;
     UPROPERTY(Transient) TObjectPtr<UInputAction> Sprint;
     UPROPERTY(Transient) TObjectPtr<UInputAction> SprintToggle;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> Interact;      // E / gamepad X: talk, use, end conversation
+    UPROPERTY(Transient) TObjectPtr<UInputAction> Confirm;       // Enter / gamepad A in a conversation
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ChoiceUp;      // arrow / d-pad up
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ChoiceDown;    // arrow / d-pad down
+    UPROPERTY(Transient) TArray<TObjectPtr<UInputAction>> Choices; // keys 1-6
+    UPROPERTY(Transient) TObjectPtr<UInputAction> SaveGame;      // F5
+    UPROPERTY(Transient) TObjectPtr<UInputAction> LoadGame;      // F9
 
     /** Keyboard/mouse + gamepad layout: WASD/left stick move, mouse/right stick look, Space/A jump,
-     *  Shift held / left stick click (toggle) sprint. */
+     *  Shift held / left stick click (toggle) sprint, E / X interact, 1-6 or d-pad + A choose, F5/F9 save/load. */
     static FGenesisPrototypeInput Create(UObject* Outer);
     /** Gamepad look speed in degrees per second at full stick deflection. */
     static constexpr float GamepadLookRateDegPerSec = 150.f;
@@ -57,6 +64,16 @@ protected:
     void StartSprint() { SetSprinting(true); }
     void StopSprint() { SetSprinting(false); }
     void ToggleSprint() { SetSprinting(!bSprinting); }
+    void DoJump();
+    void DoStopJumping();
+    void OnInteract();
+    void OnConfirm();
+    void OnChoiceUp();
+    void OnChoiceDown();
+    void OnChoice(int32 Index);
+    void OnSave();
+    void OnLoad();
+    class AGenesisPlayerController* GenesisPC() const;
     void EnsureInputSetup();
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> SpringArm;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> FollowCamera;

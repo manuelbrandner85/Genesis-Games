@@ -9,6 +9,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Animation/AnimInstance.h"
+#include "Player/GenesisPlayerController.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -43,6 +44,15 @@ FGenesisPrototypeInput FGenesisPrototypeInput::Create(UObject* Outer)
     Out.Jump = MakeAction(Outer, TEXT("IA_Jump"), EInputActionValueType::Boolean);
     Out.Sprint = MakeAction(Outer, TEXT("IA_Sprint"), EInputActionValueType::Boolean);
     Out.SprintToggle = MakeAction(Outer, TEXT("IA_SprintToggle"), EInputActionValueType::Boolean);
+    Out.Interact = MakeAction(Outer, TEXT("IA_Interact"), EInputActionValueType::Boolean);
+    Out.Confirm = MakeAction(Outer, TEXT("IA_Confirm"), EInputActionValueType::Boolean);
+    Out.ChoiceUp = MakeAction(Outer, TEXT("IA_ChoiceUp"), EInputActionValueType::Boolean);
+    Out.ChoiceDown = MakeAction(Outer, TEXT("IA_ChoiceDown"), EInputActionValueType::Boolean);
+    for (int32 I = 1; I <= 6; ++I) {
+        Out.Choices.Add(MakeAction(Outer, *FString::Printf(TEXT("IA_Choice%d"), I), EInputActionValueType::Boolean));
+    }
+    Out.SaveGame = MakeAction(Outer, TEXT("IA_SaveGame"), EInputActionValueType::Boolean);
+    Out.LoadGame = MakeAction(Outer, TEXT("IA_LoadGame"), EInputActionValueType::Boolean);
     UInputMappingContext* C = Out.Context;
 
     // Move: X = right, Y = forward. Keys deliver X, so forward/back are swizzled onto Y.
@@ -72,6 +82,22 @@ FGenesisPrototypeInput FGenesisPrototypeInput::Create(UObject* Outer)
     // Sprint: held on the keyboard, toggled by clicking the left stick (as in most games).
     C->MapKey(Out.Sprint, EKeys::LeftShift);
     C->MapKey(Out.SprintToggle, EKeys::Gamepad_LeftThumbstick);
+
+    // Interaction and conversations.
+    C->MapKey(Out.Interact, EKeys::E);
+    C->MapKey(Out.Interact, EKeys::Gamepad_FaceButton_Left);
+    C->MapKey(Out.Confirm, EKeys::Enter);
+    C->MapKey(Out.Confirm, EKeys::Gamepad_FaceButton_Bottom);    // = jump outside of conversations
+    C->MapKey(Out.ChoiceUp, EKeys::Up);
+    C->MapKey(Out.ChoiceUp, EKeys::Gamepad_DPad_Up);
+    C->MapKey(Out.ChoiceDown, EKeys::Down);
+    C->MapKey(Out.ChoiceDown, EKeys::Gamepad_DPad_Down);
+    const FKey Digits[] = { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six };
+    for (int32 I = 0; I < 6; ++I) {
+        C->MapKey(Out.Choices[I], Digits[I]);
+    }
+    C->MapKey(Out.SaveGame, EKeys::F5);
+    C->MapKey(Out.LoadGame, EKeys::F9);
     return Out;
 }
 
@@ -161,12 +187,43 @@ void AGenesisPrototypeCharacter::SetupPlayerInputComponent(UInputComponent* Inpu
     EnsureInputSetup();
     Enhanced->BindAction(InputSetup.Move, ETriggerEvent::Triggered, this, &AGenesisPrototypeCharacter::Move);
     Enhanced->BindAction(InputSetup.Look, ETriggerEvent::Triggered, this, &AGenesisPrototypeCharacter::Look);
-    Enhanced->BindAction(InputSetup.Jump, ETriggerEvent::Started, this, &ACharacter::Jump);
-    Enhanced->BindAction(InputSetup.Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+    Enhanced->BindAction(InputSetup.Jump, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::DoJump);
+    Enhanced->BindAction(InputSetup.Jump, ETriggerEvent::Completed, this, &AGenesisPrototypeCharacter::DoStopJumping);
     Enhanced->BindAction(InputSetup.Sprint, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::StartSprint);
     Enhanced->BindAction(InputSetup.Sprint, ETriggerEvent::Completed, this, &AGenesisPrototypeCharacter::StopSprint);
     Enhanced->BindAction(InputSetup.SprintToggle, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::ToggleSprint);
+    Enhanced->BindAction(InputSetup.Interact, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnInteract);
+    Enhanced->BindAction(InputSetup.Confirm, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnConfirm);
+    Enhanced->BindAction(InputSetup.ChoiceUp, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnChoiceUp);
+    Enhanced->BindAction(InputSetup.ChoiceDown, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnChoiceDown);
+    for (int32 I = 0; I < InputSetup.Choices.Num(); ++I) {
+        Enhanced->BindAction(InputSetup.Choices[I], ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnChoice, I);
+    }
+    Enhanced->BindAction(InputSetup.SaveGame, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnSave);
+    Enhanced->BindAction(InputSetup.LoadGame, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnLoad);
 }
+
+AGenesisPlayerController* AGenesisPrototypeCharacter::GenesisPC() const
+{
+    return Cast<AGenesisPlayerController>(Controller);
+}
+
+void AGenesisPrototypeCharacter::DoJump()
+{
+    const AGenesisPlayerController* PC = GenesisPC();
+    if (!PC || !PC->IsInDialog()) {
+        Jump();
+    }
+}
+
+void AGenesisPrototypeCharacter::DoStopJumping() { StopJumping(); }
+void AGenesisPrototypeCharacter::OnInteract() { if (AGenesisPlayerController* PC = GenesisPC()) PC->HandleInteract(); }
+void AGenesisPrototypeCharacter::OnConfirm() { if (AGenesisPlayerController* PC = GenesisPC(); PC && PC->IsInDialog()) PC->ConfirmHighlight(); }
+void AGenesisPrototypeCharacter::OnChoiceUp() { if (AGenesisPlayerController* PC = GenesisPC()) PC->MoveHighlight(-1); }
+void AGenesisPrototypeCharacter::OnChoiceDown() { if (AGenesisPlayerController* PC = GenesisPC()) PC->MoveHighlight(1); }
+void AGenesisPrototypeCharacter::OnChoice(int32 Index) { if (AGenesisPlayerController* PC = GenesisPC()) PC->Choose(Index); }
+void AGenesisPrototypeCharacter::OnSave() { if (AGenesisPlayerController* PC = GenesisPC()) PC->SaveGame(); }
+void AGenesisPrototypeCharacter::OnLoad() { if (AGenesisPlayerController* PC = GenesisPC()) PC->LoadGame(); }
 
 void AGenesisPrototypeCharacter::Move(const FInputActionValue& Value)
 {

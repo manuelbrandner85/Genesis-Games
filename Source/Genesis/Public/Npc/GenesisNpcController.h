@@ -24,6 +24,9 @@ public:
     bool HasArrived() const { return bArrived; }
     /** Overrides the schedule (e.g. an agreed appointment). None = back to the schedule. */
     void SetOverrideAnchor(FName Anchor, bool bIndoors = false);
+    FName GetOverrideAnchor() const { return OverrideAnchor; }
+    /** After a load moved the pawn: forget the old target and re-evaluate at once. */
+    void ResetAfterLoad();
 
 private:
     void UpdateSchedule();

@@ -35,6 +35,15 @@ void AGenesisNpcController::SetOverrideAnchor(FName Anchor, bool bIndoors)
     SinceUpdate = 1.f;
 }
 
+void AGenesisNpcController::ResetAfterLoad()
+{
+    StopMovement();
+    CurrentAnchor = NAME_None;
+    bArrived = false;
+    SinceUpdate = 1.f;
+    UpdateSchedule();
+}
+
 void AGenesisNpcController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);

@@ -1,5 +1,6 @@
 #include "Misc/AutomationTest.h"
 #if WITH_DEV_AUTOMATION_TESTS
+#include "Tests/GenesisTestCommon.h"
 #include "GenesisPrototypeCharacter.h"
 #include "AIController.h"
 #include "Engine/Engine.h"
@@ -14,7 +15,6 @@
 
 namespace
 {
-    constexpr EAutomationTestFlags GenesisTestFlags = EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter;
     constexpr float Dt = 1.f / 60.f;
 
     /** Game world with a 40 x 40 m floor (top at z = 0) and an AI-possessed prototype character. */
