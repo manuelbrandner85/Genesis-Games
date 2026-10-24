@@ -4,11 +4,16 @@ Lokal erzeugt mit FLUX.2 klein 4B (ComfyUI, Apache-2.0); Prompt, Seed und Modell
 
 | Asset | Datei | Bewertung |
 |---|---|---|
-| CHR_C00_MANN | `face34_v1`, `fullbody_front_v1`, `hands_v1` | Vorschlag Ende 70, hager, graue Stoppeln |
+| CHR_C00_MANN | `face34_v2_v1`, `fullbody_front_v2_v1`, `hands_v2_v1` | **aktuell** (Rev. 2, Regie: „älter“): etwa 88, sehr hager, dünnes weißes Haar, gebeugt |
+| CHR_C00_MANN | `face34_v1`, `fullbody_front_v1`, `hands_v1` | ersetzt (Ende 70 war zu jung) |
 | CHR_C00_TOCHTER | `face34_v1`, `fullbody_front_v1` | Vorschlag Mitte 40, Strickjacke |
-| SET_C00_SCHLAFZIMMER_2026 | `wide_v1` | Raumstimmung gut; Foto im Bild noch erkennbar (im Film nicht erlaubt) |
-| SET_C00_SCHLAFZIMMER_2026 | `mood_00B_s42_v1` | **bevorzugt** für 00-B: zwei verschiedene Hände, Foto unscharf |
+| SET_C00_SCHLAFZIMMER_2026 | `wide_neubau_s64_v1` | **bevorzugt** (Rev. 2, Regie: Neubau): weiße Wände, Eichenboden, Kunststofffenster, dunkle Stimmung, kein erkennbares Foto |
+| SET_C00_SCHLAFZIMMER_2026 | `mood_00B_neubau_v1` | **bevorzugt** für 00-B im Neubau: sehr alte und jüngere Hand klar verschieden, Foto unscharf |
+| SET_C00_SCHLAFZIMMER_2026 | `mood_00D_neubau_s66_v1` | **bevorzugt** für 00-D: Fenster von innen, Rollladen, Regentropfen |
+| SET_C00_SCHLAFZIMMER_2026 | `wide_neubau_v1`, `wide_neubau_s65_v1`, `mood_00D_neubau_v1`, `mood_00D_neubau_s67_v1` | verworfen: Foto erkennbar bzw. Fenster von außen / weißer Rahmen |
+| SET_C00_SCHLAFZIMMER_2026 | `wide_v1` | ersetzt (Altbau) |
+| SET_C00_SCHLAFZIMMER_2026 | `mood_00B_s42_v1` | ersetzt (Altbau, Mann jünger) |
 | SET_C00_SCHLAFZIMMER_2026 | `mood_00B_v1`, `mood_00B_s41_v1` | **verworfen**: zwei alte Hände bzw. Foto erkennbar |
-| SET_C00_SCHLAFZIMMER_2026 | `mood_00D_v1` | Fenster mit Regentropfen für 00-D |
+| SET_C00_SCHLAFZIMMER_2026 | `mood_00D_v1` | ersetzt (Altbau) |
 
 Grenze: FLUX hält ein Gesicht nicht über mehrere Ansichten identisch. Die verbindliche, für C20 exakt reproduzierbare Figur entsteht erst im 3D-Modell (geplant MetaHuman, Freigabe ausstehend).
