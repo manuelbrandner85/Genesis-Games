@@ -54,7 +54,7 @@ bool FGenesisSceneRegistryTest::RunTest(const FString&)
     }
     TestEqual(TEXT("C20 replays C00"), C->FindScene("C20")->ReplayOf, FName("C00"));
     TestFalse(TEXT("C15 conflict open"), C->FindScene("C15")->OpenConflict.IsEmpty());
-    TestFalse(TEXT("Nothing director-approved yet"), C->FindScene("C00")->IsDirectorApproved());
+    TestTrue(TEXT("Canon locked by the director (GD-2026-10-24-01)"), C->FindScene("C00")->IsDirectorApproved());
     return true;
 }
 
@@ -81,16 +81,32 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisCinematicCanonGuardTest, "Genesis.Cinem
 bool FGenesisCinematicCanonGuardTest::RunTest(const FString&)
 {
     UGenesisCinematicSubsystem* C = NewCinematics(*this);
+    TArray<FString> Errors;
+    FGenesisSceneContract Approved = TechContract("C00");
+    Approved.bTechnicalTest = false;
+    TestTrue(TEXT("Director-approved scene binds as canon"), C->Bind(Approved, Errors));
+
+    // The same registry before the decision: unapproved scenes only run as technical tests.
+    FString Text;
+    FFileHelper::LoadFileToString(Text, *UGenesisCinematicSubsystem::DefaultRegistryPath());
+    const FString Candidate = FPaths::ProjectSavedDir() / TEXT("Automation/Genesis/registry_candidate.json");
+    FFileHelper::SaveStringToFile(Text.Replace(TEXT("\"DIRECTOR_APPROVED\""), TEXT("\"SOURCE_CANDIDATE_AWAITING_DIRECTOR\"")), *Candidate);
+    UGenesisCinematicSubsystem* Before = NewObject<UGenesisCinematicSubsystem>(NewObject<UGameInstance>(GetTransientPackage()));
+    FString Error;
+    TestTrue(TEXT("Candidate registry loads"), Before->LoadRegistry(Candidate, Error));
     FGenesisSceneContract Real = TechContract("C00");
     Real.bTechnicalTest = false;
-    TArray<FString> Errors;
-    TestFalse(TEXT("Unapproved scene cannot bind as canon"), C->Bind(Real, Errors));
+    Errors.Reset();
+    TestFalse(TEXT("Unapproved scene cannot bind as canon"), Before->Bind(Real, Errors));
     TestEqual(TEXT("Failed state"), Real.CinematicState, EGenesisCinematicState::Failed);
+    FGenesisSceneContract Tech = TechContract("C00");
+    Errors.Reset();
+    TestTrue(TEXT("Unapproved scene still runs as technical test"), Before->Bind(Tech, Errors));
 
     FGenesisSceneContract Conflict = TechContract("C16");
     Conflict.bTechnicalTest = false;
     Errors.Reset();
-    C->Bind(Conflict, Errors);
+    TestFalse(TEXT("Open conflict blocks canon even after the lock"), C->Bind(Conflict, Errors));
     TestTrue(TEXT("CON33-01 reported"), Errors.ContainsByPredicate([](const FString& S) { return S.Contains(TEXT("CON33-01")); }));
 
     FGenesisSceneContract Missing = TechContract("C03");

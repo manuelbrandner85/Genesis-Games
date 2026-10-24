@@ -120,3 +120,36 @@ Für CM4 (echtes C00) braucht es die Regiefreigabe von ScriptLock 1.1: **„JA z
 - Tastenbelegung
 - gepackter Windows-Build mit Controller-Test
 - Lumen-Kalibrierung der Werkstatt
+
+---
+
+# Nachtrag CM4 – Regiefreigabe und C00-Produktionspaket (2026-10-24)
+
+**Regiefreigabe:** Der Game Director hat ScriptLock 1.1 freigegeben: „Ja“ auf die Frage nach „JA zu Vorschlag 11“, protokolliert als [GD-2026-10-24-01](../v4_2/DIRECTOR_DECISIONS.md).
+- Folgen im System:
+  - Kanon gesperrt, alle 22 Szenen im Register auf `DIRECTOR_APPROVED`.
+  - Kanonische Szenenverträge sind jetzt möglich.
+  - C15/C16, C17 und C21 bleiben durch ihre offenen Konflikte blockiert; ein Test prüft das.
+- Keine Produktions-, Asset- oder Downloadfreigabe (ScriptLock IV.D).
+
+**Menü am Kanon ausgerichtet (C01 SHOT 01-D):**
+- Titelkarte „GENESIS – DER KREISLAUF DES LEBENS / Jede Entscheidung hinterlässt ein Echo.“
+- „Beliebige Taste drücken“ erst nach kurzer Stille.
+- Menüpunkte „Neues Leben“ und „Mitwirkende“.
+- Die erste Bootkarte ist keine zweite Titelkarte mehr.
+
+**C00-Produktionspaket v1 (Entwurf zur Abnahme):**
+- Vollständig nur lokal (`canon_sources/production/C00/`, gitignored, enthält Drehbuchinhalt): Shotliste 00-A…00-E mit Optik und Ton, 8 Dialog-Cues mit Untertitel-IDs, Figuren-DNA, Set, Musik und Ton, Produktionsweg, Abnahmekriterien.
+- Öffentliche Fassung ohne Text: [C00_PRODUCTION_PLAN.md](../v4_2/C00_PRODUCTION_PLAN.md).
+
+**Referenzentwürfe:**
+- 9 Bilder lokal mit FLUX.2 klein erzeugt; davon 2 verworfen und 1 Ersatz (s42) bevorzugt.
+- Ablage: `ArtSource/Reference/C00/`. Status `GENERATED_PREVIEW`, nicht abgenommen.
+
+**Tests:** 26/26 bestanden (`docs/evidence/V42/regression_cm4.txt`).
+
+**Offen für C00 (CM4-Abnahme fehlt noch):**
+- Regieabnahme von Shotliste, Figuren-DNA und Referenzen
+- Besetzung echter deutscher Stimmen
+- Freigabe von MetaHuman (Plugin/Inhalte)
+- Quelle `Docs/33_Der_Vorfilm.md`

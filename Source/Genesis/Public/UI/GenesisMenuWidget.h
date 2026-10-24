@@ -102,6 +102,7 @@ private:
     UVerticalBox* Center = nullptr;
     UTextBlock* BigTitle = nullptr;
     UTextBlock* BigSub = nullptr;
+    UTextBlock* Press = nullptr;
     UTextBlock* Header = nullptr;
     UTextBlock* Info = nullptr;
     UScrollBox* Scroll = nullptr;

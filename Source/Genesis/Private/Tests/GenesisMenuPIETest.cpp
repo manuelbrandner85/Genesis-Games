@@ -111,7 +111,7 @@ namespace
                 Test->TestEqual(TEXT("Quit dialog defaults to 'No'"), M->GetFocusedEntry() == INDEX_NONE ? 1 : M->GetFocusedEntry(), 1);
                 M->Back();
                 FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("CM2/menu_main.png"), true, false);
-                M->ActivateEntry(M->FindEntry(TEXT("Neues Spiel")));
+                M->ActivateEntry(M->FindEntry(TEXT("Neues Leben")));
                 Test->TestEqual(TEXT("New game screen"), M->GetScreen(), EGenesisMenuScreen::NewGame);
                 M->ActivateEntry(0);                          // empty slot 1: starts at once
                 return Next(4.0);

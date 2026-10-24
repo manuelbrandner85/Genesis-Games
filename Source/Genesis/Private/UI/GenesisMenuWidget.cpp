@@ -23,7 +23,7 @@ namespace
 
     struct FBootPage { const TCHAR* Title; const TCHAR* Body; float Seconds; };
     const FBootPage BootPages[] = {
-        { TEXT("GENESIS"), TEXT("Technischer Vorabstand – kein fertiges Spiel"), 3.f },
+        { TEXT("Technischer Vorabstand"), TEXT("GENESIS ist in Entwicklung. Grafik, Ton und Inhalte sind unfertig."), 3.f },
         { TEXT("Erstellt mit Unreal Engine"), TEXT(""), 3.f },
         { TEXT("Gesundheitshinweis"),
           TEXT("Bei einem sehr kleinen Teil der Menschen können Lichtblitze, Muster oder schnelle Bildwechsel epileptische Anfälle auslösen – auch ohne bekannte Vorgeschichte.\n"
@@ -112,6 +112,9 @@ void UGenesisMenuWidget::NativeOnInitialized()
     BigSub->SetJustification(ETextJustify::Center);
     Center->AddChildToVerticalBox(BigTitle)->SetHorizontalAlignment(HAlign_Center);
     Center->AddChildToVerticalBox(BigSub)->SetPadding(FMargin(0.f, 18.f, 0.f, 0.f));
+    Press = MakeText(TEXT("Press"), 17, FLinearColor(0.85f, 0.85f, 0.85f, 1.f));
+    Press->SetJustification(ETextJustify::Center);
+    Center->AddChildToVerticalBox(Press)->SetPadding(FMargin(0.f, 64.f, 0.f, 0.f));
     Place(Root->AddChildToCanvas(Center), FAnchors(0.5f, 0.5f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
 
     // Left column: dark glass panel with header, info line and the focusable entries.
@@ -195,7 +198,7 @@ void UGenesisMenuWidget::AdvanceIntro()
         const UGenesisCinematicSubsystem* Cine = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisCinematicSubsystem>() : nullptr;
         const FGenesisSceneRegistryEntry* C00 = Cine ? Cine->FindScene(TEXT("C00")) : nullptr;
         if (C00 && C00->IsDirectorApproved()) {
-            UE_LOG(LogTemp, Warning, TEXT("Genesis menu: C00 approved but the prologue player is not built yet (CM4)"));
+            UE_LOG(LogTemp, Log, TEXT("Genesis menu: C00 is canon (director-approved) but has no produced master yet (CM5): title card"));
         }
         if (UGenesisGameInstance* GI = Cast<UGenesisGameInstance>(GetGameInstance())) {
             GI->bBootSequenceShown = true;
@@ -333,16 +336,16 @@ void UGenesisMenuWidget::BuildEntries()
                 }
             });
         }
-        AddButton(TEXT("Neues Spiel"), [this]() { ShowScreen(EGenesisMenuScreen::NewGame); });
+        AddButton(TEXT("Neues Leben"), [this]() { ShowScreen(EGenesisMenuScreen::NewGame); });
         AddButton(TEXT("Laden"), [this]() { ShowScreen(EGenesisMenuScreen::Load); });
         AddButton(TEXT("Einstellungen"), [this]() { ShowScreen(EGenesisMenuScreen::Settings); });
         AddButton(TEXT("Barrierefreiheit"), [this]() { ShowScreen(EGenesisMenuScreen::Accessibility); });
-        AddButton(TEXT("Mitwirkende & Lizenzen"), [this]() { ShowScreen(EGenesisMenuScreen::Credits); });
+        AddButton(TEXT("Mitwirkende"), [this]() { ShowScreen(EGenesisMenuScreen::Credits); });
         AddButton(TEXT("Beenden"), [this]() { ShowScreen(EGenesisMenuScreen::QuitConfirm); });
         break;
     }
     case EGenesisMenuScreen::NewGame:
-        Title = TEXT("Neues Spiel");
+        Title = TEXT("Neues Leben");
         Hint = TEXT("Wähle einen Speicherplatz. Ein belegter Platz wird erst nach Bestätigung überschrieben.");
         for (const FString& SaveSlotName : UGenesisGameInstance::PlayerSlots()) {
             AddButton(SlotLabel(SaveSlotName, true), [this, GI, SaveSlotName]() {
@@ -361,8 +364,8 @@ void UGenesisMenuWidget::BuildEntries()
         break;
     case EGenesisMenuScreen::NewGameConfirm:
         Title = TEXT("Überschreiben?");
-        Hint = FString::Printf(TEXT("%s ist belegt. Ein neues Spiel ersetzt diesen Spielstand endgültig."), *SlotLabel(PendingSlot, false));
-        AddButton(TEXT("Ja, neues Spiel beginnen"), [this, GI]() {
+        Hint = FString::Printf(TEXT("%s ist belegt. Ein neues Leben ersetzt diesen Spielstand endgültig."), *SlotLabel(PendingSlot, false));
+        AddButton(TEXT("Ja, neues Leben beginnen"), [this, GI]() {
             if (GI && Flow.Go(TEXT("IN_GAME"))) {
                 GI->StartNewGame(PendingSlot);
             }
@@ -424,7 +427,7 @@ void UGenesisMenuWidget::BuildEntries()
         AddButton(TEXT("Zurück"), [this]() { Back(); });
         break;
     case EGenesisMenuScreen::Credits:
-        Title = TEXT("Mitwirkende & Lizenzen");
+        Title = TEXT("Mitwirkende");
         Hint = TEXT("GENESIS – technischer Vorabstand (V4.2, CM2)\n\n"
                     "Engine: Unreal® Engine 5.8, Epic Games – Unreal Engine EULA\n"
                     "Platzhalter-Figur: Epic Mannequin (Unreal-Engine-Beispielinhalt) – technischer Platzhalter, nicht final\n"
@@ -500,16 +503,23 @@ void UGenesisMenuWidget::Rebuild()
             BigTitle->SetFont(F);
         }
         else {
+            // ScriptLock C01 SHOT 01-D: title, line, short silence, then "press any key" (no second title card)
             BigTitle->SetText(FText::FromString(TEXT("GENESIS")));
-            BigSub->SetText(FText::FromString(TEXT("Beliebige Taste drücken")));
+            BigSub->SetText(FText::FromString(TEXT("DER KREISLAUF DES LEBENS\n\nJede Entscheidung hinterlässt ein Echo.")));
+            Press->SetText(FText::FromString(TEXT("Beliebige Taste drücken")));
             FSlateFontInfo F = BigTitle->GetFont();
             F.Size = Scaled(110);
             F.LetterSpacing = 400;
             BigTitle->SetFont(F);
         }
         FSlateFontInfo S = BigSub->GetFont();
-        S.Size = Scaled(18);
+        S.Size = Scaled(Screen == EGenesisMenuScreen::Title ? 22 : 18);
+        S.LetterSpacing = Screen == EGenesisMenuScreen::Title ? 120 : 0;
         BigSub->SetFont(S);
+        FSlateFontInfo PF = Press->GetFont();
+        PF.Size = Scaled(17);
+        Press->SetFont(PF);
+        Press->SetVisibility(Screen == EGenesisMenuScreen::Title ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
         SetFocus();
         return;
     }
@@ -597,10 +607,8 @@ void UGenesisMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
         AdvanceIntro();
     }
     if (Screen == EGenesisMenuScreen::Title) {
-        BigSub->SetRenderOpacity(0.55f + 0.45f * FMath::Cos(ScreenTime * 2.4f));
-    }
-    else {
-        BigSub->SetRenderOpacity(1.f);
+        const float T = ScreenTime - 2.f;          // "Kurze Stille", then the prompt fades in and breathes
+        Press->SetRenderOpacity(T <= 0.f ? 0.f : FMath::Min(T, 1.f) * (0.6f + 0.4f * FMath::Cos(T * 2.f)));
     }
     const int32 Focused = GetFocusedEntry();
     if (Focused != INDEX_NONE) {

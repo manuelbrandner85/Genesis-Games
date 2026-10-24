@@ -3,6 +3,9 @@
     python -I tools/v4_2/bind_scriptlock.py --scriptlock canon_sources/scriptlock/GENESIS_ScriptLock_11_Drehbuch_v1.1.md \
         --matrix docs/v4_2/SCENE_MATRIX_C00_C21.json --out docs/v4_2/SCENE_REGISTRY.json [--runtime Content/Genesis/Data/scene_registry.json]
 
+With --director-decision (the id of the recorded "JA zu Vorschlag 11") every scene becomes
+DIRECTOR_APPROVED (canon locked); open conflicts (CON33-01, C17, C21) stay open and keep blocking.
+
 Writes ONLY ids, titles from the public matrix, categories (ScriptLock IV.B), line ranges and hashes - never
 script text (story sources stay out of the public repository). Approval stays SOURCE_CANDIDATE until the
 game director says "JA zu Vorschlag 11" (ScriptLock IV.D); production of real scenes (CM4+) needs that.
@@ -23,6 +26,7 @@ def main():
     ap.add_argument("--matrix", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--runtime", type=Path)
+    ap.add_argument("--director-decision", help="id of the recorded decision in docs/v4_2/DIRECTOR_DECISIONS.md")
     a = ap.parse_args()
     raw = a.scriptlock.read_bytes()
     lines = raw.decode("utf8").splitlines(keepends=True)
@@ -37,7 +41,8 @@ def main():
             "scene_id": sid, "working_title": matrix[sid]["working_title"], "category": CATEGORY[sid],
             "interactive_no_auto_decision": sid in INTERACTIVE, "open_conflict": OPEN_CONFLICTS.get(sid),
             "script_lines": [start + 1, stop], "section_sha256": hashlib.sha256(section).hexdigest(),
-            "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR", "implementation_status": "NOT_IMPLEMENTED",
+            "approval_status": "DIRECTOR_APPROVED" if a.director_decision else "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+            "implementation_status": "NOT_IMPLEMENTED",
             "replay_of": "C00" if sid == "C20" else None,
         })
     ids = [s["scene_id"] for s in scenes]
@@ -45,7 +50,9 @@ def main():
         raise SystemExit(f"expected C00..C21, found {ids}")
     reg = {"schema_version": 1, "script_version": "1.1",
            "scriptlock_file": a.scriptlock.name, "scriptlock_sha256": hashlib.sha256(raw).hexdigest(),
-           "canon_status": "SCRIPT-LOCK-KANDIDAT - Game-Director-Beschluss ausstehend (IV.D: 'JA zu Vorschlag 11')",
+           "canon_status": (f"KANON GESPERRT - Game-Director-Beschluss {a.director_decision} (IV.D). Keine automatische Referenz-/Asset-/Produktionsfreigabe"
+                            if a.director_decision else "SCRIPT-LOCK-KANDIDAT - Game-Director-Beschluss ausstehend (IV.D: 'JA zu Vorschlag 11')"),
+           "director_decision": a.director_decision,
            "replay_master_rule": "C20 replays the C00 master asset byte-identical (OriginalRecording), never re-rendered",
            "scenes": scenes}
     text = json.dumps(reg, indent=2, ensure_ascii=False) + "\n"
