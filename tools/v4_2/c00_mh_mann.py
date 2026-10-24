@@ -115,11 +115,26 @@ for path in inst.get_instance_parameter_item_paths():
 report["groom_colour_params"] = changed
 
 # Clothing (FAB-ASSET-PLAN-001, 2026-10-25): Epic Fab crew-neck T-shirt in dark navy as sleep shirt and
-# the regular Epic jeans as dark trousers instead of the bundled default outfit. Content/Fab stays local (gitignored).
+# (2026-10-25) no trousers in bed: the jeans waistband pierced the duvet; legs stay under the duvet. Content/Fab stays local.
 FAB = "/Game/Fab/MetaHuman"
+# Regie 2026-10-25: T-shirt/jeans do not fit a deathbed - V-neck henley (Nyanpasinka, Standard licence) as a
+# sleep shirt in light blue-grey with a faint pyjama stripe. Shirt_01 exposes no palette colours, so its
+# material instance (local Fab copy) is recoloured: layers alternate two close blue-greys, darker neck band.
+mi = eal.load_asset(f"{FAB}/Shirt_01/Materials/MI_Shirt_01")
+if mi:
+    mel = unreal.MaterialEditingLibrary
+    pale, lighter = unreal.LinearColor(0.56, 0.63, 0.73, 1), unreal.LinearColor(0.66, 0.71, 0.79, 1)
+    for i, c in enumerate((pale, lighter, pale, lighter, pale), start=1):
+        mel.set_material_instance_vector_parameter_value(mi, f"Color_layer{i}", c)
+    mel.set_material_instance_vector_parameter_value(mi, "Color_neck", unreal.LinearColor(0.40, 0.47, 0.57, 1))
+    mel.set_material_instance_vector_parameter_value(mi, "Color_Buttons", unreal.LinearColor(0.70, 0.70, 0.68, 1))
+    mel.set_material_instance_static_switch_parameter_value(mi, "UseCustomColors", True)     # otherwise the baked olive stripes
+    mel.set_material_instance_static_switch_parameter_value(mi, "Turn_OFF_dots_pattern", True)
+    mel.update_material_instance(mi)
+    eal.save_loaded_asset(mi)
 inst.set_single_slot_selection("Outfits", unreal.MetaHumanPaletteItemKey())
 worn = []
-for name in filter(None, os.environ.get("GENESIS_MANN_OUTFIT", "WI_OA_Crewneckt,WI_OA_Jeans").split(",")):
+for name in filter(None, os.environ.get("GENESIS_MANN_OUTFIT", "WI_OA_Shirt_01").split(",")):
     wi = eal.load_asset(f"{FAB}/{name}")
     if wi is None:
         raise RuntimeError("Fab wardrobe item missing: " + name)
