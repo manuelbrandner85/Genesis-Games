@@ -153,3 +153,40 @@ Für CM4 (echtes C00) braucht es die Regiefreigabe von ScriptLock 1.1: **„JA z
 - Besetzung echter deutscher Stimmen
 - Freigabe von MetaHuman (Plugin/Inhalte)
 - Quelle `Docs/33_Der_Vorfilm.md`
+
+---
+
+# Nachtrag CM4/CM5-Vorbereitung – MetaHuman für C00 (2026-10-24)
+
+**Freigaben:**
+- GD-2026-10-24-02: Rev. 2 der Referenzen abgenommen.
+- GD-2026-10-24-03: MetaHuman freigegeben.
+- Plan `FA-METAHUMAN-001`: Aktiviert werden nur die mit UE 5.8.3 bereits installierten Plugins (MetaHuman Creator 1.0, MetaHuman Animator 5.0); es gibt keinen Download.
+- **Epic-Cloud-Dienste** (Gesichts-Auto-Rigging, hochauflösende Hautsynthese) sind nicht freigegeben und wurden nicht benutzt.
+
+**Figurenlabor `L_C00_CharacterLab`:**
+- Studiolicht und 85-mm-Kinokamera.
+- Alle 29 mitgelieferten MetaHuman-Vorlagen gerendert (`docs/evidence/V42/c00_mh_vorlagen_*.png`).
+- Älteste Männer-Vorlage ist „Walter“, wirkt aber etwa 60. Die älteste lokale Hauttextur ist Index 47 (aus der Vorlage „Sook-ja“).
+
+**`MHC_C00_Mann` v1** (`tools/v4_2/c00_mh_mann.py`, nur lokale Funktionen):
+- Basis Walter, Haut 47 in blassem Ton
+- Frisur `Hair_S_HairLoss` mit Haarausfall, `Beard_S_Stubble`, kein Schnurrbart
+- alle Haare weiß (Melanin 0,08, Whiteness 0,92)
+- Körper 172 cm, sehr hager
+- Vergleich mit der Referenz: `docs/evidence/V42/c00_mann_metahuman_v1_vergleich.png`
+
+**Offen beim Mann:**
+- Gesichtsform zu voll: eingefallene Schläfen und Wangen, Ohren und Nase fehlen. Das braucht Formarbeit im MetaHuman Creator.
+- Altersflecken
+- dunkelblaues Schlafshirt
+- Licht im Labor wärmer/heller einstellen
+- Gesichts-Auto-Rig (Epic-Cloud, Freigabe nötig) als Voraussetzung für Mimik und Lippensync
+
+**Noch nicht begonnen:** Tochter (Basis-Kandidaten: Vivian, Jelena), Schlafzimmer-Set.
+
+**Behoben:**
+- Unity-Build-Kollision von `Dim`/`Place` zwischen HUD und Menü.
+- Lichtausrichtung im Labor: `unreal.Rotator` erwartet (Roll, Pitch, Yaw).
+
+**Tests:** 13/13 ohne Renderer nach dem Neubau grün; die PIE-Tests laufen beim nächsten Editorstart mit.

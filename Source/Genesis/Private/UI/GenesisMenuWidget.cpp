@@ -18,7 +18,7 @@
 namespace
 {
     const FLinearColor Accent(0.93f, 0.78f, 0.45f, 1.f);
-    const FLinearColor Dim(0.55f, 0.55f, 0.55f, 1.f);
+    const FLinearColor MenuDim(0.55f, 0.55f, 0.55f, 1.f);
     const FLinearColor Ink(0.06f, 0.05f, 0.04f, 1.f);
 
     struct FBootPage { const TCHAR* Title; const TCHAR* Body; float Seconds; };
@@ -32,7 +32,7 @@ namespace
         { TEXT("Lautstärke"), TEXT("Sprache, Musik und Effekte lassen sich unter „Einstellungen“ jederzeit getrennt regeln."), 3.5f },
     };
 
-    void Place(UCanvasPanelSlot* S, const FAnchors& Anchor, const FVector2D& Alignment, const FVector2D& Pos, const FVector2D* Size = nullptr)
+    void PlaceInCanvas(UCanvasPanelSlot* S, const FAnchors& Anchor, const FVector2D& Alignment, const FVector2D& Pos, const FVector2D* Size = nullptr)
     {
         S->SetAnchors(Anchor);
         S->SetAlignment(Alignment);
@@ -115,7 +115,7 @@ void UGenesisMenuWidget::NativeOnInitialized()
     Press = MakeText(TEXT("Press"), 17, FLinearColor(0.85f, 0.85f, 0.85f, 1.f));
     Press->SetJustification(ETextJustify::Center);
     Center->AddChildToVerticalBox(Press)->SetPadding(FMargin(0.f, 64.f, 0.f, 0.f));
-    Place(Root->AddChildToCanvas(Center), FAnchors(0.5f, 0.5f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
+    PlaceInCanvas(Root->AddChildToCanvas(Center), FAnchors(0.5f, 0.5f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
 
     // Left column: dark glass panel with header, info line and the focusable entries.
     Panel = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Panel"));
@@ -133,7 +133,7 @@ void UGenesisMenuWidget::NativeOnInitialized()
     Column->AddChildToVerticalBox(Info)->SetPadding(FMargin(0.f, 10.f, 0.f, 26.f));
     UVerticalBoxSlot* ScrollSlot = Column->AddChildToVerticalBox(Scroll);
     ScrollSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    Footer = MakeText(TEXT("Footer"), 13, Dim);
+    Footer = MakeText(TEXT("Footer"), 13, MenuDim);
     Footer->SetAutoWrapText(true);
     Footer->SetWrapTextAt(560.f);
     Column->AddChildToVerticalBox(Footer)->SetPadding(FMargin(0.f, 18.f, 0.f, 0.f));
@@ -622,7 +622,7 @@ void UGenesisMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
         const bool bFocus = I == Focused;
         const bool bEnabled = Entries.IsValidIndex(I) && Entries[I].bEnabled;
         Buttons[I]->SetBackgroundColor(bFocus ? Accent : FLinearColor(1.f, 1.f, 1.f, 0.f));
-        ButtonTexts[I]->SetColorAndOpacity(FSlateColor(bFocus ? Ink : bEnabled ? FLinearColor::White : Dim));
+        ButtonTexts[I]->SetColorAndOpacity(FSlateColor(bFocus ? Ink : bEnabled ? FLinearColor::White : MenuDim));
         if (Entries.IsValidIndex(I)) {
             ButtonTexts[I]->SetText(FText::FromString(Entries[I].Label()));
         }

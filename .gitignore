@@ -29,3 +29,6 @@ assets/free_ai_previews/
 # Third-party CC0 downloads (re-fetchable, see MANIFEST.json and docs/v4_1/install_plans)
 ArtSource/External/PolyHaven/*
 !ArtSource/External/PolyHaven/MANIFEST_*.json
+
+# MetaHuman preset copies of the C00 lab (reproducible from the engine, tools/v4_2/c00_mh_lab.py)
+Content/Genesis/Characters/C00/Candidates/

@@ -1,0 +1,19 @@
+{
+  "plan_id": "FA-METAHUMAN-001",
+  "tool_id": "metahuman-creator-ue58-bundled",
+  "approval_type": "PLUGIN_ENABLE",
+  "source_url": "Mit Unreal Engine 5.8.3 installiert: C:/Program Files/Epic Games/UE_5.8/Engine/Plugins/MetaHuman (MetaHumanCharacter 1.0.0, MetaHuman Animator 5.0.0, MetaHumanSDK 1.0)",
+  "source_revision": "UE 5.8.3 (CL 58210709), Engine-Plugins unverändert",
+  "license_evidence": "Unreal Engine EULA; MetaHuman-Lizenz (Epic) - kostenlos, Nutzung in UE-Projekten erlaubt; vor Veröffentlichung erneut prüfen",
+  "download_size_gb": 0,
+  "install_directory": "keine Installation; Eintrag in Genesis.uproject (Plugins)",
+  "commands": [
+    "Genesis.uproject: Plugins += MetaHumanCharacter (Enabled), MetaHuman (Enabled)",
+    "Editor neu starten; abhängige Engine-Plugins aktiviert UE selbst"
+  ],
+  "rollback": "Die beiden Einträge aus Genesis.uproject entfernen, Editor neu starten; erzeugte MetaHuman-Assets liegen getrennt unter /Game/Genesis/Characters/C00",
+  "cloud_service": false,
+  "paid_api": false,
+  "excluded": "Epic-Cloud-Dienste (Auto-Rigging, Textur-Synthese) - eigene Freigabe nötig",
+  "approval_evidence": "Chat-Freigabe des Game Directors 2026-10-24: 'Rev. 2 abgenommen, MetaHuman freigegeben.' (GD-2026-10-24-03)"
+}
