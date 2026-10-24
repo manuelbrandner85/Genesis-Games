@@ -114,8 +114,8 @@ def use(slot_dir, slot_name, item):
     return str(col.get_item_display_name(key))
 
 
-# Regie 2026-10-24: long hair with a centre parting
-report["hair"] = use("Hair", "Hair", os.environ.get("GENESIS_TOCHTER_HAIR", "Hair_L_Straight"))
+# Regie 2026-10-24: long bob with waves, dirty blond to light brown
+report["hair"] = use("Hair", "Hair", os.environ.get("GENESIS_TOCHTER_HAIR", "Hair_M_BobCurly"))
 # Regie 2026-10-24: blouse with jacket instead of the T-shirt - the bundled outfit is switched off, the
 # own garment (SKM_C00_Tochter_Kleidung, tools/v4_2/build_c00_garments.py) is worn instead
 inst.set_single_slot_selection("Outfits", unreal.MetaHumanPaletteItemKey())
@@ -123,7 +123,7 @@ mh.on_edit_preview_collection(ch)            # rebuild the preview so the new gr
 mh.assemble_for_preview(ch)
 
 # Dark blond hair and brows
-hair = {"Melanin": 0.38, "Redness": 0.22, "Whiteness": 0.04, "Lightness": 0.45}
+hair = {"Melanin": float(os.environ.get("GENESIS_TOCHTER_MELANIN", "0.32")), "Redness": 0.22, "Whiteness": 0.0, "Lightness": float(os.environ.get("GENESIS_TOCHTER_LIGHT", "0.62"))}   # dirty blond to light brown
 top = unreal.LinearColor(0.012, 0.012, 0.014, 1.0)
 n_hair = n_cloth = 0
 for path in inst.get_instance_parameter_item_paths():
