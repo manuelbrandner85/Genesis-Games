@@ -2,9 +2,12 @@
 
 Replaces the graybox walls/floor/ceiling of L_Flussdorf_G6 (tools/v4/g7/g7_room.py layout):
 outside 7.0 x 6.0 m, 24 cm walls, inside 6.52 x 5.52 m, 3.48 m clear height.
-- walls: brick with plaster remains (Poly Haven damaged_plaster, CC0, 1.85 m per tile)
-- floor: oil-stained garage concrete (garage_floor, 1.89 m), top 1 cm above the village lawn
-- ceiling: board ceiling (brown_planks_03, 1.0 m) on three 14 x 20 cm beams
+Modernised old building (user decision 2026-10-24: "moderner und voller"):
+- walls: painted brick (Poly Haven painted_brick, CC0, 1.80 m per tile; relief, joints and roughness
+  from the scan, the scan's blue paint recoloured): off-white above, grey painted plinth up to 1.20 m
+- floor: grey coated concrete, epoxy look (painted_concrete_02, 4.0 m), top 1 cm above the village lawn
+- ceiling: boards and three 14 x 20 cm beams painted white (brown_planks_03 recoloured, 1.0 m)
+- door and window frames painted anthracite (distressed_painted_planks recoloured)
 - door 1.20 x 2.20 m in the west wall (market side), frame + leaf opened outwards against the facade
 - window 1.20 x 1.10 m in the east wall, sill at 1.00 m: the morning sun of the level (from the
   north-east) falls in, as in ArtSource/Reference/G7/R03_Werkstatt_Mood/interior_v1.png
@@ -45,7 +48,7 @@ def img(asset, kind, res, ext, non_color):
     return im
 
 
-def scanned(name, asset, res, tile_m, bump=0.4, directional=True):
+def scanned(name, asset, res, tile_m, bump=0.4, directional=True, recolor=None):
     """Poly Haven PBR set on world-scale UVs (UV unit = tile_m metres): diffuse, ARM
     (AO/rough/metal), OpenGL normal, height as fine bump.
     Anti-tiling (same method as M_G7_Tiled in Unreal): every map is sampled twice, the second time
@@ -82,6 +85,20 @@ def scanned(name, asset, res, tile_m, bump=0.4, directional=True):
     arm = pair("arm", "jpg", True)
     nrm = pair("nor_gl", "png", True)
     disp = pair("disp", "jpg", True)
+    if recolor:
+        # repaint: keep the scan's light/dark structure (luminance), replace its hue by the paint colour
+        # (same formula as M_G7_Tiled in Unreal: Tint * (0.55 + 0.9 * luminance))
+        bw = nt.nodes.new("ShaderNodeRGBToBW")
+        nt.links.new(d, bw.inputs["Color"])
+        lum = _add(nt, _add(nt, bw.outputs["Val"], 0.9, "MULTIPLY"), 0.55)
+        tint = nt.nodes.new("ShaderNodeMix")
+        tint.data_type = "RGBA"
+        tint.blend_type = "MULTIPLY"
+        tint.inputs["Factor"].default_value = 1.0
+        tint.inputs[6].default_value = recolor + (1.0,)
+        nt.links.new(lum, tint.inputs[7])
+        d = tint.outputs[2]
+        mat["recolor"] = list(recolor)
     nt.links.new(d, bsdf.inputs["Base Color"])
     sep = nt.nodes.new("ShaderNodeSeparateColor")
     nt.links.new(arm, sep.inputs["Color"])
@@ -122,10 +139,11 @@ def glass(name):
 
 
 M = {
-    "plaster": scanned("M_RM_BrickPlaster", "damaged_plaster", "4k", 1.85, 0.5),
-    "floor": scanned("M_RM_GarageConcrete", "garage_floor", "4k", 1.886, 0.3, directional=False),
-    "planks": scanned("M_RM_CeilingPlanks", "brown_planks_03", "4k", 1.0, 0.3),
-    "frame": scanned("M_RM_PaintedWood", "distressed_painted_planks", "2k", 1.6, 0.3),
+    "plaster": scanned("M_RM_PaintedBrickWhite", "painted_brick", "4k", 1.80, 0.5, recolor=(0.78, 0.77, 0.74)),
+    "plinth": scanned("M_RM_PaintedBrickGrey", "painted_brick", "4k", 1.80, 0.5, recolor=(0.20, 0.21, 0.22)),
+    "floor": scanned("M_RM_EpoxyFloor", "painted_concrete_02", "4k", 4.0, 0.2, directional=False),
+    "planks": scanned("M_RM_CeilingWhite", "brown_planks_03", "4k", 1.0, 0.3, recolor=(0.80, 0.79, 0.76)),
+    "frame": scanned("M_RM_FrameAnthracite", "distressed_painted_planks", "2k", 1.6, 0.3, recolor=(0.05, 0.055, 0.06)),
     "glass": glass("M_RM_WindowGlass"),
     "metal": simple_mat("M_RM_ZincSill", (0.58, 0.59, 0.60), 0.45, metal=1.0, rough_var=0.12, bump=0.05),
 }
@@ -135,8 +153,20 @@ IX, IY = W2 - T, D2 - T                        # half inner
 parts, ucx = [], []
 
 
+DADO = 1.20                                   # top of the grey painted plinth
+
+
 def wall(name, x0, x1, y0, y1, z0, z1, mat="plaster", collide=True):
-    """Axis-aligned block by Unreal-local extents (metres)."""
+    """Axis-aligned block by Unreal-local extents (metres). Brick walls crossing the plinth height are
+    split into a grey plinth part and a white upper part (one collision box for the whole)."""
+    if mat == "plaster" and z0 < DADO < z1:
+        wall(name + "_Plinth", x0, x1, y0, y1, z0, DADO, "plinth", collide=False)
+        o = wall(name, x0, x1, y0, y1, DADO, z1, "plaster", collide=False)
+        if collide:
+            ucx.append(((abs(x1 - x0), abs(y1 - y0), abs(z1 - z0)), ue((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)))
+        return o
+    if mat == "plaster" and z1 <= DADO:
+        mat = "plinth"
     c = ((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)
     s = (abs(x1 - x0), abs(y1 - y0), abs(z1 - z0))
     o = box(name, s, ue(*c), mat, bevel=0.004)

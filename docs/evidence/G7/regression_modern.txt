@@ -1,0 +1,39 @@
+[2026.10.24-18.09.46:072][921]LogAutomationController: Display: Test Completed. Result={Success} Name={NoSoftlockExhaustive} Path={Genesis.Flussdorf.Contract.NoSoftlockExhaustive}
+[2026.10.24-18.09.46:091][924]LogAutomationController: Display: Test Completed. Result={Success} Name={ReferDeclineWithdraw} Path={Genesis.Flussdorf.Contract.ReferDeclineWithdraw}
+[2026.10.24-18.09.46:112][926]LogAutomationController: Display: Test Completed. Result={Success} Name={RepairAndPayOnce} Path={Genesis.Flussdorf.Contract.RepairAndPayOnce}
+[2026.10.24-18.09.46:211][928]LogAutomationController: Display: Test Completed. Result={Success} Name={SaveLoadEveryStep} Path={Genesis.Flussdorf.Contract.SaveLoadEveryStep}
+[2026.10.24-18.11.57:745][589]LogAutomationController: Display: Test Completed. Result={Success} Name={DailySchedule} Path={Genesis.Flussdorf.DailySchedule}
+[2026.10.24-18.15.18:486][ 56]LogAutomationController: Error: Test Completed. Result={Fail} Name={MissionPlaythrough} Path={Genesis.Flussdorf.MissionPlaythrough}
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: step 0 done at Tag 1, 08:30 after 0.0 s
+[2026.10.24-18.15.18:487][ 56]LogAutomationController:   N02.Ask -> "Mein Generator springt nicht mehr an. Er steht schon in der Werkstatt. Würden Sie ihn reparieren? Mehr als 70 GE kann ich nicht ausgeben."
+[2026.10.24-18.15.18:487][ 56]LogAutomationController:   N02.Accept60 -> "Einverstanden, 60 GE. Sagen Sie mir Bescheid, wenn er läuft – ich sehe ihn mir dann selbst an."
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: step 1 done at Tag 1, 09:05 after 0.0 s
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: step 2 done at Tag 1, 09:12 after 47.2 s
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: Error: Expected 'Prompt focuses N01' to be N01, but it was N02. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(135)]
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: Error: Expected 'Conversation with N01 open' to be true. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(137)]
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: step 3 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: Error: Expected 'Choice Gen.InspectPlug offered and enabled' to be true. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(140)]
+[2026.10.24-18.15.18:487][ 56]LogAutomationController: step 4 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController:   N03.BuyPlug -> "Bitte schön, eine Zündkerze. 18 GE."
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 5 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: Error: Expected 'Contract state restored' to be "Accepted", but it was "Declined". [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(61)]
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 6 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 7 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: Error: Expected 'Choice Gen.Repair offered and enabled' to be true. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(140)]
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: Error: Expected 'Choice N01.ReturnTool offered and enabled' to be true. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(140)]
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 8 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 9 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: Error: Expected 'Choice N02.ReportDone offered and enabled' to be true. [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(140)]
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: step 10 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.15.18:488][ 56]LogAutomationController: Error: step 11 timed out (contract Declined) [C:\Users\manue\Desktop\Genesis-Games\Source\Genesis\Private\Tests\GenesisFlussdorfMissionTest.cpp(91)]
+[2026.10.24-18.15.18:519][ 58]LogAutomationController: Display: Test Completed. Result={Success} Name={CameraRig} Path={Genesis.Gameplay.CameraRig}
+[2026.10.24-18.15.18:589][210]LogAutomationController: Display: Test Completed. Result={Success} Name={JumpHeight} Path={Genesis.Gameplay.JumpHeight}
+[2026.10.24-18.15.18:643][302]LogAutomationController: Display: Test Completed. Result={Success} Name={LandsOnFloor} Path={Genesis.Gameplay.LandsOnFloor}
+[2026.10.24-18.15.30:229][531]LogAutomationController: Display: Test Completed. Result={Success} Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.24-18.15.30:407][983]LogAutomationController: Display: Test Completed. Result={Success} Name={WalkAndRunSpeed} Path={Genesis.Gameplay.WalkAndRunSpeed}
+[2026.10.24-18.15.30:432][985]LogAutomationController: Display: Test Completed. Result={Success} Name={PrototypeBindings} Path={Genesis.Input.PrototypeBindings}
+[2026.10.24-18.15.30:449][987]LogAutomationController: Display: Test Completed. Result={Success} Name={PrototypeMapping} Path={Genesis.Input.PrototypeMapping}
+[2026.10.24-18.15.30:511][989]LogAutomationController: Display: Test Completed. Result={Success} Name={RoundtripAndRecovery} Path={Genesis.Save.RoundtripAndRecovery}
+[2026.10.24-18.15.30:528][991]LogAutomationController: Display: Test Completed. Result={Success} Name={Clock} Path={Genesis.World.Clock}
+[2026.10.24-18.15.30:546][993]LogAutomationController: Display: Test Completed. Result={Success} Name={LedgerIdempotent} Path={Genesis.World.LedgerIdempotent}
+[2026.10.24-18.15.30:548][993]LogAutomationCommandLine: Display: ...Automation Test Queue Empty 16 tests performed.

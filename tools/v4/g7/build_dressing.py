@@ -81,22 +81,6 @@ M = {
 
 
 # --- small tool builders (each returns objects; local frame: hangs/lies along +Z/+X) ---------------
-def ring(name, r_out, r_in, t, loc, mat, rot=(0, 0, 0), n=32):
-    """Flat ring (washer shape) in the local YZ plane with a real opening, thickness t along X."""
-    bm = bmesh.new()
-    rings = []
-    for x in (-t / 2, t / 2):
-        for r in (r_out, r_in):
-            rings.append([bm.verts.new((x, r * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n))) for k in range(n)])
-    o0, i0, o1, i1 = rings
-    for k in range(n):
-        j = (k + 1) % n
-        for a, b in ((o0, i0), (o1, i1), (o0, o1), (i0, i1)):
-            bm.faces.new((a[k], a[j], b[j], b[k]))
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    return _obj(name, bm, mat, loc, rot, bevel=0.0006, segs=2)
-
-
 def wrench(tag, loc, L, rot):
     """Combination spanner: tapered shank, closed ring end (12-point opening) and open jaw end."""
     w = 0.016 * L / 0.2
@@ -110,49 +94,11 @@ def wrench(tag, loc, L, rot):
     return place(out, loc, rot)
 
 
-def fluted(name, r, h, loc, mat, flutes=8):
-    """Screwdriver grip: cylinder with flutes (every other ring vertex pulled in) and a domed end."""
-    bm = bmesh.new()
-    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=flutes * 2, radius1=r, radius2=r * 0.92, depth=h)
-    for v in bm.verts:
-        ang = math.atan2(v.co.y, v.co.x)
-        k = round(ang / (math.pi / flutes))
-        if k % 2:
-            v.co.x *= 0.80
-            v.co.y *= 0.80
-    return _obj(name, bm, mat, loc, (0, 0, 0), bevel=0.002, segs=2)
-
-
 def screwdriver(tag, loc, grip, rot):
     out = [fluted(f"{tag}_Grip", 0.014, 0.10, (0, 0, 0.05), grip),
            cyl(f"{tag}_Ferrule", 0.006, 0.012, (0, 0, -0.006), "chrome", verts=12, bevel=0.0008),
            cyl(f"{tag}_Shaft", 0.0028, 0.13, (0, 0, -0.07), "chrome", verts=8, bevel=0.0)]
     return place(out, loc, rot)
-
-
-def perforated_sheet(name, w, h, loc, mat, pitch=0.025, hole=0.00625, t=0.0012):
-    """Pegboard with real square holes: per pitch three cells (land, hole, land), hole cells removed,
-    then given its sheet thickness. Built in the local XZ plane, facing -Y."""
-    land = (pitch - hole) / 2
-    def coords(total):
-        cs, x = [0.0], 0.0
-        while x + pitch <= total + 1e-6:
-            cs += [x + land, x + land + hole, x + pitch]
-            x += pitch
-        return [c - total / 2 for c in cs]
-    xs, zs = coords(w), coords(h)
-    bm = bmesh.new()
-    grid = [[bm.verts.new((x, 0.0, z)) for z in zs] for x in xs]
-    for i in range(len(xs) - 1):
-        for j in range(len(zs) - 1):
-            if i % 3 == 1 and j % 3 == 1:
-                continue                                  # the hole
-            bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]))
-    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
-    o = _obj(name, bm, mat, loc, (0, 0, 0), bevel=None, smooth=False)
-    sol = o.modifiers.new("Sheet", "SOLIDIFY")
-    sol.thickness = t
-    return o
 
 
 def pliers(tag, loc, grip, rot):
@@ -162,22 +108,6 @@ def pliers(tag, loc, grip, rot):
         out.append(box(f"{tag}_Jaw{s}", (0.005, 0.009, 0.06), (0, s * 0.004, 0.07), "chrome", bevel=0.001, rot=(-s * 0.06, 0, 0)))
     out.append(cyl(f"{tag}_Pivot", 0.006, 0.008, (0, 0, 0.035), "chrome", rot=(0, math.pi / 2, 0), verts=12, bevel=0.0))
     return place(out, loc, rot)
-
-
-def place(objs, loc, rot):
-    piv = bpy.data.objects.new("piv", None)
-    col.objects.link(piv)
-    for o in objs:
-        o.parent = piv
-    piv.location = loc
-    piv.rotation_euler = rot
-    bpy.context.view_layer.update()
-    for o in objs:
-        mw = o.matrix_world.copy()
-        o.parent = None
-        o.matrix_world = mw
-    bpy.data.objects.remove(piv)
-    return objs
 
 
 WALL_N = 2.76        # inner face of the north wall (Unreal local y)
@@ -326,13 +256,13 @@ fbox("Bucket", (0.30, 0.30, 0.30), ue(-2.85, -2.42, 0.15), "grey", collide=True,
 fi.pop()                                               # replace the box by a real bucket
 fi.append(cyl("Bucket", 0.15, 0.30, ue(-2.85, -2.42, 0.15), "grey", verts=40, bevel=0.006, r2=0.13))
 fi.append(cyl("Bucket_Rim", 0.153, 0.012, ue(-2.85, -2.42, 0.30), "grey", verts=40, bevel=0.004))
-fi.append(cyl("DrainPan", 0.30, 0.06, ue(-2.35, -2.45, 0.03), "black", verts=48, bevel=0.01))
-fi.append(cyl("DrainPan_Oil", 0.26, 0.004, ue(-2.35, -2.45, 0.035), "oil", verts=48, bevel=0.0))
+fi.append(cyl("DrainPan", 0.30, 0.06, ue(-2.80, -1.85, 0.03), "black", verts=48, bevel=0.01))   # clear of the cabinet run
+fi.append(cyl("DrainPan_Oil", 0.26, 0.004, ue(-2.80, -1.85, 0.035), "oil", verts=48, bevel=0.0))
 fi.append(box("Cardboard", (0.95, 0.75, 0.004), ue(0.50, -2.00, 0.012), "card", bevel=0.001, rot=rz(4)))
-BX = -3.18
-fi.append(cyl("Broom_Handle", 0.012, 1.30, ue(BX, 1.55, 0.72), "wood", rot=(math.radians(-14), 0, 0), verts=12, bevel=0.002))
-fi.append(box("Broom_Head", (0.40, 0.06, 0.05), ue(BX + 0.005, 1.55 + 0.17, 0.08), "wood", bevel=0.005, rot=(0, 0, math.pi / 2)))
-fi.append(box("Broom_Bristles", (0.38, 0.05, 0.07), ue(BX + 0.005, 1.55 + 0.17, 0.035), "bristle", bevel=0.004, rot=(0, 0, math.pi / 2)))
+BX, BY = 3.18, -0.40                                # east wall (the service counter stands at the old west-wall spot)
+fi.append(cyl("Broom_Handle", 0.012, 1.30, ue(BX, BY, 0.72), "wood", rot=(math.radians(-14), 0, 0), verts=12, bevel=0.002))
+fi.append(box("Broom_Head", (0.40, 0.06, 0.05), ue(BX - 0.005, BY + 0.17, 0.08), "wood", bevel=0.005, rot=(0, 0, math.pi / 2)))
+fi.append(box("Broom_Bristles", (0.38, 0.05, 0.07), ue(BX - 0.005, BY + 0.17, 0.035), "bristle", bevel=0.004, rot=(0, 0, math.pi / 2)))
 flooritems = join_parts("SM_R03_FloorItems", fi)
 for i, (s, c, r) in enumerate(fucx):
     u = collision_box(f"SM_R03_FloorItems_{i:02d}", s, c, flooritems)

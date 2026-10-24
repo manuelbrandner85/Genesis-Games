@@ -128,9 +128,26 @@ def build_tiled_master(defaults):
         return lerp
 
     bc = pair("BaseColor", ST.SAMPLERTYPE_COLOR, -900)
+    # repaint (same as build_room.scanned(recolor=...)): Tint * (0.55 + 0.9 * luminance), blended by Recolor
+    desat = expr(m, unreal.MaterialExpressionDesaturation, -400, -1100)
+    link(bc, "", desat, "")
+    lum = expr(m, unreal.MaterialExpressionMultiply, -300, -1100)
+    link(desat, "", lum, "A")
+    lum.set_editor_property("const_b", 0.9)
+    lum2 = expr(m, unreal.MaterialExpressionAdd, -200, -1100)
+    link(lum, "", lum2, "A")
+    lum2.set_editor_property("const_b", 0.55)
+    tint = expr(m, unreal.MaterialExpressionVectorParameter, -400, -1250, parameter_name="Tint", default_value=unreal.LinearColor(1, 1, 1, 1))
+    tint_rgb = expr(m, unreal.MaterialExpressionComponentMask, -300, -1250, r=True, g=True, b=True, a=False)
+    link(tint, "", tint_rgb, "")
+    painted = expr(m, unreal.MaterialExpressionMultiply, -100, -1150)
+    link(tint_rgb, "", painted, "A"); link(lum2, "", painted, "B")
+    recolor = expr(m, unreal.MaterialExpressionScalarParameter, -100, -1300, parameter_name="Recolor", default_value=0.0)
+    bc_final = expr(m, unreal.MaterialExpressionLinearInterpolate, 50, -1000)
+    link(bc, "", bc_final, "A"); link(painted, "", bc_final, "B"); link(recolor, "", bc_final, "Alpha")
     arm = pair("ARM", ST.SAMPLERTYPE_MASKS, -500)
     nrm = pair("Normal", ST.SAMPLERTYPE_NORMAL, -100)
-    mel.connect_material_property(bc, "", MP.MP_BASE_COLOR)
+    mel.connect_material_property(bc_final, "", MP.MP_BASE_COLOR)
     for ch, prop, x in (("R", MP.MP_AMBIENT_OCCLUSION, -350), ("G", MP.MP_ROUGHNESS, -300), ("B", MP.MP_METALLIC, -250)):
         mask = expr(m, unreal.MaterialExpressionComponentMask, x, -500, r=ch == "R", g=ch == "G", b=ch == "B", a=False)
         link(arm, "", mask, "")
@@ -166,15 +183,16 @@ zinc = const_material(f"{DST}/Materials/M_G7_Zinc", (0.58, 0.59, 0.60), 0.45, me
 clear = load(f"{DST}/Materials/M_G7_ClearPolycarbonate")
 
 # ---------------------------------------------------------------- Poly Haven sets -> MIs
-SETS = {   # slot material: (asset, res, directional)
-    "M_RM_BrickPlaster": ("damaged_plaster", "4k", True),
-    "M_RM_GarageConcrete": ("garage_floor", "4k", False),
-    "M_RM_CeilingPlanks": ("brown_planks_03", "4k", True),
-    "M_RM_PaintedWood": ("distressed_painted_planks", "2k", True),
+SETS = {   # slot material: (asset, res, directional, paint colour or None) - must match build_room.py M
+    "M_RM_PaintedBrickWhite": ("painted_brick", "4k", True, (0.78, 0.77, 0.74)),
+    "M_RM_PaintedBrickGrey": ("painted_brick", "4k", True, (0.20, 0.21, 0.22)),
+    "M_RM_EpoxyFloor": ("painted_concrete_02", "4k", False, None),
+    "M_RM_CeilingWhite": ("brown_planks_03", "4k", True, (0.80, 0.79, 0.76)),
+    "M_RM_FrameAnthracite": ("distressed_painted_planks", "2k", True, (0.05, 0.055, 0.06)),
 }
 room_mats = {}
 tiled = None
-for slot, (asset, res, directional) in SETS.items():
+for slot, (asset, res, directional, paint) in SETS.items():
     folder = f"{SHARED}/{asset}"
     files = {k: os.path.join(PH, asset, f"{asset}_{k}_{res}.{ext}") for k, ext in (("diff", "jpg"), ("arm", "jpg"), ("nor_gl", "png"), ("disp", "jpg"))}
     import_files(list(files.values()), folder)
@@ -201,6 +219,9 @@ for slot, (asset, res, directional) in SETS.items():
     ang = 0.0 if directional else math.radians(37.0)
     mel.set_material_instance_scalar_parameter_value(mi, "Cos2", math.cos(ang))
     mel.set_material_instance_scalar_parameter_value(mi, "Sin2", math.sin(ang))
+    mel.set_material_instance_scalar_parameter_value(mi, "Recolor", 1.0 if paint else 0.0)
+    if paint:
+        mel.set_material_instance_vector_parameter_value(mi, "Tint", unreal.LinearColor(*paint, 1.0))
     mel.update_material_instance(mi)
     eal.save_loaded_asset(mi)
     room_mats[slot] = mi
@@ -245,7 +266,10 @@ report = {"engine": unreal.SystemLibrary.get_engine_version(), "assets": {}}
 report["assets"]["SM_R03_Room"] = import_mesh("SM_R03_Room", f"{DST}/Room", lambda n: room_mats[n], nanite=False)
 
 master = load(MASTER)
-for asset, nanite in (("SM_R03_ToolWall", False), ("SM_R03_BenchItems", False), ("SM_R03_FloorItems", True)):
+TRANSLUCENT = ("ClearJarGlass", "ClockGlass")      # see-through slots of the dressing meshes
+for asset, nanite in (("SM_R03_ToolWall", False), ("SM_R03_BenchItems", False), ("SM_R03_FloorItems", True),
+                      ("SM_R03_Cabinets", True), ("SM_R03_Equipment", False), ("SM_R03_ServiceCounter", True),
+                      ("SM_R03_LiftTable", True)):
     folder = f"{DST}/Dressing/{asset.replace('SM_R03_', '')}"
     import_files([os.path.join(SRC_TEX, asset, f"T_{asset}_{s}.png") for s in ("BC", "ORM", "N")], folder + "/Textures")
     bc, orm, nrm = (load(f"{folder}/Textures/T_{asset}_{s}") for s in ("BC", "ORM", "N"))
@@ -265,7 +289,7 @@ for asset, nanite in (("SM_R03_ToolWall", False), ("SM_R03_BenchItems", False), 
         mel.set_material_instance_texture_parameter_value(mi, p, x)
     mel.update_material_instance(mi)
     eal.save_loaded_asset(mi)
-    report["assets"][asset] = import_mesh(asset, folder, lambda n, mi=mi: clear if "ClearJarGlass" in n else mi, nanite)
+    report["assets"][asset] = import_mesh(asset, folder, lambda n, mi=mi: clear if any(t in n for t in TRANSLUCENT) else mi, nanite)
 
 os.makedirs(os.path.dirname(REPORT), exist_ok=True)
 with open(REPORT, "w", encoding="utf-8") as f:

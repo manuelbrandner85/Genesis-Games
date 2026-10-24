@@ -1,0 +1,73 @@
+{
+  "plan_id": "FA-POLYHAVEN-002",
+  "tool_id": "polyhaven-cc0-assets",
+  "approval_type": "DOWNLOAD_MODEL",
+  "source_url": "https://polyhaven.com (API https://api.polyhaven.com, files https://dl.polyhaven.org)",
+  "source_revision": "Datei-MD5 laut api.polyhaven.com/files am 2026-10-24 (im Manifest je Datei)",
+  "license_evidence": "https://polyhaven.com/license: CC0 (wie FA-POLYHAVEN-001)",
+  "download_size_gb": 0.2,
+  "assets": [
+    {
+      "id": "painted_brick",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "4k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "4k",
+          "format": "jpg"
+        }
+      ]
+    },
+    {
+      "id": "painted_concrete_02",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "4k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "4k",
+          "format": "jpg"
+        }
+      ]
+    }
+  ],
+  "use": {
+    "painted_brick": "Waende R03 modernisiert: Ziegelrelief/Fugen/Rauheit aus dem Scan, Farbe im Material auf gebrochenes Weiss umgefaerbt (Scan ist blau gestrichen)",
+    "painted_concrete_02": "grau beschichteter Boden (Epoxid-Optik) R03"
+  },
+  "install_directory": "ArtSource/External/PolyHaven (gitignored; MANIFEST versioniert)",
+  "commands": [
+    "python -I tools/v4_1/polyhaven_fetch.py --plan docs/v4_1/install_plans/FA-POLYHAVEN-002.json --out ArtSource/External/PolyHaven"
+  ],
+  "rollback": "die zwei Asset-Ordner loeschen",
+  "approval_evidence": "Chat 2026-10-24: 'Ja, schreibe Plan FA-POLYHAVEN-002 fuer weiss gestrichenen Ziegel und grauen Epoxidboden, lade ihn und mach die Werkstatt moderner und voller.'",
+  "paid_api": false,
+  "cloud_service": false
+}

@@ -1,0 +1,29 @@
+{
+  "asset": "SM_R03_LiftTable",
+  "size": 2048,
+  "files": [
+    "T_SM_R03_LiftTable_BC.png",
+    "T_SM_R03_LiftTable_ORM.png",
+    "T_SM_R03_LiftTable_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    109.0,
+    136.0
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.467,
+    0.957
+  ],
+  "metallic_share_gt_0_5": 0.027,
+  "materials": [
+    "M_SV_LiftGrey",
+    "M_SV_SafetyYellow",
+    "M_SV_PlasticBlack",
+    "M_SV_Steel",
+    "M_SV_ChromeRod",
+    "M_SV_Rubber"
+  ]
+}

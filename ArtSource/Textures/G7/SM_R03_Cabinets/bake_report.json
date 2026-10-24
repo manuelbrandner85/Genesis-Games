@@ -1,0 +1,36 @@
+{
+  "asset": "SM_R03_Cabinets",
+  "size": 4096,
+  "files": [
+    "T_SM_R03_Cabinets_BC.png",
+    "T_SM_R03_Cabinets_ORM.png",
+    "T_SM_R03_Cabinets_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    57.1,
+    171.4
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.463,
+    0.58
+  ],
+  "metallic_share_gt_0_5": 0.068,
+  "materials": [
+    "M_MO_PlasticBlack",
+    "M_MO_PowderAnthracite",
+    "M_MO_AluBrushed",
+    "M_MO_BeechWorktop",
+    "M_MO_Steel",
+    "M_MO_ToolOrange",
+    "M_MO_ScreenGlass",
+    "M_MO_CaseBlue",
+    "M_MO_SawChain",
+    "M_MO_SprayYellow",
+    "M_MO_PlasticWhite",
+    "M_MO_SprayBlue",
+    "M_MO_OilBottle"
+  ]
+}

@@ -1,0 +1,36 @@
+[2026.10.24-18.18.13:705][142]LogAutomationController: Display: Test Completed. Result={Success} Name={NoSoftlockExhaustive} Path={Genesis.Flussdorf.Contract.NoSoftlockExhaustive}
+[2026.10.24-18.18.13:722][144]LogAutomationController: Display: Test Completed. Result={Success} Name={ReferDeclineWithdraw} Path={Genesis.Flussdorf.Contract.ReferDeclineWithdraw}
+[2026.10.24-18.18.13:738][146]LogAutomationController: Display: Test Completed. Result={Success} Name={RepairAndPayOnce} Path={Genesis.Flussdorf.Contract.RepairAndPayOnce}
+[2026.10.24-18.18.13:797][148]LogAutomationController: Display: Test Completed. Result={Success} Name={SaveLoadEveryStep} Path={Genesis.Flussdorf.Contract.SaveLoadEveryStep}
+[2026.10.24-18.20.25:766][719]LogAutomationController: Display: Test Completed. Result={Success} Name={DailySchedule} Path={Genesis.Flussdorf.DailySchedule}
+[2026.10.24-18.21.32:476][916]LogAutomationController: Display: Test Completed. Result={Success} Name={MissionPlaythrough} Path={Genesis.Flussdorf.MissionPlaythrough}
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 0 done at Tag 1, 08:30 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N02.Ask -> "Mein Generator springt nicht mehr an. Er steht schon in der Werkstatt. Würden Sie ihn reparieren? Mehr als 70 GE kann ich nicht ausgeben."
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N02.Accept60 -> "Einverstanden, 60 GE. Sagen Sie mir Bescheid, wenn er läuft – ich sehe ihn mir dann selbst an."
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 1 done at Tag 1, 09:05 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 2 done at Tag 1, 09:12 after 47.5 s
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N01.BorrowTool -> "Hier, der Zündkerzenschlüssel. Bring ihn bitte zurück, wenn du fertig bist."
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 3 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 4 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N03.BuyPlug -> "Bitte schön, eine Zündkerze. 18 GE."
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 5 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 6 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 7 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N01.ReturnTool -> "Danke, zurück an seinen Platz."
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 8 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 9 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController:   N02.ReportDone -> "Wirklich? Ich gehe gleich in die Werkstatt und sehe ihn mir an."
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 10 done at Tag 1, 09:12 after 0.0 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: step 11 done at Tag 1, 09:14 after 15.8 s
+[2026.10.24-18.21.32:476][916]LogAutomationController: PIE mission done at Tag 1, 09:14: 82 GE, paid 1 time(s), 13 ledger events
+[2026.10.24-18.21.32:516][918]LogAutomationController: Display: Test Completed. Result={Success} Name={CameraRig} Path={Genesis.Gameplay.CameraRig}
+[2026.10.24-18.21.32:584][ 70]LogAutomationController: Display: Test Completed. Result={Success} Name={JumpHeight} Path={Genesis.Gameplay.JumpHeight}
+[2026.10.24-18.21.32:637][162]LogAutomationController: Display: Test Completed. Result={Success} Name={LandsOnFloor} Path={Genesis.Gameplay.LandsOnFloor}
+[2026.10.24-18.21.44:154][232]LogAutomationController: Display: Test Completed. Result={Success} Name={PIEPlaythrough} Path={Genesis.Gameplay.PIEPlaythrough}
+[2026.10.24-18.21.44:321][684]LogAutomationController: Display: Test Completed. Result={Success} Name={WalkAndRunSpeed} Path={Genesis.Gameplay.WalkAndRunSpeed}
+[2026.10.24-18.21.44:347][686]LogAutomationController: Display: Test Completed. Result={Success} Name={PrototypeBindings} Path={Genesis.Input.PrototypeBindings}
+[2026.10.24-18.21.44:363][688]LogAutomationController: Display: Test Completed. Result={Success} Name={PrototypeMapping} Path={Genesis.Input.PrototypeMapping}
+[2026.10.24-18.21.44:408][690]LogAutomationController: Display: Test Completed. Result={Success} Name={RoundtripAndRecovery} Path={Genesis.Save.RoundtripAndRecovery}
+[2026.10.24-18.21.44:424][692]LogAutomationController: Display: Test Completed. Result={Success} Name={Clock} Path={Genesis.World.Clock}
+[2026.10.24-18.21.44:445][695]LogAutomationController: Display: Test Completed. Result={Success} Name={LedgerIdempotent} Path={Genesis.World.LedgerIdempotent}
+[2026.10.24-18.21.44:451][695]LogAutomationCommandLine: Display: ...Automation Test Queue Empty 16 tests performed.

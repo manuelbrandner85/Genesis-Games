@@ -28,4 +28,4 @@ assets/free_ai_previews/
 
 # Third-party CC0 downloads (re-fetchable, see MANIFEST.json and docs/v4_1/install_plans)
 ArtSource/External/PolyHaven/*
-!ArtSource/External/PolyHaven/MANIFEST.json
+!ArtSource/External/PolyHaven/MANIFEST_*.json

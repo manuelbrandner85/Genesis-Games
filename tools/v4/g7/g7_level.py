@@ -48,7 +48,9 @@ for a in eas.get_all_level_actors():
     if lbl.startswith("Workshop_") and lbl != "Workshop_Roof":
         eas.destroy_actor(a)
 for label, asset in (("R03_Room", "Room/SM_R03_Room"), ("R03_ToolWall", "Dressing/ToolWall/SM_R03_ToolWall"),
-                     ("R03_BenchItems", "Dressing/BenchItems/SM_R03_BenchItems"), ("R03_FloorItems", "Dressing/FloorItems/SM_R03_FloorItems")):
+                     ("R03_BenchItems", "Dressing/BenchItems/SM_R03_BenchItems"), ("R03_FloorItems", "Dressing/FloorItems/SM_R03_FloorItems"),
+                     ("R03_Cabinets", "Dressing/Cabinets/SM_R03_Cabinets"), ("R03_Equipment", "Dressing/Equipment/SM_R03_Equipment"),
+                     ("R03_ServiceCounter", "Dressing/ServiceCounter/SM_R03_ServiceCounter"), ("R03_LiftTable", "Dressing/LiftTable/SM_R03_LiftTable")):
     mesh = eal.load_asset(f"{DST}/{asset}")
     if mesh is None:
         raise RuntimeError("asset missing: " + asset)
@@ -59,25 +61,34 @@ for label, asset in (("R03_Room", "Room/SM_R03_Room"), ("R03_ToolWall", "Dressin
     a.set_folder_path("R03_Werkstatt")
     done[label] = {"mesh": mesh.get_name()}
 
-# LED bar light: rect light under the diffuser, 4000 K, 4000 lm, pointing down
-old = actors.get("R03_LightBar_Light")
-if old:
-    eas.destroy_actor(old)
-bar = actors["LightStrip"]
-sock = bar.static_mesh_component.get_socket_location("Light")
-lt = eas.spawn_actor_from_class(unreal.RectLight, sock - V(0, 0, 0.5), R(-90, 0, 0))
-lt.set_actor_label("R03_LightBar_Light")
-lt.set_folder_path("R03_Werkstatt")
-lc = lt.get_component_by_class(unreal.RectLightComponent)
-lc.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
-lc.set_editor_property("intensity", 4000.0)
-lc.set_editor_property("use_temperature", True)
-lc.set_editor_property("temperature", 4000.0)
-lc.set_editor_property("source_width", 148.0)
-lc.set_editor_property("source_height", 5.0)
-lc.set_editor_property("barn_door_angle", 0.0)
-lc.set_editor_property("attenuation_radius", 900.0)
-lc.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
+# LED bars: the bench bar plus two more between the ceiling beams (modernised lighting, ~12 000 lm in
+# total for 36 m2 = ~300 lx working light). Each gets a rect light under its diffuser, 4000 K, 4000 lm.
+BARS = {"LightStrip": (5115.0, 218.0), "LightStrip2": (4970.0, -30.0), "LightStrip3": (5280.0, -60.0)}
+bar_mesh = eal.load_asset(f"{DST}/LightBar/SM_R03_LightBar")
+for i, (label, (bx, by)) in enumerate(BARS.items()):
+    bar = actors.get(label) or eas.spawn_actor_from_object(bar_mesh, V(bx, by, CEILING), R(0, 0, 0))
+    bar.set_actor_label(label)
+    bar.static_mesh_component.set_static_mesh(bar_mesh)
+    bar.set_actor_location_and_rotation(V(bx, by, CEILING), R(0, 0, 0), False, True)
+    bar.set_folder_path("R03_Werkstatt")
+    light_label = "R03_LightBar_Light" + ("" if i == 0 else str(i + 1))
+    old = actors.get(light_label)
+    if old:
+        eas.destroy_actor(old)
+    sock = bar.static_mesh_component.get_socket_location("Light")
+    lt = eas.spawn_actor_from_class(unreal.RectLight, sock - V(0, 0, 0.5), R(-90, 0, 0))
+    lt.set_actor_label(light_label)
+    lt.set_folder_path("R03_Werkstatt")
+    lc = lt.get_component_by_class(unreal.RectLightComponent)
+    lc.set_editor_property("intensity_units", unreal.LightUnits.LUMENS)
+    lc.set_editor_property("intensity", 4000.0)
+    lc.set_editor_property("use_temperature", True)
+    lc.set_editor_property("temperature", 4000.0)
+    lc.set_editor_property("source_width", 148.0)
+    lc.set_editor_property("source_height", 5.0)
+    lc.set_editor_property("barn_door_angle", 0.0)
+    lc.set_editor_property("attenuation_radius", 900.0)
+    lc.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
 # Interior exposure: the village PPV is Sunny 16 (EV 15) everywhere; a workshop lit by ~300 lux needs
 # about EV 6 (ISO 800, 1/60 s, f/2.8). Bounded volume over the R03 interior, soft blend at the door.
 old = actors.get("PPV_R03_Interior")
@@ -105,7 +116,7 @@ for label in PLACE:
     l, r = a.get_actor_location(), a.get_actor_rotation()
     rb[label] = {"mesh": a.static_mesh_component.static_mesh.get_name(), "loc": [round(l.x, 1), round(l.y, 1), round(l.z, 1)],
                  "yaw": round(r.yaw, 1), "scale": a.get_actor_scale3d().x}
-lc = [x for x in eas.get_all_level_actors() if x.get_actor_label() == "R03_LightBar_Light"][0].get_component_by_class(unreal.RectLightComponent)
+lc = [x for x in eas.get_all_level_actors() if x.get_actor_label() == "R03_LightBar_Light"][0].get_component_by_class(unreal.RectLightComponent)   # first bar
 rb["light"] = {"lumens": lc.get_editor_property("intensity"), "units": str(lc.get_editor_property("intensity_units")),
                "kelvin": lc.get_editor_property("temperature"), "loc": [round(v, 1) for v in (sock.x, sock.y, sock.z)]}
 print("G7_LEVEL", rb)

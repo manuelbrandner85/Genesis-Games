@@ -50,7 +50,7 @@ def main():
             print("OK", dst.name, len(data))
     manifest["fetched_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     manifest["total_bytes"] = total
-    (a.out / "MANIFEST.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")
+    (a.out / f"MANIFEST_{plan['plan_id']}.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8")   # one per plan
     print("FETCH_DONE", len(manifest["files"]), "files", round(total / 1e6, 1), "MB")
 
 

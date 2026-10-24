@@ -1,0 +1,88 @@
+{
+  "plan_id": "FA-POLYHAVEN-002",
+  "licence": "CC0 1.0 (https://polyhaven.com/license)",
+  "fetched_utc": "2026-10-24T17:19:23Z",
+  "files": [
+    {
+      "asset": "painted_brick",
+      "map": "Diffuse",
+      "res": "4k",
+      "file": "painted_brick/painted_brick_diff_4k.jpg",
+      "bytes": 12728810,
+      "md5": "48f44885f517f2f1adaee9c15c6566f3",
+      "sha256": "a561caf5f32f8ae4bcdaf18dd467a9878184d0a0b8772bf74181dbbec96246e4",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_brick/painted_brick_diff_4k.jpg"
+    },
+    {
+      "asset": "painted_brick",
+      "map": "arm",
+      "res": "4k",
+      "file": "painted_brick/painted_brick_arm_4k.jpg",
+      "bytes": 8013454,
+      "md5": "246613567951562e22770462b5fcbf51",
+      "sha256": "5b65287b5ac9498d5c9da0dd2285d39b88a83c753e0110edc003adbb4273108d",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_brick/painted_brick_arm_4k.jpg"
+    },
+    {
+      "asset": "painted_brick",
+      "map": "nor_gl",
+      "res": "4k",
+      "file": "painted_brick/painted_brick_nor_gl_4k.png",
+      "bytes": 90897058,
+      "md5": "85a62257eca158ec2b5db647469848c7",
+      "sha256": "d2b6eab1bb0b89f85f5285eef4dca8a889f63ee0bac5644110b21608bcf21702",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/4k/painted_brick/painted_brick_nor_gl_4k.png"
+    },
+    {
+      "asset": "painted_brick",
+      "map": "Displacement",
+      "res": "4k",
+      "file": "painted_brick/painted_brick_disp_4k.jpg",
+      "bytes": 2739574,
+      "md5": "71d456ee6b5c7fdf015a365c13199000",
+      "sha256": "c2c85fe447cfbaf482161bda938afdbbe88e4b2b983361ad386647e74a18a82d",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_brick/painted_brick_disp_4k.jpg"
+    },
+    {
+      "asset": "painted_concrete_02",
+      "map": "Diffuse",
+      "res": "4k",
+      "file": "painted_concrete_02/painted_concrete_02_diff_4k.jpg",
+      "bytes": 9033505,
+      "md5": "9e7d1135a5b797300dc61b446aa37aa3",
+      "sha256": "740cf9a3b65b0c96e60bda76aae508d991c6728607be57b4d1a45afe8044c367",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_concrete_02/painted_concrete_02_diff_4k.jpg"
+    },
+    {
+      "asset": "painted_concrete_02",
+      "map": "arm",
+      "res": "4k",
+      "file": "painted_concrete_02/painted_concrete_02_arm_4k.jpg",
+      "bytes": 13878235,
+      "md5": "96bb025e8c828a7f6f780bef0c4cf0af",
+      "sha256": "53a11fa8be4455f464be1a1a8d05845409457be3fbebea31cac40df998265196",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_concrete_02/painted_concrete_02_arm_4k.jpg"
+    },
+    {
+      "asset": "painted_concrete_02",
+      "map": "nor_gl",
+      "res": "4k",
+      "file": "painted_concrete_02/painted_concrete_02_nor_gl_4k.png",
+      "bytes": 86720445,
+      "md5": "2eaadc90a3ad8f11769e9c308dc51380",
+      "sha256": "a1f0669cfec3ef4f148e62234b307f0a77d3297262dad47be9a3aec05f7ad246",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/4k/painted_concrete_02/painted_concrete_02_nor_gl_4k.png"
+    },
+    {
+      "asset": "painted_concrete_02",
+      "map": "Displacement",
+      "res": "4k",
+      "file": "painted_concrete_02/painted_concrete_02_disp_4k.jpg",
+      "bytes": 1799109,
+      "md5": "2f3c151b3ad8cd6c1212ffba31824632",
+      "sha256": "078f6b9b5a4d5576be975c7bd520ce1f3323537bd5d66060633a7815b72b77bd",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/painted_concrete_02/painted_concrete_02_disp_4k.jpg"
+    }
+  ],
+  "total_bytes": 225810190
+}

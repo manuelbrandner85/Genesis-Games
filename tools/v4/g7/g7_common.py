@@ -352,3 +352,73 @@ def smart_uv(ob):
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.003, scale_to_bounds=False)
     bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def ring(name, r_out, r_in, t, loc, mat, rot=(0, 0, 0), n=32):
+    """Flat ring (washer shape) in the local YZ plane with a real opening, thickness t along X."""
+    bm = bmesh.new()
+    rings = []
+    for x in (-t / 2, t / 2):
+        for r in (r_out, r_in):
+            rings.append([bm.verts.new((x, r * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n))) for k in range(n)])
+    o0, i0, o1, i1 = rings
+    for k in range(n):
+        j = (k + 1) % n
+        for a, b in ((o0, i0), (o1, i1), (o0, o1), (i0, i1)):
+            bm.faces.new((a[k], a[j], b[j], b[k]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return _obj(name, bm, mat, loc, rot, bevel=0.0006, segs=2)
+
+
+def fluted(name, r, h, loc, mat, flutes=8):
+    """Screwdriver grip: cylinder with flutes (every other ring vertex pulled in) and a domed end."""
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=flutes * 2, radius1=r, radius2=r * 0.92, depth=h)
+    for v in bm.verts:
+        ang = math.atan2(v.co.y, v.co.x)
+        k = round(ang / (math.pi / flutes))
+        if k % 2:
+            v.co.x *= 0.80
+            v.co.y *= 0.80
+    return _obj(name, bm, mat, loc, (0, 0, 0), bevel=0.002, segs=2)
+
+
+def perforated_sheet(name, w, h, loc, mat, pitch=0.025, hole=0.00625, t=0.0012):
+    """Pegboard with real square holes: per pitch three cells (land, hole, land), hole cells removed,
+    then given its sheet thickness. Built in the local XZ plane, facing -Y."""
+    land = (pitch - hole) / 2
+    def coords(total):
+        cs, x = [0.0], 0.0
+        while x + pitch <= total + 1e-6:
+            cs += [x + land, x + land + hole, x + pitch]
+            x += pitch
+        return [c - total / 2 for c in cs]
+    xs, zs = coords(w), coords(h)
+    bm = bmesh.new()
+    grid = [[bm.verts.new((x, 0.0, z)) for z in zs] for x in xs]
+    for i in range(len(xs) - 1):
+        for j in range(len(zs) - 1):
+            if i % 3 == 1 and j % 3 == 1:
+                continue                                  # the hole
+            bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]))
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+    o = _obj(name, bm, mat, loc, (0, 0, 0), bevel=None, smooth=False)
+    sol = o.modifiers.new("Sheet", "SOLIDIFY")
+    sol.thickness = t
+    return o
+
+
+def place(objs, loc, rot):
+    piv = bpy.data.objects.new("piv", None)
+    col.objects.link(piv)
+    for o in objs:
+        o.parent = piv
+    piv.location = loc
+    piv.rotation_euler = rot
+    bpy.context.view_layer.update()
+    for o in objs:
+        mw = o.matrix_world.copy()
+        o.parent = None
+        o.matrix_world = mw
+    bpy.data.objects.remove(piv)
+    return objs
