@@ -128,6 +128,9 @@ for name in PRESETS:
     if os.environ.get("GENESIS_MH_WIDE"):                       # waist-up framing for clothing checks
         head = actor.get_actor_location() + V(0, 0, 125)
         cam_loc = head + V(330, -60, 10)
+        if os.environ["GENESIS_MH_WIDE"] == "full":             # head to toe (shoes) for outfit checks
+            head = actor.get_actor_location() + V(0, 0, 92)
+            cam_loc = head + V(560, -110, 15)
     cam = eas.spawn_actor_from_class(unreal.CineCameraActor, cam_loc, unreal.MathLibrary.find_look_at_rotation(cam_loc, head))
     cam.set_actor_label("MH_Cam")
     cc = cam.get_cine_camera_component()

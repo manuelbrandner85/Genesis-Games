@@ -124,9 +124,28 @@ if HAIR == "own":       # own groom GR_C00_Tochter_Haar (tools/v4_2/build_c00_ha
     report["hair"] = "own groom GR_C00_Tochter_Haar"
 else:
     report["hair"] = use("Hair", "Hair", HAIR)
-# Regie 2026-10-24: blouse with jacket instead of the T-shirt - the bundled outfit is switched off, the
-# own garment (SKM_C00_Tochter_Kleidung, tools/v4_2/build_c00_garments.py) is worn instead
+# Regie 2026-10-25 (FAB-ASSET-PLAN-001): Fab MetaHuman outfits instead of the own garment build -
+# Altena blouse (QuingKhaos, Standard licence) under the Epic sweater, slim jeans, flats.
+# Content/Fab is local only (gitignored, public repo).
+FAB = "/Game/Fab/MetaHuman"
+# Blouse and sweater together clip (blouse shows through the knit), so the grey sweater is worn alone -
+# closest to the reference's grey knit; the blouse stays available via env (e.g. "WI_KhaosMDF492,...").
+OUTFIT = os.environ.get("GENESIS_TOCHTER_OUTFIT", "WI_OA_Sweater,WI_OA_Jeans_slm,WI_OA_Flats")
 inst.set_single_slot_selection("Outfits", unreal.MetaHumanPaletteItemKey())
+worn = []
+for name in filter(None, OUTFIT.split(",")):
+    wi = eal.load_asset(f"{FAB}/{name}")
+    if wi is None:
+        raise RuntimeError("Fab wardrobe item missing: " + name)
+    keys = list(col.get_item_keys_for_wardrobe_item(wi)) if hasattr(col, "get_item_keys_for_wardrobe_item") else []
+    key = keys[0] if keys else col.try_add_item_from_wardrobe_item("Outfits", wi)
+    sel = unreal.MetaHumanPipelineSlotSelection()
+    sel.set_editor_property("slot_name", "Outfits")
+    sel.set_editor_property("selected_item", key)
+    if not inst.try_add_slot_selection(sel):
+        raise RuntimeError("outfit not accepted: " + name)
+    worn.append(name)
+report["outfit"] = worn
 mh.on_edit_preview_collection(ch)            # rebuild the preview so the new groom exposes its colour parameters
 mh.assemble_for_preview(ch)
 
@@ -138,6 +157,12 @@ balayage_f = {"OmbreShift": 0.42, "OmbreContrast": 0.35, "OmbreIntensity": 0.95,
 balayage_c = {"OmbreColor": unreal.LinearColor(0.62, 0.42, 0.22, 1.0), "HighlightsColor": unreal.LinearColor(0.78, 0.58, 0.32, 1.0)}
 balayage_b = {"bUseOmbre": True, "bUseHighlights": True}
 top = unreal.LinearColor(0.012, 0.012, 0.014, 1.0)
+# Fab outfit colours: heather-grey knit (no blue trim), dark indigo denim, dark taupe leather flats
+LC = unreal.LinearColor
+outfit_c = {"PrimaryColorSweater": LC(0.20, 0.20, 0.195, 1), "SecondaryColorSweater": LC(0.16, 0.16, 0.155, 1),
+            "PrimaryColorJeans_slm": LC(0.035, 0.045, 0.085, 1), "StitchColorJeans_slm": LC(0.30, 0.22, 0.10, 1),
+            "PrimaryColorFlats": LC(0.045, 0.036, 0.030, 1), "SecondaryColorFlats": LC(0.045, 0.036, 0.030, 1),
+            "TertiaryColorFlats": LC(0.40, 0.38, 0.35, 1)}
 n_hair = n_cloth = 0
 for path in inst.get_instance_parameter_item_paths():
     for prm in inst.get_instance_parameters(path):
@@ -151,6 +176,9 @@ for path in inst.get_instance_parameter_item_paths():
             prm.set_color(balayage_c[n])
         elif n in balayage_b:
             prm.set_bool(balayage_b[n])
+        elif n in outfit_c:
+            prm.set_color(outfit_c[n])
+            n_cloth += 1
         elif n in ("PrimaryColorShirt", "SecondaryColorShirt", "PrimaryColorShort", "SecondaryColorShort"):
             prm.set_color(top)
             n_cloth += 1

@@ -1,6 +1,6 @@
 # FAB-ASSET-PLAN-001 – Kleidung und Assets für C00 und künftige Bewohner
 
-Status: **WAITING_APPROVAL**. Diese Datei ist kein Freigabenachweis. Die Freigabe gibt der Nutzer im Chat.
+Status: **APPROVED_IN_CHAT 2026-10-25**. Der Nutzer schrieb im Chat: "FAB-ASSET-PLAN-001 freigegeben. Ich lege die Einträge in meine Fab-Bibliothek, dann importiere und baue ein." Die Lizenzprüfung je Eintrag (Schritt 4) bleibt trotzdem Pflicht.
 
 Regie 2026-10-25: Alle Figuren in GENESIS bekommen passende, fotorealistische Kleidung von Fab, auch künftige Bewohner. Dazu kommen nach Möglichkeit passende Umgebungs-Assets.
 

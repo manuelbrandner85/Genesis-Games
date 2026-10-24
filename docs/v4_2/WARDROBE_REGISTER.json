@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "plan": "FAB-ASSET-PLAN-001",
+  "updated": "2026-10-25",
+  "note": "Only IDs, licence and use. The assets live locally in Content/Fab (gitignored, public repo). Licence read on the signed-in Fab page in the editor.",
+  "library_added_2026_10_25": [
+    {"fab": "MetaHuman T Shirt Variants", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": "WI_OA_Crewneckt"},
+    {"fab": "MetaHuman Sweater", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": "WI_OA_Sweater"},
+    {"fab": "MetaHuman Slim Jeans Variants", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": "WI_OA_Jeans_slm, WI_OA_Jeansakn, WI_OA_Jeansmcf"},
+    {"fab": "MetaHuman Jeans", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": "WI_OA_Jeans"},
+    {"fab": "MetaHuman Flats", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": "WI_OA_Flats"},
+    {"fab": "The Altena Blouse for MetaHumans", "publisher": "QuingKhaos", "licence": "Standardlizenz", "ai_use_allowed": false, "imported": "WI_KhaosMDF492"},
+    {"fab": "MetaHuman Hoodie", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Tucked T Shirt Variants", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Cargo Pants", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Shorts", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Crop Top Variants", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Boots", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Loafers", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Techwear Outfit", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Fashion Starter Kit", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null, "note": "launcher sample project"},
+    {"fab": "MetaHuman Clothing Construction Presets, Set of 4", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "MetaHuman Clothing Construction Presets, Set of 2", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null},
+    {"fab": "The Clarkston Carpenter Pants", "publisher": "QuingKhaos", "licence": "Standardlizenz", "ai_use_allowed": false, "imported": null},
+    {"fab": "Shirt V-neck with rolled sleeves", "publisher": "Nyanpasinka", "licence": "Standardlizenz", "ai_use_allowed": false, "imported": null},
+    {"fab": "ArchViz Interior", "publisher": "Epic Games", "licence": "Epic/Fab", "imported": null}
+  ],
+  "not_added": [
+    {"fab": "Luxury Modern Bedroom Interior", "reason": "Luxury style does not fit the new-build room, licence not visible, AI use not allowed - reference only"},
+    {"fab": "Quixel Megascans", "reason": "now partly paid on Fab (from 3.16 EUR) - no paid items without a separate decision"}
+  ],
+  "roles": {
+    "CHR_C00_TOCHTER": {"outfit": ["WI_OA_Sweater", "WI_OA_Jeans_slm", "WI_OA_Flats"], "colours": "heather-grey knit, dark indigo denim, dark taupe flats", "alt": "WI_KhaosMDF492 (blouse) worn alone - it clips under the sweater"},
+    "CHR_C00_MANN": {"outfit": ["WI_OA_Crewneckt", "WI_OA_Jeans"], "colours": "dark navy T-shirt, near-black trousers, barefoot (in bed)"},
+    "RESIDENTS_2026_DEFAULT": {"pool": ["WI_OA_Crewneckt", "Tucked T Shirt", "Hoodie", "Sweater", "Crop Top", "Jeans", "Slim Jeans", "Cargo Pants", "Shorts", "Boots", "Loafers", "Flats", "Altena Blouse", "Carpenter Pants", "V-neck Shirt"], "status": "library only - import on first use"}
+  }
+}

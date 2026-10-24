@@ -114,13 +114,37 @@ for path in inst.get_instance_parameter_item_paths():
             changed += 1
 report["groom_colour_params"] = changed
 
-# Clothing: dark navy sleep shirt and dark trousers (approved reference)
+# Clothing (FAB-ASSET-PLAN-001, 2026-10-25): Epic Fab crew-neck T-shirt in dark navy as sleep shirt and
+# the regular Epic jeans as dark trousers instead of the bundled default outfit. Content/Fab stays local (gitignored).
+FAB = "/Game/Fab/MetaHuman"
+inst.set_single_slot_selection("Outfits", unreal.MetaHumanPaletteItemKey())
+worn = []
+for name in filter(None, os.environ.get("GENESIS_MANN_OUTFIT", "WI_OA_Crewneckt,WI_OA_Jeans").split(",")):
+    wi = eal.load_asset(f"{FAB}/{name}")
+    if wi is None:
+        raise RuntimeError("Fab wardrobe item missing: " + name)
+    keys = list(col.get_item_keys_for_wardrobe_item(wi))
+    key = keys[0] if keys else col.try_add_item_from_wardrobe_item("Outfits", wi)
+    sel = unreal.MetaHumanPipelineSlotSelection()
+    sel.set_editor_property("slot_name", "Outfits")
+    sel.set_editor_property("selected_item", key)
+    if not inst.try_add_slot_selection(sel):
+        raise RuntimeError("outfit not accepted: " + name)
+    worn.append(name)
+report["outfit"] = worn
+mh.on_edit_preview_collection(ch)                                 # new outfits expose their colour parameters
+mh.assemble_for_preview(ch)
+
+# dark navy sleep shirt and dark trousers (approved reference)
 navy, dark = unreal.LinearColor(0.012, 0.016, 0.040, 1.0), unreal.LinearColor(0.010, 0.010, 0.014, 1.0)
 cloth = 0
 for path in inst.get_instance_parameter_item_paths():
     for prm in inst.get_instance_parameters(path):
         n = str(prm.name)
-        if n in ("PrimaryColorShirt", "SecondaryColorShirt"):
+        if n.startswith(("PrimaryColorCrewneck", "SecondaryColorCrewneck")) or n in ("PrimaryColorJeans", "PrimaryColorJeans_slm"):
+            prm.set_color(navy if "Crewneck" in n else dark)
+            cloth += 1
+        elif n in ("PrimaryColorShirt", "SecondaryColorShirt"):
             prm.set_color(navy)
             cloth += 1
         elif n in ("PrimaryColorShort", "SecondaryColorShort"):
