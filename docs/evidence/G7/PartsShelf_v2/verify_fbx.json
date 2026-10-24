@@ -1,0 +1,40 @@
+{
+  "fbx": "SM_R03_PartsShelf.fbx",
+  "dimensions_mm": [
+    1005.0,
+    422.8,
+    2000.0
+  ],
+  "expected_mm": [
+    1000.0,
+    400.0,
+    2000.0
+  ],
+  "tolerance_mm": 25.0,
+  "z_min_mm": -0.0,
+  "tris": 32804,
+  "materials": [
+    "M_SH_BinPlasticBlue",
+    "M_SH_Cardboard",
+    "M_SH_FuelHose",
+    "M_SH_GalvanisedSteel",
+    "M_SH_LabelPaper",
+    "M_SH_PackingTape",
+    "M_SH_PartsSteel",
+    "M_SH_Rubber"
+  ],
+  "collision": [
+    "UCX_SM_R03_PartsShelf_00"
+  ],
+  "sockets": [],
+  "checks": {
+    "dimensions_within_tolerance": true,
+    "origin_on_floor": true,
+    "has_collision": true,
+    "sockets_present": true,
+    "uv_map": true,
+    "no_ngons": true,
+    "unit_scale_1": true
+  },
+  "pass": true
+}

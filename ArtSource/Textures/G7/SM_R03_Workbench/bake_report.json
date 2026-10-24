@@ -1,0 +1,28 @@
+{
+  "asset": "SM_R03_Workbench",
+  "size": 4096,
+  "files": [
+    "T_SM_R03_Workbench_BC.png",
+    "T_SM_R03_Workbench_ORM.png",
+    "T_SM_R03_Workbench_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    97.1,
+    145.1
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.502,
+    0.694
+  ],
+  "metallic_share_gt_0_5": 0.018,
+  "materials": [
+    "M_WB_BeechMultiplex",
+    "M_WB_Frame_PaintGrey",
+    "M_WB_Rubber",
+    "M_WB_SteelBright",
+    "M_WB_Vise_CastIron"
+  ]
+}

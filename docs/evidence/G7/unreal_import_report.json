@@ -1,0 +1,267 @@
+{
+  "engine": "5.8.3-58210709+++UE5+Release-5.8",
+  "assets": {
+    "SM_R03_Generator_N02": {
+      "size_cm": [
+        60.5,
+        46.2,
+        45.75
+      ],
+      "z_min_cm": -0.0,
+      "verts_lod0": 32708,
+      "nanite": false,
+      "simple_collision": 0,
+      "convex_collision": 1,
+      "sockets": [
+        "InspectPlug",
+        "InspectFilter",
+        "TryStart"
+      ],
+      "slots": [
+        [
+          "M_GEN_Frame_PaintGreen",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_Rubber",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_SteelZinc",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_Tank_PaintOrange",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_PlasticBlack",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_FilterHousing",
+          "M_G7_ClearPolycarbonate"
+        ],
+        [
+          "M_GEN_AluCast",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_PlugCeramic",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_MufflerBlack",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_FuelHose",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_FilterPaper",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_MufflerShield",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_SwitchRed",
+          "MI_R03_Generator_N02"
+        ],
+        [
+          "M_GEN_LabelSilver",
+          "MI_R03_Generator_N02"
+        ]
+      ],
+      "textures": {
+        "T_SM_R03_Generator_N02_BC": [
+          2048,
+          2048,
+          true
+        ],
+        "T_SM_R03_Generator_N02_ORM": [
+          2048,
+          2048,
+          false
+        ],
+        "T_SM_R03_Generator_N02_N": [
+          2048,
+          2048,
+          false
+        ]
+      }
+    },
+    "SM_R03_Workbench": {
+      "size_cm": [
+        200.0,
+        95.6,
+        105.0
+      ],
+      "z_min_cm": -0.0,
+      "verts_lod0": 11645,
+      "nanite": true,
+      "simple_collision": 0,
+      "convex_collision": 7,
+      "sockets": [],
+      "slots": [
+        [
+          "M_WB_BeechMultiplex",
+          "MI_R03_Workbench"
+        ],
+        [
+          "M_WB_Frame_PaintGrey",
+          "MI_R03_Workbench"
+        ],
+        [
+          "M_WB_Rubber",
+          "MI_R03_Workbench"
+        ],
+        [
+          "M_WB_SteelBright",
+          "MI_R03_Workbench"
+        ],
+        [
+          "M_WB_Vise_CastIron",
+          "MI_R03_Workbench"
+        ]
+      ],
+      "textures": {
+        "T_SM_R03_Workbench_BC": [
+          4096,
+          4096,
+          true
+        ],
+        "T_SM_R03_Workbench_ORM": [
+          4096,
+          4096,
+          false
+        ],
+        "T_SM_R03_Workbench_N": [
+          4096,
+          4096,
+          false
+        ]
+      }
+    },
+    "SM_R03_PartsShelf": {
+      "size_cm": [
+        100.5,
+        42.28,
+        200.0
+      ],
+      "z_min_cm": -0.0,
+      "verts_lod0": 31584,
+      "nanite": true,
+      "simple_collision": 0,
+      "convex_collision": 1,
+      "sockets": [],
+      "slots": [
+        [
+          "M_SH_GalvanisedSteel",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_Rubber",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_PartsSteel",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_BinPlasticBlue",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_LabelPaper",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_Cardboard",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_PackingTape",
+          "MI_R03_PartsShelf"
+        ],
+        [
+          "M_SH_FuelHose",
+          "MI_R03_PartsShelf"
+        ]
+      ],
+      "textures": {
+        "T_SM_R03_PartsShelf_BC": [
+          4096,
+          4096,
+          true
+        ],
+        "T_SM_R03_PartsShelf_ORM": [
+          4096,
+          4096,
+          false
+        ],
+        "T_SM_R03_PartsShelf_N": [
+          4096,
+          4096,
+          false
+        ]
+      }
+    },
+    "SM_R03_LightBar": {
+      "size_cm": [
+        164.8,
+        6.4,
+        64.2
+      ],
+      "z_min_cm": -64.2,
+      "verts_lod0": 17012,
+      "nanite": true,
+      "simple_collision": 0,
+      "convex_collision": 1,
+      "sockets": [
+        "Light"
+      ],
+      "slots": [
+        [
+          "M_LB_AluAnodised",
+          "MI_R03_LightBar"
+        ],
+        [
+          "M_LB_Diffuser",
+          "M_G7_LEDDiffuser"
+        ],
+        [
+          "M_LB_EndCapGrey",
+          "MI_R03_LightBar"
+        ],
+        [
+          "M_LB_ChainZinc",
+          "MI_R03_LightBar"
+        ],
+        [
+          "M_LB_CableWhite",
+          "MI_R03_LightBar"
+        ]
+      ],
+      "textures": {
+        "T_SM_R03_LightBar_BC": [
+          2048,
+          2048,
+          true
+        ],
+        "T_SM_R03_LightBar_ORM": [
+          2048,
+          2048,
+          false
+        ],
+        "T_SM_R03_LightBar_N": [
+          2048,
+          2048,
+          false
+        ]
+      }
+    }
+  }
+}

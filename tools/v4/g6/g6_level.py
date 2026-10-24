@@ -156,16 +156,16 @@ for i, (dx, dy, h) in enumerate(((180, 160, 40), (240, 160, 80), (-260, 150, 40)
     on_ground(f"Crate{i + 1}", mx + dx, my + dy, 60, 40, h, "Wood", F)
 region("R02", (mx, my, 200), (700, 600, 250))
 
-# R03 Werkstatt: 10 x 8 m, 3.5 m high, door facing the market (west), workbench, light strip,
+# R03 Werkstatt: 7 x 6 m (G7: shrunk from 10 x 8 m), 3.5 m high, door facing the market (west), workbench, light strip,
 # parts shelf and the generator of the repair order.
 F = "R03_Werkstatt"
-wx, wy = 5200, 0
-building("Workshop", wx, wy, 1000, 800, 350, "W", F)
-on_ground("Workbench", wx + 200, wy + 280, 200, 80, 90, "Wood", F)
-block("LightStrip", (wx + 200, wy + 280, 320), (200, 10, 4), "Metal", F)
-on_ground("PartsShelf", wx + 420, wy - 150, 50, 200, 200, "Metal", F)
-on_ground("Generator", wx - 100, wy - 200, 70, 50, 55, "Metal", F)                          # repair object
-region("R03", (wx, wy, 180), (520, 420, 200))
+wx, wy = 5050, 0
+building("Workshop", wx, wy, 700, 600, 350, "W", F)
+on_ground("Workbench", wx + 50, wy + 238, 200, 80, 90, "Wood", F)
+block("LightStrip", (wx + 50, wy + 218, 320), (200, 10, 4), "Metal", F)
+on_ground("PartsShelf", wx + 304, wy - 120, 50, 200, 200, "Metal", F)
+on_ground("Generator", wx + 50, wy - 200, 70, 50, 55, "Metal", F)                           # repair object
+region("R03", (wx, wy, 180), (330, 280, 200))
 
 # Navigation: whole village; nav mesh rebuilt automatically in the editor.
 nav = eas.spawn_actor_from_class(unreal.NavMeshBoundsVolume, V(2000, 1200, 200))

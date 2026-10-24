@@ -21,7 +21,7 @@ for a in eas.get_all_level_actors():
         eas.destroy_actor(a)
 
 ANCHORS = {  # tag: (x, y, z, yaw)
-    "N01_Work": (5300, 180, 100, 90), "N01_Home": (-1000, 2550, 150, 90),
+    "N01_Work": (5100, 130, 100, 90), "N01_Home": (-1000, 2550, 150, 90),
     "N02_Errands": (2900, -150, 100, 90), "N02_Home": (0, 2700, 150, 90),
     "N03_Work": (3000, 230, 100, -90), "N03_Home": (1000, 2550, 150, 90),
 }

@@ -1,0 +1,39 @@
+{
+  "fbx": "SM_R03_LightBar.fbx",
+  "dimensions_mm": [
+    1648.0,
+    64.0,
+    642.0
+  ],
+  "expected_mm": [
+    1648.0,
+    64.0,
+    642.0
+  ],
+  "tolerance_mm": 5.0,
+  "z_min_mm": -642.0,
+  "tris": 18584,
+  "materials": [
+    "M_LB_AluAnodised",
+    "M_LB_CableWhite",
+    "M_LB_ChainZinc",
+    "M_LB_Diffuser",
+    "M_LB_EndCapGrey"
+  ],
+  "collision": [
+    "UCX_SM_R03_LightBar_00"
+  ],
+  "sockets": [
+    "SOCKET_Light"
+  ],
+  "checks": {
+    "dimensions_within_tolerance": true,
+    "origin_on_floor": false,
+    "has_collision": true,
+    "sockets_present": true,
+    "uv_map": true,
+    "no_ngons": true,
+    "unit_scale_1": true
+  },
+  "pass": false
+}

@@ -26,8 +26,8 @@ for o in sc.objects:
         o.hide_render = True
 bb = [gen.matrix_world @ Vector(c) for c in gen.bound_box]
 size = max(max(v[i] for v in bb) - min(v[i] for v in bb) for i in range(3))
-centre = Vector((sum(v.x for v in bb) / 8, sum(v.y for v in bb) / 8, max(v.z for v in bb) * 0.48))
-radius, height = 2.55 * size, 1.05 * size
+centre = Vector((sum(v.x for v in bb) / 8, sum(v.y for v in bb) / 8, (min(v.z for v in bb) + max(v.z for v in bb)) / 2))
+radius, height = 2.55 * size, centre.z + 0.7 * size
 
 
 def shoot(name, loc, target, lens=50, fstop=8):

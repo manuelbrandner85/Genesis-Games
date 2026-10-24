@@ -1,0 +1,28 @@
+{
+  "asset": "SM_R03_LightBar",
+  "size": 2048,
+  "files": [
+    "T_SM_R03_LightBar_BC.png",
+    "T_SM_R03_LightBar_ORM.png",
+    "T_SM_R03_LightBar_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    0.0,
+    228.9
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.0,
+    0.608
+  ],
+  "metallic_share_gt_0_5": 0.198,
+  "materials": [
+    "M_LB_AluAnodised",
+    "M_LB_Diffuser",
+    "M_LB_EndCapGrey",
+    "M_LB_ChainZinc",
+    "M_LB_CableWhite"
+  ]
+}

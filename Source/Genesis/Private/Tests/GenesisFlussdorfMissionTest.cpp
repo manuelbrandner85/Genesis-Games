@@ -132,7 +132,13 @@ namespace GenesisMissionPIE
             PC->GetPawn()->SetActorLocationAndRotation(Stand, Face, false, nullptr, ETeleportType::ResetPhysics);
             PC->SetControlRotation(Face);
             PC->PlayerTick(0.f);                                         // update focus/prompt now
-            Test->TestEqual(*FString::Printf(TEXT("Prompt focuses %s"), *Target.ToString()), PC->GetFocusTarget(), Target);
+            if (!Test->TestEqual(*FString::Printf(TEXT("Prompt focuses %s"), *Target.ToString()), PC->GetFocusTarget(), Target)) {
+                // where everybody stands, so a wrong focus can be diagnosed from the log alone
+                Test->AddInfo(FString::Printf(TEXT("  player at %s, target %s at %s"), *Stand.ToCompactString(), *Target.ToString(), *To.ToCompactString()));
+                for (TActorIterator<AGenesisNpc> It(World); It; ++It) {
+                    Test->AddInfo(FString::Printf(TEXT("  %s at %s"), *It->NpcID.ToString(), *It->GetActorLocation().ToCompactString()));
+                }
+            }
             PC->HandleInteract();
             if (!Test->TestTrue(*FString::Printf(TEXT("Conversation with %s open"), *Target.ToString()), PC->IsInDialog())) return true;
             for (const TCHAR* A : Actions) {

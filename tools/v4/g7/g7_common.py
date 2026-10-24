@@ -176,9 +176,7 @@ def simple_mat(name, base, rough, metal=0.0, rough_var=0.12, bump=0.04, grime=0.
     r = _add(nt, r, _add(nt, cav, 0.25, "MULTIPLY"))
     nt.links.new(c, bsdf.inputs["Base Color"])
     nt.links.new(r, bsdf.inputs["Roughness"])
-    met = _add(nt, metal, _add(nt, 1.0, _add(nt, cav, grime * 0.5, "MULTIPLY"), "SUBTRACT"), "MULTIPLY") if metal else None
-    if met is not None:
-        nt.links.new(met, bsdf.inputs["Metallic"])
+    bsdf.inputs["Metallic"].default_value = metal      # binary: grime darkens colour/roughness, never the metalness
     bsdf.inputs["IOR"].default_value = ior
     _micro_bump(nt, bsdf, 300.0, bump)
     return mat
