@@ -245,7 +245,7 @@ M = {
     "shield": perforated_mat("M_GEN_MufflerShield"),
     "frame": paint_mat("M_GEN_Frame_PaintGreen", (0.022, 0.065, 0.032), 0.42),
     "tank": paint_mat("M_GEN_Tank_PaintOrange", (0.62, 0.115, 0.022), 0.30, coat=0.35, dust=0.28, stains=fuel_stains),
-    "alu": simple_mat("M_GEN_AluCast", (0.78, 0.78, 0.76), 0.60, metal=1.0, rough_var=0.12, bump=0.14, grime=0.45),
+    "alu": simple_mat("M_GEN_AluCast", (0.78, 0.78, 0.76), 0.55, metal=1.0, rough_var=0.04, bump=0.06, grime=0.25),   # satin sand-cast: even roughness, fine grain
     "plastic": simple_mat("M_GEN_PlasticBlack", (0.032, 0.032, 0.034), 0.52, rough_var=0.10, bump=0.03),
     "rubber": simple_mat("M_GEN_Rubber", (0.022, 0.022, 0.022), 0.86, rough_var=0.06, bump=0.08),
     "hose": simple_mat("M_GEN_FuelHose", (0.025, 0.025, 0.026), 0.45, rough_var=0.08, bump=0.02),

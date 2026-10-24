@@ -54,7 +54,7 @@ def perforated(name, base, rough, metal=1.0, scale=40.0):
 
 
 M = {
-    "board": perforated("M_DR_PegboardZinc", (0.42, 0.43, 0.44), 0.48, scale=40.0),
+    "board": simple_mat("M_DR_PegboardZinc", (0.48, 0.49, 0.50), 0.52, metal=1.0, rough_var=0.06, bump=0.03),   # holes are geometry now
     "steel": simple_mat("M_DR_ToolSteel", (0.62, 0.63, 0.64), 0.30, metal=1.0, rough_var=0.12, bump=0.04),
     "chrome": simple_mat("M_DR_ChromeVanadium", (0.55, 0.56, 0.56), 0.18, metal=1.0, rough_var=0.08, bump=0.02),
     "red": paint_mat("M_DR_PaintRed", (0.42, 0.035, 0.025), 0.40, dust=0.3),
@@ -81,17 +81,78 @@ M = {
 
 
 # --- small tool builders (each returns objects; local frame: hangs/lies along +Z/+X) ---------------
+def ring(name, r_out, r_in, t, loc, mat, rot=(0, 0, 0), n=32):
+    """Flat ring (washer shape) in the local YZ plane with a real opening, thickness t along X."""
+    bm = bmesh.new()
+    rings = []
+    for x in (-t / 2, t / 2):
+        for r in (r_out, r_in):
+            rings.append([bm.verts.new((x, r * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n))) for k in range(n)])
+    o0, i0, o1, i1 = rings
+    for k in range(n):
+        j = (k + 1) % n
+        for a, b in ((o0, i0), (o1, i1), (o0, o1), (i0, i1)):
+            bm.faces.new((a[k], a[j], b[j], b[k]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return _obj(name, bm, mat, loc, rot, bevel=0.0006, segs=2)
+
+
 def wrench(tag, loc, L, rot):
-    out = [box(f"{tag}_Bar", (0.004, 0.016 * L / 0.2, L), (0, 0, 0), "chrome", bevel=0.001)]
-    out.append(cyl(f"{tag}_Ring", 0.016 * L / 0.2 + 0.003, 0.006, (0, 0, L / 2), "chrome", rot=(0, math.pi / 2, 0), verts=24, bevel=0.001))
-    out.append(box(f"{tag}_Jaw", (0.006, 0.03 * L / 0.2, 0.025 * L / 0.2), (0, 0, -L / 2), "chrome", bevel=0.001))
+    """Combination spanner: tapered shank, closed ring end (12-point opening) and open jaw end."""
+    w = 0.016 * L / 0.2
+    out = [box(f"{tag}_Bar", (0.004, w, L - 0.03), (0, 0, 0), "chrome", bevel=0.001)]
+    out.append(ring(f"{tag}_Ring", w * 0.95 + 0.004, w * 0.55, 0.007, (0, 0, L / 2), "chrome"))
+    jaw_h = 0.03 * L / 0.2
+    for s in (-1, 1):                                    # two jaw prongs around an open gap
+        out.append(box(f"{tag}_Jaw{s}", (0.006, w * 0.45, jaw_h), (0, s * w * 0.62, -L / 2 - jaw_h * 0.25), "chrome", bevel=0.001,
+                       rot=(s * 0.25, 0, 0)))
+    out.append(box(f"{tag}_JawBase", (0.006, w * 1.6, jaw_h * 0.35), (0, 0, -L / 2 + jaw_h * 0.2), "chrome", bevel=0.001))
     return place(out, loc, rot)
+
+
+def fluted(name, r, h, loc, mat, flutes=8):
+    """Screwdriver grip: cylinder with flutes (every other ring vertex pulled in) and a domed end."""
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=flutes * 2, radius1=r, radius2=r * 0.92, depth=h)
+    for v in bm.verts:
+        ang = math.atan2(v.co.y, v.co.x)
+        k = round(ang / (math.pi / flutes))
+        if k % 2:
+            v.co.x *= 0.80
+            v.co.y *= 0.80
+    return _obj(name, bm, mat, loc, (0, 0, 0), bevel=0.002, segs=2)
 
 
 def screwdriver(tag, loc, grip, rot):
-    out = [cyl(f"{tag}_Grip", 0.014, 0.10, (0, 0, 0.05), grip, verts=12, bevel=0.003),
-           cyl(f"{tag}_Shaft", 0.0028, 0.13, (0, 0, -0.065), "chrome", verts=8, bevel=0.0)]
+    out = [fluted(f"{tag}_Grip", 0.014, 0.10, (0, 0, 0.05), grip),
+           cyl(f"{tag}_Ferrule", 0.006, 0.012, (0, 0, -0.006), "chrome", verts=12, bevel=0.0008),
+           cyl(f"{tag}_Shaft", 0.0028, 0.13, (0, 0, -0.07), "chrome", verts=8, bevel=0.0)]
     return place(out, loc, rot)
+
+
+def perforated_sheet(name, w, h, loc, mat, pitch=0.025, hole=0.00625, t=0.0012):
+    """Pegboard with real square holes: per pitch three cells (land, hole, land), hole cells removed,
+    then given its sheet thickness. Built in the local XZ plane, facing -Y."""
+    land = (pitch - hole) / 2
+    def coords(total):
+        cs, x = [0.0], 0.0
+        while x + pitch <= total + 1e-6:
+            cs += [x + land, x + land + hole, x + pitch]
+            x += pitch
+        return [c - total / 2 for c in cs]
+    xs, zs = coords(w), coords(h)
+    bm = bmesh.new()
+    grid = [[bm.verts.new((x, 0.0, z)) for z in zs] for x in xs]
+    for i in range(len(xs) - 1):
+        for j in range(len(zs) - 1):
+            if i % 3 == 1 and j % 3 == 1:
+                continue                                  # the hole
+            bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]))
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+    o = _obj(name, bm, mat, loc, (0, 0, 0), bevel=None, smooth=False)
+    sol = o.modifiers.new("Sheet", "SOLIDIFY")
+    sol.thickness = t
+    return o
 
 
 def pliers(tag, loc, grip, rot):
@@ -125,7 +186,7 @@ TOP = 0.90           # bench top
 # ================================================================== tool wall (north wall over the bench)
 tw = []
 BY = WALL_N - 0.025                            # board 25 mm off the wall on spacers
-tw.append(box("Board", (1.20, 0.0012, 0.60), ue(0.80, BY, 1.42), "board", bevel=0.0004))
+tw.append(perforated_sheet("Board", 1.20, 0.60, ue(0.80, BY, 1.42), "board"))
 for k, (bx, bz) in enumerate([(0.22, 1.14), (1.38, 1.14), (0.22, 1.70), (1.38, 1.70)]):
     tw.append(cyl(f"Spacer_{k}", 0.008, 0.024, ue(bx, WALL_N - 0.012, bz), "steel", rot=(math.pi / 2, 0, 0), verts=12, bevel=0.0))
 hook_y = BY - 0.02
@@ -223,14 +284,25 @@ for k, (dx, dy) in enumerate([(-0.29, -0.18), (0.29, -0.18), (-0.29, 0.18), (0.2
     fi.append(cyl(f"Trolley_Caster{k}", 0.05, 0.035, ue(TX + dx, TY + dy, 0.05), "rubber", rot=(math.pi / 2, 0, 0), verts=24, bevel=0.004))
     fi.append(box(f"Trolley_Fork{k}", (0.04, 0.05, 0.06), ue(TX + dx, TY + dy, 0.10), "chrome", bevel=0.002))
 fi.append(box("Trolley_Toolbox", (0.42, 0.20, 0.16), ue(TX - 0.08, TY + 0.02, 0.94), "grey", bevel=0.01))
-# two 20 l jerrycans (fuel red, diesel green) by the south wall next to the generator
+# two 20 l jerrycans (fuel red, diesel green) by the south wall next to the generator: rounded pressed
+# body (470 x 345 x 165 mm), embossed X ribs on both faces, three-bar handle, spout with lever cap
 for k, (cx, mat) in enumerate(((1.35, "red"), (1.72, "green"))):
-    c = ue(cx, -2.58, 0.235)
-    fbox(f"Jerrycan{k}", (0.35, 0.165, 0.47), c, mat, rot=rz(rnd.uniform(-6, 6)))
-    for h in range(3):
-        fi.append(box(f"Jerrycan{k}_Handle{h}", (0.03, 0.03, 0.06), (c[0] - 0.08 + h * 0.08, c[1], 0.50), mat, bevel=0.006))
-    fi.append(cyl(f"Jerrycan{k}_Spout", 0.025, 0.04, (c[0] + 0.12, c[1], 0.49), "black", verts=16, bevel=0.004))
-    fi.append(box(f"Jerrycan{k}_X", (0.30, 0.004, 0.40), (c[0], c[1] - 0.084, 0.235), mat, bevel=0.004, rot=(0, 0.3, 0)))
+    yaw = rnd.uniform(-6, 6)
+    c = Vector(ue(cx, -2.58, 0.235))
+    parts_k = [box(f"Jerrycan{k}_Body", (0.345, 0.165, 0.43), (0, 0, -0.02), mat, bevel=0.018)]
+    for side in (-1, 1):
+        for d in (-1, 1):                                   # X ribs, 6 mm proud
+            parts_k.append(box(f"Jerrycan{k}_Rib{side}{d}", (0.40, 0.006, 0.022), (0, side * 0.0855, -0.02), mat, bevel=0.003,
+                               rot=(0, d * math.atan2(0.36, 0.28), 0)))
+        parts_k.append(box(f"Jerrycan{k}_Seam{side}", (0.35, 0.004, 0.012), (0, side * 0.084, 0.19), mat, bevel=0.001))
+    for h in range(3):                                      # handle bars between top and the raised grip
+        parts_k.append(box(f"Jerrycan{k}_Post{h}", (0.022, 0.03, 0.045), (-0.10 + h * 0.08, 0, 0.215), mat, bevel=0.005))
+    parts_k.append(box(f"Jerrycan{k}_Grip", (0.20, 0.03, 0.024), (-0.02, 0, 0.245), mat, bevel=0.008))
+    parts_k.append(cyl(f"Jerrycan{k}_Neck", 0.026, 0.03, (0.13, 0, 0.21), mat, verts=24, bevel=0.003))
+    parts_k.append(cyl(f"Jerrycan{k}_Cap", 0.030, 0.022, (0.13, 0, 0.235), "black", verts=24, bevel=0.004))
+    parts_k.append(box(f"Jerrycan{k}_Lever", (0.07, 0.012, 0.008), (0.10, 0, 0.25), "chrome", bevel=0.002))
+    fi += place(parts_k, tuple(c), rz(yaw))
+    fucx.append(((0.35, 0.17, 0.47), tuple(c), rz(yaw)))
 # cable reel in the north-east corner and the cable running to the bench
 RX, RY = 2.75, 2.45
 fucx.append(((0.30, 0.26, 0.36), ue(RX, RY, 0.18), (0, 0, 0)))          # collision only: open tube frame

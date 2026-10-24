@@ -1,6 +1,6 @@
 """G7: final-quality Cycles renders of the furnished R03 workshop (headless).
 
-    blender -b ArtSource/Blender/G7/R03_Werkstatt_G7.blend -P tools/v4/g7/render_room.py -- OUTDIR [SAMPLES] [EXPOSURE]
+    blender -b ArtSource/Blender/G7/R03_Werkstatt_G7.blend -P tools/v4/g7/render_room.py -- OUTDIR [SAMPLES] [EXPOSURE] [SHOT,SHOT]
 
 Light is physical and matches the Unreal level: sun from the level's DirectionalLight (pitch -38,
 yaw 215 -> comes from the north-east, ~100 klx), Poly Haven sky HDRI hausdorf_meadow (CC0) around the
@@ -15,6 +15,7 @@ argv = sys.argv[sys.argv.index("--") + 1:]
 out = argv[0]
 samples = int(argv[1]) if len(argv) > 1 else 1024
 exposure = float(argv[2]) if len(argv) > 2 else 2.0
+only = set(argv[3].split(",")) if len(argv) > 3 else None   # optional subset of shot names
 os.makedirs(out, exist_ok=True)
 sc = bpy.context.scene
 ROOT = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), "..", "..", ".."))
@@ -97,6 +98,8 @@ SHOTS = {
     "room_window": ((-1.8, 1.0, 1.60), (3.3, -1.4, 1.5), 24, 5.6),
 }
 for name, (loc, tgt, focal, fstop) in SHOTS.items():
+    if only and name not in only:
+        continue
     cam.location = loc
     cam.rotation_euler = (Vector(tgt) - Vector(loc)).to_track_quat("-Z", "Y").to_euler()
     cam.data.lens = focal

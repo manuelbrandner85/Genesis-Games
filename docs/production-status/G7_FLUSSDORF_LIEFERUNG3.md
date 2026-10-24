@@ -71,3 +71,15 @@ Datum: 2026-10-24 · Baut auf `G7_FLUSSDORF_LIEFERUNG2.md` auf.
 - Fleckiges Gussaluminium am Generator (Back-Schritt).
 - Außenansicht der Werkstatt: Fassade und Dach sind noch Graybox.
 - Figuren N01–N03, Stimmen, Musik, Untertitel. Dafür brauche ich deine Freigabe der Dialogsätze aus G6.
+
+## Nachtrag: Nahdetails (Lieferung 3b)
+
+| Punkt | Befund | Änderung | Ergebnis |
+|---|---|---|---|
+| Fleckiges Gussalu | **Kein Schmutz.** Die Rauheit schwankte in etwa 10-cm-Flecken zwischen 0,48 und 0,72. Auf Metall wirkt das wie Tarnmuster. | Rauheit 0,55 ± 0,04, feineres Korn, weniger Schmutzmaske | Tarnmuster weg, gleichmäßig gekörnt |
+| Lochblech | gemaltes Lochmuster, auf Abstand Pixelrauschen | 1152 echte 6-mm-Löcher in der Geometrie (Raster 25 mm, 1,2 mm Blech) | Wand sichtbar durch die Löcher, Werkzeuge werfen Schatten |
+| Kleinteile | Kanister als Quader, Schlüsselring geschlossen | Kanister gerundet mit X-Prägung, Dreifachgriff, Hebelverschluss; Ringschlüssel mit Öffnung und Maul; Schraubendreher mit Rillengriff und Zwinge | erkennbare Formen |
+| „Weiß“ im Path Tracer | **Gemessen** (8-bit sRGB, Lochblech): Path Tracer 197, Lumen 145. Die übrige Szene ist im Path Tracer dunkler: Wand 98/68/40 statt 133/119/116, Boden 98–114 statt 153. | Zink auf gealtert-matt gesetzt (50 % statt 60 %, Rauheit 0,5) | Regal und Lochblech bleiben im Path Tracer hell. Physikalisch plausibel: Das Regal blickt direkt in die sonnige Türöffnung, das Lochblech hängt unter der 4000-lm-Leiste. Rauhes Metall spiegelt das. |
+| **Neuer Befund** | Lumen beleuchtet den Raum etwa 1,5-mal zu hell und zu blau im Vergleich zum Path Tracer | – | **offen**: Lumen-Einstellungen gegen den Path Tracer abgleichen |
+
+Tests danach: **16/16 bestanden**, Mission 82 GE, 1 Zahlung (`docs/evidence/G7/regression_details.txt`). Bilder: `docs/evidence/G7/r03_details_v2/`.

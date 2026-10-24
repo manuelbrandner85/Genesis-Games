@@ -14,8 +14,8 @@
   ],
   "roughness_p5_mean_p95": [
     0.0,
-    0.51,
-    0.902
+    0.514,
+    0.863
   ],
   "metallic_share_gt_0_5": 0.278,
   "materials": [

@@ -28,7 +28,7 @@ rnd = random.Random(2026)
 def galvanised(name):
     """Hot-dip galvanised sheet: zinc spangle cells (medium), white-rust bloom near the floor, finger
     marks on shelf fronts are covered by the roughness noise (micro)."""
-    mat = simple_mat(name, (0.60, 0.61, 0.62), 0.38, metal=1.0, rough_var=0.06, bump=0.03, grime=0.5)
+    mat = simple_mat(name, (0.50, 0.51, 0.52), 0.50, metal=1.0, rough_var=0.06, bump=0.03, grime=0.5)   # aged zinc: dull grey, white rust
     nt = mat.node_tree
     bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
     tc = nt.nodes.new("ShaderNodeTexCoord")
