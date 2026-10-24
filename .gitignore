@@ -18,3 +18,10 @@ logs/
 
 # Epic template content (mannequin proxy) - copied locally by tools/setup/Copy-EngineMannequin.ps1
 /Content/Characters/Mannequins/
+
+# GODMODE V4.1 Free AI: lokale Freigabebelege und Diagnosen nicht committen
+.genesis-local/
+status_local.html
+.genesis_approvals/
+build_reports/
+assets/free_ai_previews/

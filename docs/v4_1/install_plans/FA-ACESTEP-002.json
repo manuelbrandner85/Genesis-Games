@@ -1,0 +1,18 @@
+{
+  "plan_id": "FA-ACESTEP-002",
+  "tool_id": "ace-step-1.5",
+  "approval_type": "DOWNLOAD_MODEL",
+  "source_url": "https://huggingface.co/ACE-Step/Ace-Step1.5",
+  "source_revision": "HF sha 19671f406d603126926c1b7e2adc169acbcade22 (Code: Tag v0.1.8 dce62140)",
+  "license_evidence": "Modellkarte: License MIT; 'You can strictly use the generated music for commercial purposes' (geprüft 2026-10-24)",
+  "download_size_gb": 10.09,
+  "contents": "acestep-v15-turbo (2B DiT), vae, Qwen3-Embedding-0.6B, acestep-5Hz-lm-1.7B",
+  "install_directory": "C:/Users/manue/AI-Tools/GENESIS/ace-step/checkpoints",
+  "commands": [
+    "/c/Users/manue/AI-Tools/GENESIS/ace-step/ACE-Step-1.5/.venv/Scripts/acestep-download.exe --model main --dir C:/Users/manue/AI-Tools/GENESIS/ace-step/checkpoints"
+  ],
+  "rollback": "Ordner C:/Users/manue/AI-Tools/GENESIS/ace-step/checkpoints löschen",
+  "approval_evidence": "Chat 2026-10-24: 'Auch die restlichen darfst du installieren die wir brauchen' (nach F0-Bericht mit ACE-Step unter INSTALLATION NACH FREIGABE)",
+  "paid_api": false,
+  "cloud_service": false
+}

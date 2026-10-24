@@ -1,0 +1,16 @@
+{
+  "plan_id": "EXAMPLE-REPLACE-ME",
+  "tool_id": "comfyui",
+  "source_url": "https://github.com/Comfy-Org/ComfyUI",
+  "source_revision": "PINNED_GIT_SHA_REQUIRED",
+  "license_evidence": "COPY_VERIFIED_LICENSE_HASH_HERE",
+  "download_size_gb": "VERIFY_BEFORE_APPROVAL",
+  "install_directory": "C:/AI-Tools/ComfyUI",
+  "commands": [
+    "REPLACE_WITH_EXACT_INSPECTED_INSTALL_COMMAND"
+  ],
+  "rollback": "Delete isolated new tool directory only AFTER reviewing dependencies",
+  "paid_api": false,
+  "cloud_service": false,
+  "source_license_status": "UNVERIFIED"
+}

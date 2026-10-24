@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "last_researched_utc": "2026-10-24",
+  "declaration": "This catalog contains tool candidates, NOT installation results, NOT standalone commercial licenses.",
+  "tools": [
+    {
+      "id": "comfyui",
+      "category": "image-workflow",
+      "type": "software",
+      "url": "https://github.com/Comfy-Org/ComfyUI",
+      "license": "GPL-3.0 code",
+      "model_license": "per workflow model",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Local image-workflow host; external nodes must be independently reviewed."
+    },
+    {
+      "id": "flux1-schnell",
+      "category": "image-model",
+      "type": "weights",
+      "url": "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
+      "license": "Apache-2.0 weights",
+      "model_license": "Apache-2.0",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Commercially usable model candidate; large weights; model runtime VRAM varies with quantization and offload."
+    },
+    {
+      "id": "flux1-dev",
+      "category": "image-model",
+      "type": "weights",
+      "url": "https://huggingface.co/black-forest-labs/FLUX.1-dev",
+      "license": "non-commercial restrictions",
+      "model_license": "FLUX.1-dev Non-Commercial License",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "blocked_by_policy": true,
+      "recommend": "DO NOT USE for GENESIS commercial production without individually validated authorization."
+    },
+    {
+      "id": "trellis",
+      "category": "3d",
+      "type": "software+weights",
+      "url": "https://github.com/microsoft/TRELLIS",
+      "license": "MIT major parts; some third-party components separate",
+      "model_license": "review exact version and dependencies",
+      "min_nvidia_vram_gb": 16,
+      "os": [
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Optional mesh pre-production, not a finished game-character generator; Linux + >=16GB NVIDIA GPU official."
+    },
+    {
+      "id": "ace-step-1.5",
+      "category": "music",
+      "type": "software+weights",
+      "url": "https://github.com/ace-step/ACE-Step-1.5",
+      "license": "MIT repository",
+      "model_license": "review exact weights and sample originality",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Local soundtrack candidates. Demo and release masters need separate music and rights QA."
+    },
+    {
+      "id": "piper-tts",
+      "category": "voice",
+      "type": "software+voice-weights",
+      "url": "https://github.com/OHF-Voice/piper1-gpl",
+      "license": "version-specific code GPL; older rhasspy piper MIT",
+      "model_license": "individual voice MODEL_CARD",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Voice preview only before model-card and speaker QA."
+    },
+    {
+      "id": "faster-whisper",
+      "category": "transcription",
+      "type": "software+weights",
+      "url": "https://github.com/SYSTRAN/faster-whisper",
+      "license": "MIT software",
+      "model_license": "review weights",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Subtitle and transcript verification, not TTS."
+    },
+    {
+      "id": "blender",
+      "category": "3d-editor",
+      "type": "software",
+      "url": "https://www.blender.org",
+      "license": "GPL code",
+      "model_license": "assets separate",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Local scripting tool for asset construction/QA."
+    },
+    {
+      "id": "unreal-engine",
+      "category": "engine",
+      "type": "software",
+      "url": "https://www.unrealengine.com/en-US/eula/unreal",
+      "license": "Epic EULA",
+      "model_license": "plugins/assets separately",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Use installed correct Unreal Engine 5 and license; actual in-engine tests mandatory."
+    },
+    {
+      "id": "krita",
+      "category": "reference-paint",
+      "type": "software",
+      "url": "https://krita.org/",
+      "license": "GPL code",
+      "model_license": "artwork provenance separate",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Manual correction when AI views drift."
+    },
+    {
+      "id": "audacity",
+      "category": "audio-edit",
+      "type": "software",
+      "url": "https://www.audacityteam.org",
+      "license": "GPL software",
+      "model_license": "audio sources separate",
+      "min_nvidia_vram_gb": null,
+      "os": [
+        "Windows",
+        "Linux"
+      ],
+      "requires_approval": true,
+      "installed": false,
+      "recommend": "Audio editing and review."
+    }
+  ]
+}

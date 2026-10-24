@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "error": null,
+  "files": [
+    "acestep_smoke_flussdorf_morning_seed2026.ogg (aus 32-bit-WAV, Vorbis q6)"
+  ],
+  "init_s": 25.9,
+  "generate_s": 274.8,
+  "max_vram_gb": 7.29,
+  "model": "ACE-Step/Ace-Step1.5 acestep-v15-turbo, seed 2026",
+  "loudness_lufs_integrated": -14.1,
+  "note": "Unreal Editor lief parallel (VRAM belegt) -> gekachelter VAE-Decode, daher 275 s"
+}

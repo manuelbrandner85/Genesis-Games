@@ -11,6 +11,7 @@ TEMPLATE = PACKAGE / 'templates' / 'new_game'
 REQUIRED = ['Genesis.uproject', 'Source/Genesis/Genesis.Build.cs', 'Source/GenesisEditor.Target.cs', 'CLAUDE.md']
 COPY_ITEMS = ['.claude', 'agents', 'docs', 'tools', 'templates', 'original_md_unveraendert',
     'CLAUDE.md', 'README.md', 'START_HIER_V4.md', 'GENESIS_CLAUDE_CODE_MASTERPROMPT_V4.md',
+    'START_HIER_V4_1.md', 'GENESIS_CLAUDE_CODE_MASTERPROMPT_V4_1.md', 'config',
     'GENESIS_GODMODE_V3_ALLE_12_VERBESSERUNGEN.md',
     'GENESIS_CLAUDE_CODE_MASTERPROMPT_V2.md', 'GENESIS_CLAUDE_CODE_MASTERPROMPT_V3.md',
     '01_KANON_UND_FEATURES.md', '02_AGENTEN_ARCHITEKTUR.md',

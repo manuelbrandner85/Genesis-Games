@@ -1,0 +1,22 @@
+{
+  "piper_de_DE-kerstin-low.wav": {
+    "text": "Dies ist ein Stimmtes für das Fuhrsorf. Die Werkstatt öffnet um 9 Uhr.",
+    "duration_s": 4.7,
+    "asr_s": 2.5
+  },
+  "piper_de_DE-mls-medium.wav": {
+    "text": "ist ist ein Stimte ist für das Floßtaf Da führte ich, da führte ich da, dann, und dann, da führte ich, ja, da führte ich,",
+    "duration_s": 12.55,
+    "asr_s": 41.9
+  },
+  "piper_de_DE-thorsten-high.wav": {
+    "text": "Dies ist ein Stimmtest für das Flussdorf. Die Werkstatt öffnet um 9 Uhr.",
+    "duration_s": 3.99,
+    "asr_s": 2.7
+  },
+  "piper_de_DE-thorsten_emotional-medium.wav": {
+    "text": "Dies ist ein Stimmtest für das Flussdorf. Die Werkstatt öffnet um 9 Uhr.",
+    "duration_s": 3.67,
+    "asr_s": 2.4
+  }
+}

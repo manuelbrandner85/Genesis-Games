@@ -1,0 +1,27 @@
+{
+  "plan_id": "FA-WHISPER-001",
+  "tool_id": "faster-whisper",
+  "source_url": "https://pypi.org/project/faster-whisper/ ; Modell https://huggingface.co/Systran/faster-whisper-small",
+  "source_revision": "faster-whisper==1.2.1; Modell Systran/faster-whisper-small (Revision wird beim Download protokolliert)",
+  "license_evidence": "Code MIT; Whisper-Gewichte (OpenAI) MIT. Betrieb auf CPU int8 (keine CUDA-DLLs nötig, GPU bleibt für FLUX/ACE-Step frei).",
+  "download_size_gb": "ca. 0.7 (Pakete ~0.2 + Modell small ~0.48)",
+  "install_directory": "C:/Users/manue/AI-Tools/GENESIS/faster-whisper",
+  "commands": [
+    "python -m venv C:/Users/manue/AI-Tools/GENESIS/faster-whisper/venv",
+    "C:/Users/manue/AI-Tools/GENESIS/faster-whisper/venv/Scripts/python.exe -m pip install faster-whisper==1.2.1",
+    "C:/Users/manue/AI-Tools/GENESIS/faster-whisper/venv/Scripts/python.exe -m pip install av==15.1.0",
+    "snapshot_download('Systran/faster-whisper-small') -> Revision 536b0662742c02347bc0e980a01041f333bce120"
+  ],
+  "rollback": "Ordner C:/Users/manue/AI-Tools/GENESIS/faster-whisper löschen",
+  "approval_type": [
+    "INSTALL_SOFTWARE",
+    "DOWNLOAD_MODEL",
+    "LOCAL_INFERENCE"
+  ],
+  "approval_evidence": "Chat 2026-10-24, Nutzer nach Vorlage von F0_FREE_AI_INVENTUR.md: 'Auch die restlichen darfst du installieren die wir brauchen'",
+  "approval_receipt": "KEIN Konsolen-Receipt; Claude erstellt keine Freigabebelege (V4.1-Regel). Freigabe = Chat-Zustimmung des Nutzers.",
+  "paid_api": false,
+  "cloud_service": false,
+  "network_bind": "keiner bzw. 127.0.0.1",
+  "deviation": "PyAV 19 ist mit faster-whisper 1.2.1 inkompatibel (metadata_errors) -> av==15.1.0 gepinnt."
+}

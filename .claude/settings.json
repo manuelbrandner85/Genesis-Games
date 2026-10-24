@@ -10,6 +10,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/tools/v4_1/hooks/free_ai_pretool_guard.py\"",
+            "timeout": 10
+          }
+        ]
       }
     ]
   }

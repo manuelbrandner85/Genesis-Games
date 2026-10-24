@@ -23,7 +23,7 @@ def verify(root=ROOT):
               'v3_specs':'docs/godmode_v3/verbesserungen/V3-*.md','skills':'.claude/skills/*/SKILL.md',
               'v4_skills':'.claude/skills/genesis-v4-*/SKILL.md'}
     for k,pat in patterns.items():counts[k]=len(list(root.glob(pat)))
-    for k,n in [('agents',24),('v2_specs',10),('v3_specs',12),('skills',23),('v4_skills',5)]:
+    for k,n in [('agents',24),('v2_specs',10),('v3_specs',12),('skills',31),('v4_skills',5)]:
         if counts[k]!=n:errors.append(f'{k} expected {n}, got {counts[k]}')
     for name,n in [('docs/produktion/GAMEFORGE03_50_FEATURES_MATRIX.csv',50),('docs/godmode_v3/V3_TEST_CASE_MATRIX.csv',48)]:
         p=root/name

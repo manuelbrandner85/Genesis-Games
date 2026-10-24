@@ -1,0 +1,38 @@
+{
+  "static_package": "PASS",
+  "qa_tools": "PASS",
+  "v2_regression": "PASS",
+  "local_unreal_test": "NOT_RUN",
+  "local_blender_test": "NOT_RUN",
+  "real_character_or_game_assets": "NOT_PRODUCED",
+  "real_windows_build": "NOT_RUN",
+  "human_playtest": "NOT_RUN",
+  "registered_source_original_sha256": "3f57041e3534c66220e83d7e7d3c9a0f45da613477bfe7d58aa9333f41b511af",
+  "test_runs": [
+    {
+      "command": "/opt/pyvenv/bin/python tools/v3/verify_v3_package.py",
+      "return_code": 0,
+      "output": "{\n  \"ok\": true,\n  \"errors\": [],\n  \"stats\": {\n    \"agents\": 24,\n    \"skills\": 18,\n    \"v3_specs\": 12,\n    \"v2_specs\": 10,\n    \"v3_test_cases\": 48,\n    \"scope\": \"STATIC_PACKAGE_ONLY_ENGINE_NOT_TESTED\"\n  }\n}\n"
+    },
+    {
+      "command": "/opt/pyvenv/bin/python -m unittest discover -s tools/v3 -p test_v3_static.py -v",
+      "return_code": 0,
+      "output": "test_canon_baseline (test_v3_static.V3Checks.test_canon_baseline) ... ok\ntest_gate_refuses_no_evidence (test_v3_static.V3Checks.test_gate_refuses_no_evidence) ... ok\ntest_gate_refuses_no_reviewer (test_v3_static.V3Checks.test_gate_refuses_no_reviewer) ... ok\ntest_installer_never_overwrites (test_v3_static.V3Checks.test_installer_never_overwrites) ... ok\ntest_package (test_v3_static.V3Checks.test_package) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.046s\n\nOK\n"
+    },
+    {
+      "command": "/opt/pyvenv/bin/python tools/qa/verify_package.py",
+      "return_code": 0,
+      "output": "{\n  \"ok\": true,\n  \"errors\": [],\n  \"info\": {\n    \"agents\": 24,\n    \"skills\": 18,\n    \"improvements\": 10,\n    \"original_sha256\": \"3f57041e3534c66220e83d7e7d3c9a0f45da613477bfe7d58aa9333f41b511af\",\n    \"living_world_rows\": 50,\n    \"checks\": \"STATIC_ONLY_NOT_UNREAL_OR_BLENDER\"\n  }\n}\n"
+    },
+    {
+      "command": "/opt/pyvenv/bin/python tools/qa/test_static_tools.py",
+      "return_code": 0,
+      "output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "command": "/opt/pyvenv/bin/python tools/v3/validate_evidence.py --status docs/godmode_v3/GOLD_SLICE_GATES.json --root .",
+      "return_code": 0,
+      "output": "{\n  \"valid\": true,\n  \"status_file\": \"docs/godmode_v3/GOLD_SLICE_GATES.json\",\n  \"errors\": [],\n  \"note\": \"File existence is not an actual runtime/creative verification\"\n}\n"
+    }
+  ]
+}

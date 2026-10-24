@@ -1,0 +1,29 @@
+{
+  "plan_id": "FA-ACESTEP-001",
+  "tool_id": "ace-step-1.5",
+  "source_url": "https://github.com/ACE-Step/ACE-Step-1.5 ; Gewichte https://huggingface.co/ACE-Step/Ace-Step1.5",
+  "source_revision": "Tag v0.1.8 (dce621408bee8c31b4fcf4811682eb9359e1bc94)",
+  "license_evidence": "Code MIT (LICENSE im Repo); Gewichte laut Modellkarte MIT, 'generated music for commercial purposes' erlaubt; Trainingsdaten laut Karte lizenziert/gemeinfrei/synthetisch. Jeder Track trotzdem Musik-QA (keine Nähe zu bekannten Werken).",
+  "download_size_gb": "Code+Abhängigkeiten ca. 6-8 (PyTorch CUDA), Gewichte 2B-Variante ca. 5-10; genaue Zahl wird protokolliert",
+  "install_directory": "C:/Users/manue/AI-Tools/GENESIS/ace-step",
+  "commands": [
+    "python -m venv C:/Users/manue/AI-Tools/GENESIS/ace-step/uvenv",
+    "C:/Users/manue/AI-Tools/GENESIS/ace-step/uvenv/Scripts/python.exe -m pip install uv==0.13.5",
+    "git clone --branch v0.1.8 --depth 1 https://github.com/ACE-Step/ACE-Step-1.5.git C:/Users/manue/AI-Tools/GENESIS/ace-step/ACE-Step-1.5",
+    "(UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR im Werkzeugordner, UV_PYTHON_PREFERENCE=only-managed) uv python install 3.12",
+    "uv sync --frozen --python 3.12"
+  ],
+  "rollback": "Ordner C:/Users/manue/AI-Tools/GENESIS/ace-step löschen; uv-Cache unter %LOCALAPPDATA%/uv/cache prüfen und löschen",
+  "notes": "Nur 2B-Variante (passt in 12 GB). Server nur auf 127.0.0.1. Nicht parallel zu FLUX/Unreal-Rendern auf der GPU.",
+  "approval_type": [
+    "INSTALL_SOFTWARE",
+    "DOWNLOAD_MODEL",
+    "LOCAL_INFERENCE"
+  ],
+  "approval_evidence": "Chat 2026-10-24, Nutzer nach Vorlage von F0_FREE_AI_INVENTUR.md: 'Auch die restlichen darfst du installieren die wir brauchen'",
+  "approval_receipt": "KEIN Konsolen-Receipt; Claude erstellt keine Freigabebelege (V4.1-Regel). Freigabe = Chat-Zustimmung des Nutzers.",
+  "paid_api": false,
+  "cloud_service": false,
+  "network_bind": "keiner bzw. 127.0.0.1",
+  "deviation": "Geplant war C:/Users/manue/AI/Python311 – dort fehlt das venv-Modul. Stattdessen von uv verwaltetes Python 3.12 im Werkzeugordner (68 MB, keine globale Änderung). torch 2.7.1+cu128 mit sm_120 (RTX 5070) bestätigt."
+}

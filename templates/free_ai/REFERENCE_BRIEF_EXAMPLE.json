@@ -1,0 +1,25 @@
+{
+  "asset_id": "EXAMPLE_ONLY_REQUIRES_CANON_ID",
+  "story_canon_ids": [
+    "REQUIRES_APPROVED_SOURCE"
+  ],
+  "type": "human_character",
+  "views": [
+    "front",
+    "left",
+    "right",
+    "back",
+    "three_quarter",
+    "face_detail",
+    "hand_detail"
+  ],
+  "specs": {
+    "height_cm": "MEASURE_FROM_APPROVED_CHARACTER_DNA",
+    "eye_color": "SOURCE_REQUIRED",
+    "age": "SOURCE_REQUIRED",
+    "materials": "SOURCE_REQUIRED",
+    "camera": "orthographic for orthos"
+  },
+  "use": "CONCEPT_PREVIEW_ONLY",
+  "prompt": "Use only approved DNA and no unapproved GENESIS lore"
+}

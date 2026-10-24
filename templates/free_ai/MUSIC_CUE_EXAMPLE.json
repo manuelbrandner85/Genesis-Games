@@ -1,0 +1,10 @@
+{
+  "cue_id": "EXAMPLE_ONLY",
+  "scene_id": "REQUIRES_CANON_SCENE",
+  "music_identity": "LIFE_MOTIF_OR_SOUL_MOTIF_NOT_MERGED",
+  "expected_duration_seconds": "FROM_APPROVED_CUE_SHEET",
+  "emotion": "STORY_SOURCE_REQUIRED",
+  "tempo_bpm": "REQUIRES_MUSIC_DIRECTOR",
+  "output": "WAV_PREVIEW_WITH_PROVENANCE",
+  "rights": "MANUAL_REVIEW_REQUIRED"
+}

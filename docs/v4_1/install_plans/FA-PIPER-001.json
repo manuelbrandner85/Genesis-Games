@@ -1,0 +1,26 @@
+{
+  "plan_id": "FA-PIPER-001",
+  "tool_id": "piper-tts",
+  "source_url": "https://pypi.org/project/piper-tts/ (Repo https://github.com/OHF-Voice/piper1-gpl)",
+  "source_revision": "piper-tts==1.8.0 (Tag v1.8.0 = 639388b6317fc4731e91d53da42aea68fd4166ff)",
+  "license_evidence": "Code GPL-3.0-or-later (nur Werkzeug, erzeugte WAVs fallen nicht unter GPL). Stimmen laut MODEL_CARD: thorsten high/medium CC0, thorsten_emotional medium CC0, kerstin low CC0, mls medium CC-BY-4.0 (Namensnennung OpenSLR 94). GESPERRT: pavoque (CC BY-NC-SA). UNGEKLÄRT, nicht geladen: eva_k, karlsson, ramona (M-AILABS, 'see URL').",
+  "download_size_gb": "ca. 0.35 (Wheel 34 MB + onnxruntime + 4 Stimmen à 60-115 MB)",
+  "install_directory": "C:/Users/manue/AI-Tools/GENESIS/piper",
+  "commands": [
+    "python -m venv C:/Users/manue/AI-Tools/GENESIS/piper/venv",
+    "C:/Users/manue/AI-Tools/GENESIS/piper/venv/Scripts/python.exe -m pip install piper-tts==1.8.0",
+    "C:/Users/manue/AI-Tools/GENESIS/piper/venv/Scripts/python.exe -m piper.download_voices --data-dir C:/Users/manue/AI-Tools/GENESIS/piper/voices de_DE-thorsten-high de_DE-thorsten_emotional-medium de_DE-kerstin-low de_DE-mls-medium"
+  ],
+  "rollback": "Ordner C:/Users/manue/AI-Tools/GENESIS/piper löschen; keine globalen Änderungen",
+  "approval_type": [
+    "INSTALL_SOFTWARE",
+    "DOWNLOAD_MODEL",
+    "LOCAL_INFERENCE"
+  ],
+  "approval_evidence": "Chat 2026-10-24, Nutzer nach Vorlage von F0_FREE_AI_INVENTUR.md: 'Auch die restlichen darfst du installieren die wir brauchen'",
+  "approval_receipt": "KEIN Konsolen-Receipt; Claude erstellt keine Freigabebelege (V4.1-Regel). Freigabe = Chat-Zustimmung des Nutzers.",
+  "paid_api": false,
+  "cloud_service": false,
+  "network_bind": "keiner bzw. 127.0.0.1",
+  "deviation": "Text muss mit PYTHONUTF8=1 übergeben werden, sonst werden Umlaute falsch gelesen (von Whisper entdeckt)."
+}
