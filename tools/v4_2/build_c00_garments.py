@@ -120,7 +120,7 @@ def v_half(z):
 
 
 def jacket_keep(p):
-    if p.z < 0.925 or p.z > 1.455:
+    if p.z < 0.945 or p.z > 1.455:
         return False
     t = arm_param(p)
     if t is not None:
@@ -178,6 +178,7 @@ def finish(ob, offset, thick, smooth, rgb, rough, sheen):
     # wash out body details, refine, then hold the cloth outside the skin; lapels get their own lift
     sm = ob.modifiers.new("Drape", "LAPLACIANSMOOTH")
     sm.iterations, sm.lambda_factor, sm.use_volume_preserve = smooth, 0.8, True
+    sm.lambda_border = 0.9                     # straighten the zigzag edges left by the vertex cut (hems, collar, lapels)
     sm.vertex_group = "Wrap"
     sub = ob.modifiers.new("Subdiv", "SUBSURF")
     sub.levels = sub.render_levels = 1

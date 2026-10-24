@@ -123,7 +123,12 @@ mh.on_edit_preview_collection(ch)            # rebuild the preview so the new gr
 mh.assemble_for_preview(ch)
 
 # Dark blond hair and brows
-hair = {"Melanin": float(os.environ.get("GENESIS_TOCHTER_MELANIN", "0.32")), "Redness": 0.22, "Whiteness": 0.0, "Lightness": float(os.environ.get("GENESIS_TOCHTER_LIGHT", "0.62"))}   # dirty blond to light brown
+hair = {"Melanin": 0.62, "Redness": 0.30, "Whiteness": 0.0, "Lightness": 0.42}   # dark brown roots
+# Balayage like the director's reference photo (2026-10-24): dark brown at the roots, caramel/honey-blond lengths
+balayage_f = {"OmbreShift": 0.42, "OmbreContrast": 0.35, "OmbreIntensity": 0.95,
+              "HighlightsBlending": 0.6, "HighlightsIntensity": 0.55, "HighlightsVariation": 0.6}
+balayage_c = {"OmbreColor": unreal.LinearColor(0.62, 0.42, 0.22, 1.0), "HighlightsColor": unreal.LinearColor(0.78, 0.58, 0.32, 1.0)}
+balayage_b = {"bUseOmbre": True, "bUseHighlights": True}
 top = unreal.LinearColor(0.012, 0.012, 0.014, 1.0)
 n_hair = n_cloth = 0
 for path in inst.get_instance_parameter_item_paths():
@@ -132,6 +137,12 @@ for path in inst.get_instance_parameter_item_paths():
         if n in hair:
             prm.set_float(hair[n])
             n_hair += 1
+        elif n in balayage_f:
+            prm.set_float(balayage_f[n])
+        elif n in balayage_c:
+            prm.set_color(balayage_c[n])
+        elif n in balayage_b:
+            prm.set_bool(balayage_b[n])
         elif n in ("PrimaryColorShirt", "SecondaryColorShirt", "PrimaryColorShort", "SecondaryColorShort"):
             prm.set_color(top)
             n_cloth += 1
