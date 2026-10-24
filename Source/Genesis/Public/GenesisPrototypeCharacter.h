@@ -26,6 +26,7 @@ struct GENESIS_API FGenesisPrototypeInput
     UPROPERTY(Transient) TArray<TObjectPtr<UInputAction>> Choices; // keys 1-6
     UPROPERTY(Transient) TObjectPtr<UInputAction> SaveGame;      // F5
     UPROPERTY(Transient) TObjectPtr<UInputAction> LoadGame;      // F9
+    UPROPERTY(Transient) TObjectPtr<UInputAction> Pause;         // Esc / P / gamepad Menu
 
     /** Keyboard/mouse + gamepad layout: WASD/left stick move, mouse/right stick look, Space/A jump,
      *  Shift held / left stick click (toggle) sprint, E / X interact, 1-6 or d-pad + A choose, F5/F9 save/load. */
@@ -73,6 +74,7 @@ protected:
     void OnChoice(int32 Index);
     void OnSave();
     void OnLoad();
+    void OnPause();
     class AGenesisPlayerController* GenesisPC() const;
     void EnsureInputSetup();
     UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> SpringArm;

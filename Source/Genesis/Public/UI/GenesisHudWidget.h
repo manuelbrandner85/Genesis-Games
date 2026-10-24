@@ -24,6 +24,8 @@ public:
     void ShowDialog(const FText& Speaker, const FText& Line, const TArray<FGenesisChoice>& Choices, int32 Highlight);
     void HideDialog();
     void ShowNote(const FText& Note, float Seconds = 4.f);
+    /** Accessibility text size (1.0-1.5) for every HUD text. */
+    void SetTextScale(float Scale);
 
     /** Index of the clicked choice (Choices.Num() = "end conversation"). */
     DECLARE_DELEGATE_OneParam(FOnChoiceClicked, int32);
@@ -46,4 +48,5 @@ private:
     UVerticalBox* ChoiceBox = nullptr;
     UPROPERTY() TArray<TObjectPtr<UGenesisChoiceButton>> Buttons;
     float NoteTime = 0.f;
+    TArray<TPair<UTextBlock*, int32>> BaseSizes;
 };

@@ -15,5 +15,6 @@ public:
     FGenesisChoiceClicked OnChoice;
 private:
     UFUNCTION() void HandleClicked();
+    UFUNCTION() void HandleHovered();
     int32 Index = 0;
 };

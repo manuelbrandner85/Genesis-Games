@@ -13,6 +13,8 @@ struct GENESIS_API FGenesisSaveStore
     static bool Save(const FString& Path, const FGenesisWorldState& State, FString& OutError);
     static bool Load(const FString& Path, FGenesisWorldState& OutState, FString& OutError, bool* bOutUsedBackup = nullptr);
     static FString SlotPath(const FString& Slot);
+    /** Automation only: redirects all slots into a test folder so tests never touch player saves. */
+    static FString SlotDirectoryOverride;
 
     /** Older schemas are upgraded on load. Schema 1 -> 2 derives soul/life/world ids from the
      *  payload hash, so loading the same old file always yields the same identity. */

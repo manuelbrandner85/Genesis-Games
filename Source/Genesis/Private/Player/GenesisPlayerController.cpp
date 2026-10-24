@@ -1,4 +1,10 @@
 #include "Player/GenesisPlayerController.h"
+#include "GenesisGameInstance.h"
+#include "UI/GenesisMenuWidget.h"
+#include "UI/GenesisUserSettings.h"
+#include "TimerManager.h"
+#include "Cinematic/GenesisSceneRunner.h"
+#include "LevelSequence.h"
 #include "Interaction/GenesisInteractableProp.h"
 #include "Npc/GenesisNpc.h"
 #include "Save/GenesisSaveStore.h"
@@ -9,7 +15,6 @@
 #include "EngineUtils.h"
 #include "GameFramework/Pawn.h"
 
-const FString AGenesisPlayerController::SaveSlot = TEXT("Flussdorf");
 
 namespace
 {
@@ -36,7 +41,123 @@ void AGenesisPlayerController::BeginPlay()
         if (Hud) {
             Hud->AddToViewport();
             Hud->OnChoiceClicked.BindUObject(this, &AGenesisPlayerController::Choose);
+            if (const UGenesisUserSettings* U = UGenesisUserSettings::Get()) {
+                Hud->SetTextScale(U->TextScale);
+            }
         }
+        SetInputMode(FInputModeGameOnly());
+        SetShowMouseCursor(false);
+        // after all BeginPlays: the world setup has filled the new world and the pawn is possessed
+        GetWorldTimerManager().SetTimerForNextTick(this, &AGenesisPlayerController::RunStartAction);
+    }
+}
+
+const TCHAR* AGenesisPlayerController::TechSequencePath = TEXT("/Game/Genesis/Cinematics/Tech/LS_C00_TechTest.LS_C00_TechTest");
+
+void AGenesisPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    // Skip keys of a running cinematic (the pawn's input is off while it plays). Not consumed, so
+    // the same keys keep their gameplay meaning (pause) when no cinematic runs.
+    for (const FKey& Key : { EKeys::Escape, EKeys::P, EKeys::BackSpace, EKeys::Gamepad_FaceButton_Right, EKeys::Gamepad_Special_Right }) {
+        InputComponent->BindKey(Key, IE_Pressed, this, &AGenesisPlayerController::SkipCinematic).bConsumeInput = false;
+    }
+}
+
+void AGenesisPlayerController::SkipCinematic()
+{
+    if (SceneRunner && SceneRunner->IsRunning()) {
+        SceneRunner->Skip();
+    }
+}
+
+void AGenesisPlayerController::GenesisTechCinematic()
+{
+    if (SceneRunner && SceneRunner->IsRunning()) {
+        return;
+    }
+    ULevelSequence* Sequence = LoadObject<ULevelSequence>(nullptr, TechSequencePath);
+    const UGenesisWorldStateSubsystem* WS = GetWorld()->GetSubsystem<UGenesisWorldStateSubsystem>();
+    if (!Sequence || !WS) {
+        if (Hud) Hud->ShowNote(FText::FromString(TEXT("Techniktest nicht verfügbar (Sequenz fehlt)")));
+        return;
+    }
+    FGenesisSceneContract C;
+    C.SceneID = TEXT("C00");
+    C.VariantID = TEXT("TECH_CM3");
+    C.bTechnicalTest = true;               // no director approval yet: never canon, never in the ledger
+    C.SoulID = WS->GetState().SoulID;
+    C.LifeID = WS->GetState().LifeID;
+    C.WorldID = WS->GetState().WorldID;
+    C.WorldSeed = WS->GetState().WorldSeed;
+    C.WorldTime = WS->GetWorldMinute();
+    C.ReturnControlState = TEXT("Gameplay");
+    C.ReturnLocation = GetPawn() ? GetPawn()->GetActorLocation() : FVector::ZeroVector;
+    SceneRunner = NewObject<UGenesisSceneRunner>(this);
+    TArray<FString> Errors;
+    if (!SceneRunner->Start(this, Sequence, C, Errors)) {
+        if (Hud) Hud->ShowNote(FText::FromString(TEXT("Techniktest abgelehnt: ") + FString::Join(Errors, TEXT("; "))));
+        return;
+    }
+    if (Hud) Hud->ShowNote(FText::FromString(TEXT("Technischer Kameratest – kein Kanon. Überspringen: Esc / B")), 8.f);
+}
+
+FString AGenesisPlayerController::GetActiveSlot() const
+{
+    const UGenesisGameInstance* GI = Cast<UGenesisGameInstance>(GetGameInstance());
+    return GI ? GI->ActiveSlot : FString(TEXT("Dev"));
+}
+
+void AGenesisPlayerController::RunStartAction()
+{
+    UGenesisGameInstance* GI = Cast<UGenesisGameInstance>(GetGameInstance());
+    if (!GI) {
+        return;
+    }
+    if (GI->bLoadSlotOnStart) {
+        GI->bLoadSlotOnStart = false;
+        LoadGame();
+    }
+    else if (GI->bNewGamePendingSave) {
+        GI->bNewGamePendingSave = false;
+        SaveGame();                       // the confirmed new game replaces the slot right away
+    }
+}
+
+void AGenesisPlayerController::TogglePauseMenu()
+{
+    if (SceneRunner && SceneRunner->IsRunning()) {
+        return;
+    }
+    if (PauseMenu) {
+        ClosePauseMenu();
+        return;
+    }
+    PauseMenu = CreateWidget<UGenesisMenuWidget>(this, UGenesisMenuWidget::StaticClass());
+    if (!PauseMenu) {
+        return;
+    }
+    PauseMenu->OnResume.BindUObject(this, &AGenesisPlayerController::ClosePauseMenu);
+    PauseMenu->AddToViewport(10);
+    PauseMenu->StartPauseMenu();
+    SetPause(true);
+    FInputModeUIOnly Mode;
+    Mode.SetWidgetToFocus(PauseMenu->TakeWidget());
+    SetInputMode(Mode);
+    SetShowMouseCursor(true);
+}
+
+void AGenesisPlayerController::ClosePauseMenu()
+{
+    if (PauseMenu) {
+        PauseMenu->RemoveFromParent();
+        PauseMenu = nullptr;
+    }
+    SetPause(false);
+    SetInputMode(FInputModeGameOnly());
+    SetShowMouseCursor(false);
+    if (const UGenesisUserSettings* U = UGenesisUserSettings::Get(); U && Hud) {
+        Hud->SetTextScale(U->TextScale);
     }
 }
 
@@ -208,7 +329,7 @@ bool AGenesisPlayerController::SaveGame(FString* OutError)
         S.bHasPlayerTransform = true;
     }
     FString Err;
-    const bool bOk = FGenesisSaveStore::Save(FGenesisSaveStore::SlotPath(SaveSlot), S, Err);
+    const bool bOk = FGenesisSaveStore::Save(FGenesisSaveStore::SlotPath(GetActiveSlot()), S, Err);
     if (Hud) {
         Hud->ShowNote(FText::FromString(bOk ? FString::Printf(TEXT("Gespeichert – %s"), *WS->GetClockText()) : TEXT("Speichern fehlgeschlagen: ") + Err));
     }
@@ -222,7 +343,7 @@ bool AGenesisPlayerController::LoadGame(FString* OutError)
     FGenesisWorldState S;
     FString Err;
     bool bBackup = false;
-    if (!WS || !FGenesisSaveStore::Load(FGenesisSaveStore::SlotPath(SaveSlot), S, Err, &bBackup)) {
+    if (!WS || !FGenesisSaveStore::Load(FGenesisSaveStore::SlotPath(GetActiveSlot()), S, Err, &bBackup)) {
         if (Hud) Hud->ShowNote(FText::FromString(TEXT("Kein Spielstand geladen: ") + Err));
         if (OutError) *OutError = Err;
         return false;

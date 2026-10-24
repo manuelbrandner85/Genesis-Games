@@ -5,6 +5,8 @@
 #include "GenesisPlayerController.generated.h"
 
 class UGenesisHudWidget;
+class UGenesisMenuWidget;
+class UGenesisSceneRunner;
 
 /**
  * Player-side interaction: finds what the player is facing (resident or object within reach),
@@ -19,6 +21,7 @@ public:
     AGenesisPlayerController();
     virtual void BeginPlay() override;
     virtual void PlayerTick(float DeltaTime) override;
+    virtual void SetupInputComponent() override;
 
     bool IsInDialog() const { return !DialogTarget.IsNone(); }
     void HandleInteract();
@@ -36,7 +39,17 @@ public:
     const FGenesisReply& GetLastReply() const { return LastReply; }
 
     static constexpr float ReachCm = 220.f;
-    static const FString SaveSlot;
+    /** Save slot of this session (chosen in the main menu; "Dev" when started directly in the editor). */
+    FString GetActiveSlot() const;
+    /** Esc / P / gamepad Menu: opens the pause menu (game paused, clock stopped). */
+    void TogglePauseMenu();
+    bool IsPauseMenuOpen() const { return PauseMenu != nullptr; }
+    UGenesisMenuWidget* GetPauseMenu() const { return PauseMenu; }
+
+    /** CM3: non-canonical technical C00 camera test through the scene contract (console: GenesisTechCinematic). */
+    UFUNCTION(Exec) void GenesisTechCinematic();
+    UGenesisSceneRunner* GetSceneRunner() const { return SceneRunner; }
+    static const TCHAR* TechSequencePath;
 
 private:
     void UpdateFocus();
@@ -44,7 +57,12 @@ private:
     void CloseDialog();
     FText NameOf(FName Who) const;
     FGenesisPresence CurrentPresence() const;
+    void ClosePauseMenu();
+    void RunStartAction();
     UPROPERTY() TObjectPtr<UGenesisHudWidget> Hud;
+    UPROPERTY() TObjectPtr<UGenesisMenuWidget> PauseMenu;
+    UPROPERTY() TObjectPtr<UGenesisSceneRunner> SceneRunner;
+    void SkipCinematic();
     FName FocusTarget;
     FName DialogTarget;
     TArray<FGenesisChoice> Choices;

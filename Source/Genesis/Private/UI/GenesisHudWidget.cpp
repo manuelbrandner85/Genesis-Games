@@ -33,7 +33,17 @@ UTextBlock* UGenesisHudWidget::MakeText(const FString& Name, int32 Size, const F
     T->SetColorAndOpacity(FSlateColor(Color));
     T->SetShadowOffset(FVector2D(1.f, 1.f));
     T->SetShadowColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.8f));
+    BaseSizes.Emplace(T, Size);
     return T;
+}
+
+void UGenesisHudWidget::SetTextScale(float Scale)
+{
+    for (const TPair<UTextBlock*, int32>& P : BaseSizes) {
+        FSlateFontInfo Font = P.Key->GetFont();
+        Font.Size = FMath::RoundToInt(P.Value * FMath::Clamp(Scale, 1.f, 1.5f));
+        P.Key->SetFont(Font);
+    }
 }
 
 void UGenesisHudWidget::NativeOnInitialized()

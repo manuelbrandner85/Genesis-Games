@@ -5,7 +5,7 @@ public class Genesis : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new [] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
-        PrivateDependencyModuleNames.AddRange(new [] { "UMG", "AIModule", "NavigationSystem", "GameplayTasks", "Json", "JsonUtilities", "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new [] { "UMG", "AIModule", "NavigationSystem", "GameplayTasks", "Json", "JsonUtilities", "Slate", "SlateCore", "LevelSequence", "MovieScene" });
         if (Target.bBuildEditor)
         {
             PrivateDependencyModuleNames.Add("UnrealEd");   // Play-in-Editor automation tests only

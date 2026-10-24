@@ -1,4 +1,5 @@
 #include "GenesisPrototypeCharacter.h"
+#include "UI/GenesisUserSettings.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -53,6 +54,7 @@ FGenesisPrototypeInput FGenesisPrototypeInput::Create(UObject* Outer)
     }
     Out.SaveGame = MakeAction(Outer, TEXT("IA_SaveGame"), EInputActionValueType::Boolean);
     Out.LoadGame = MakeAction(Outer, TEXT("IA_LoadGame"), EInputActionValueType::Boolean);
+    Out.Pause = MakeAction(Outer, TEXT("IA_Pause"), EInputActionValueType::Boolean);
     UInputMappingContext* C = Out.Context;
 
     // Move: X = right, Y = forward. Keys deliver X, so forward/back are swizzled onto Y.
@@ -98,6 +100,9 @@ FGenesisPrototypeInput FGenesisPrototypeInput::Create(UObject* Outer)
     }
     C->MapKey(Out.SaveGame, EKeys::F5);
     C->MapKey(Out.LoadGame, EKeys::F9);
+    C->MapKey(Out.Pause, EKeys::Escape);
+    C->MapKey(Out.Pause, EKeys::P);                  // Esc ends PIE in the editor
+    C->MapKey(Out.Pause, EKeys::Gamepad_Special_Right);
     return Out;
 }
 
@@ -201,6 +206,7 @@ void AGenesisPrototypeCharacter::SetupPlayerInputComponent(UInputComponent* Inpu
     }
     Enhanced->BindAction(InputSetup.SaveGame, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnSave);
     Enhanced->BindAction(InputSetup.LoadGame, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnLoad);
+    Enhanced->BindAction(InputSetup.Pause, ETriggerEvent::Started, this, &AGenesisPrototypeCharacter::OnPause);
 }
 
 AGenesisPlayerController* AGenesisPrototypeCharacter::GenesisPC() const
@@ -224,6 +230,7 @@ void AGenesisPrototypeCharacter::OnChoiceDown() { if (AGenesisPlayerController* 
 void AGenesisPrototypeCharacter::OnChoice(int32 Index) { if (AGenesisPlayerController* PC = GenesisPC()) PC->Choose(Index); }
 void AGenesisPrototypeCharacter::OnSave() { if (AGenesisPlayerController* PC = GenesisPC()) PC->SaveGame(); }
 void AGenesisPrototypeCharacter::OnLoad() { if (AGenesisPlayerController* PC = GenesisPC()) PC->LoadGame(); }
+void AGenesisPrototypeCharacter::OnPause() { if (AGenesisPlayerController* PC = GenesisPC()) PC->TogglePauseMenu(); }
 
 void AGenesisPrototypeCharacter::Move(const FInputActionValue& Value)
 {
@@ -238,6 +245,8 @@ void AGenesisPrototypeCharacter::Move(const FInputActionValue& Value)
 void AGenesisPrototypeCharacter::Look(const FInputActionValue& Value)
 {
     const FVector2D Axis = Value.Get<FVector2D>();
-    AddControllerYawInput(Axis.X);
-    AddControllerPitchInput(Axis.Y);
+    const UGenesisUserSettings* U = UGenesisUserSettings::Get();
+    const float Sensitivity = U ? FMath::Clamp(U->CameraSensitivity, 0.3f, 2.f) : 1.f;
+    AddControllerYawInput(Axis.X * Sensitivity);
+    AddControllerPitchInput(Axis.Y * Sensitivity * (U && U->bInvertCameraY ? -1.f : 1.f));
 }

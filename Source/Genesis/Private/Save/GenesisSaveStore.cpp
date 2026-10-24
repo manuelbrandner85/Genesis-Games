@@ -18,9 +18,12 @@ namespace
     }
 }
 
+FString FGenesisSaveStore::SlotDirectoryOverride;
+
 FString FGenesisSaveStore::SlotPath(const FString& Slot)
 {
-    return FPaths::ProjectSavedDir() / TEXT("SaveGames") / (Slot + TEXT(".genesis.json"));
+    const FString Dir = SlotDirectoryOverride.IsEmpty() ? FPaths::ProjectSavedDir() / TEXT("SaveGames") : SlotDirectoryOverride;
+    return Dir / (Slot + TEXT(".genesis.json"));
 }
 
 bool FGenesisSaveStore::Save(const FString& Path, const FGenesisWorldState& State, FString& OutError)

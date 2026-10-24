@@ -43,7 +43,12 @@ bool FGenesisInputMappingTest::RunTest(const FString&)
     TestEqual(TEXT("Move is Axis2D"), Input.Move->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Look is Axis2D"), Input.Look->ValueType, EInputActionValueType::Axis2D);
     TestEqual(TEXT("Jump is Boolean"), Input.Jump->ValueType, EInputActionValueType::Boolean);
-    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 27);
+    TestEqual(TEXT("Number of key mappings"), Input.Context->GetMappings().Num(), 30);     // + pause: Esc, P, gamepad Menu
+    int32 PauseKeys = 0;
+    for (const FEnhancedActionKeyMapping& Mapping : Input.Context->GetMappings()) {
+        PauseKeys += Mapping.Action == Input.Pause && (Mapping.Key == EKeys::Escape || Mapping.Key == EKeys::P || Mapping.Key == EKeys::Gamepad_Special_Right);
+    }
+    TestEqual(TEXT("Pause on Esc, P and gamepad Menu"), PauseKeys, 3);
 
     struct FCase { FKey Key; FVector Raw; FVector Expected; float DeltaTime; const UInputAction* Action; };
     const float Rate = FGenesisPrototypeInput::GamepadLookRateDegPerSec;
@@ -99,7 +104,7 @@ bool FGenesisInputBindingTest::RunTest(const FString&)
             Sprint += (Action == Input.Sprint && (Event == ETriggerEvent::Started || Event == ETriggerEvent::Completed))
                 || (Action == Input.SprintToggle && Event == ETriggerEvent::Started);
         }
-        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 19);
+        TestEqual(TEXT("Total bindings"), Component->GetActionEventBindings().Num(), 20);
         TestEqual(TEXT("Move bound on Triggered"), Move, 1);
         TestEqual(TEXT("Look bound on Triggered"), Look, 1);
         TestEqual(TEXT("Jump bound on Started"), JumpStarted, 1);
