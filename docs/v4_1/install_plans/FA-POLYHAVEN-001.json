@@ -1,0 +1,147 @@
+{
+  "plan_id": "FA-POLYHAVEN-001",
+  "tool_id": "polyhaven-cc0-assets",
+  "approval_type": "DOWNLOAD_MODEL",
+  "source_url": "https://polyhaven.com (API https://api.polyhaven.com, files https://dl.polyhaven.org)",
+  "source_revision": "Datei-MD5 laut api.polyhaven.com/files am 2026-10-24 (im Manifest je Datei)",
+  "license_evidence": "https://polyhaven.com/license: CC0, kommerziell und in Spielen frei, keine Namensnennung noetig; API 'Free to use for any purpose, personal or commercial' (github.com/Poly-Haven/Public-API)",
+  "download_size_gb": 0.3,
+  "assets": [
+    {
+      "id": "damaged_plaster",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "4k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "4k",
+          "format": "jpg"
+        }
+      ]
+    },
+    {
+      "id": "garage_floor",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "4k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "4k",
+          "format": "jpg"
+        }
+      ]
+    },
+    {
+      "id": "brown_planks_03",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "4k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "4k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "4k",
+          "format": "jpg"
+        }
+      ]
+    },
+    {
+      "id": "distressed_painted_planks",
+      "maps": [
+        {
+          "map": "Diffuse",
+          "res": "2k",
+          "format": "jpg"
+        },
+        {
+          "map": "arm",
+          "res": "2k",
+          "format": "jpg"
+        },
+        {
+          "map": "nor_gl",
+          "res": "2k",
+          "format": "png"
+        },
+        {
+          "map": "Displacement",
+          "res": "2k",
+          "format": "jpg"
+        }
+      ]
+    },
+    {
+      "id": "empty_workshop",
+      "maps": [
+        {
+          "map": "hdri",
+          "res": "4k",
+          "format": "exr"
+        }
+      ]
+    },
+    {
+      "id": "hausdorf_meadow",
+      "maps": [
+        {
+          "map": "hdri",
+          "res": "2k",
+          "format": "exr"
+        }
+      ]
+    }
+  ],
+  "use": {
+    "damaged_plaster": "Waende R03 (Ziegel mit Putzresten)",
+    "garage_floor": "Betonboden R03",
+    "brown_planks_03": "Bretterdecke R03",
+    "distressed_painted_planks": "Tuer-/Fensterrahmen",
+    "empty_workshop": "HDRI Blender-Look-Dev innen",
+    "hausdorf_meadow": "HDRI Fensterblick/Look-Dev aussen"
+  },
+  "install_directory": "ArtSource/External/PolyHaven (gitignored; nur MANIFEST.json wird versioniert)",
+  "commands": [
+    "python -I tools/v4_1/polyhaven_fetch.py --plan docs/v4_1/install_plans/FA-POLYHAVEN-001.json --out ArtSource/External/PolyHaven"
+  ],
+  "rollback": "Ordner ArtSource/External/PolyHaven loeschen; im Projekt erzeugte Texturen/Materialien bleiben unabhaengig",
+  "approval_evidence": "Chat 2026-10-24: 'Ja, erstelle einen Download-Plan fuer CC0-Texturen und HDRIs von Poly Haven. Danach baue den Werkstattraum mit echten Materialien und stelle die Renderqualitaet auf Maximum.'",
+  "paid_api": false,
+  "cloud_service": false
+}

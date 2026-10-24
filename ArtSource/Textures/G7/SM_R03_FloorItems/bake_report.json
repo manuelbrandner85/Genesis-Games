@@ -1,0 +1,34 @@
+{
+  "asset": "SM_R03_FloorItems",
+  "size": 4096,
+  "files": [
+    "T_SM_R03_FloorItems_BC.png",
+    "T_SM_R03_FloorItems_ORM.png",
+    "T_SM_R03_FloorItems_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    75.7,
+    128.4
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.443,
+    1.0
+  ],
+  "metallic_share_gt_0_5": 0.029,
+  "materials": [
+    "M_DR_PaintRed",
+    "M_DR_ChromeVanadium",
+    "M_DR_PlasticBlack",
+    "M_DR_Rubber",
+    "M_DR_PaintGrey",
+    "M_DR_PaintGreen",
+    "M_DR_CableOrange",
+    "M_DR_UsedOil",
+    "M_DR_Cardboard",
+    "M_DR_AshHandle",
+    "M_DR_Bristles"
+  ]
+}

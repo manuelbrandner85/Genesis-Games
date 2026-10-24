@@ -1,0 +1,40 @@
+{
+  "asset": "SM_R03_ToolWall",
+  "size": 2048,
+  "files": [
+    "T_SM_R03_ToolWall_BC.png",
+    "T_SM_R03_ToolWall_ORM.png",
+    "T_SM_R03_ToolWall_N.png"
+  ],
+  "uv_coverage": 1.0,
+  "basecolor_srgb_lum_p5_mean_p95": [
+    0.0,
+    151.7,
+    230.8
+  ],
+  "roughness_p5_mean_p95": [
+    0.0,
+    0.431,
+    0.706
+  ],
+  "metallic_share_gt_0_5": 0.468,
+  "materials": [
+    "M_DR_PegboardZinc",
+    "M_DR_ToolSteel",
+    "M_DR_ChromeVanadium",
+    "M_DR_GripRed",
+    "M_DR_GripBlue",
+    "M_DR_GripYellow",
+    "M_DR_AshHandle",
+    "M_DR_PaintGrey",
+    "M_DR_ClearTubPlastic",
+    "M_DR_ScrewsZinc",
+    "M_DR_PaintYellow",
+    "M_DR_PlasticBlack",
+    "M_DR_ClearJarGlass",
+    "M_DR_PaintRed",
+    "M_DR_Cardboard",
+    "M_DR_PlasticWhite",
+    "M_DR_CableBlack"
+  ]
+}

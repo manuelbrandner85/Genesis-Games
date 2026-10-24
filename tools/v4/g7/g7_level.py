@@ -18,10 +18,10 @@ if les.get_current_level().get_path_name().split(":")[0].split(".")[0] != LEVEL:
     les.load_level(LEVEL)
 actors = {a.get_actor_label(): a for a in eas.get_all_level_actors()}
 
-CEILING = 350.0
+CEILING = 346.0                     # underside of the plank ceiling (SM_R03_Room)
 PLACE = {   # label: (asset, location, yaw)
     "Workbench": ("Workbench/SM_R03_Workbench", (5100.0, 238.0, 0.0), 180.0),          # back to the north wall (FBX front is +Y in UE)
-    "LightStrip": ("LightBar/SM_R03_LightBar", (5100.0, 218.0, CEILING), 0.0),          # hangs 60 cm, over the bench front
+    "LightStrip": ("LightBar/SM_R03_LightBar", (5115.0, 218.0, CEILING), 0.0),          # hangs 60 cm over the bench front, hooks clear of the beams
     "PartsShelf": ("PartsShelf/SM_R03_PartsShelf", (5354.0, -120.0, 0.0), 90.0),       # against the east wall, front west
     "Generator_N02": ("Generator_N02/SM_R03_Generator_N02", (5100.0, -200.0, 0.0), 90.0),   # panel side faces the door
 }
@@ -40,6 +40,24 @@ for label, (asset, loc, yaw) in PLACE.items():
     a.set_actor_location_and_rotation(V(*loc), R(0, 0, yaw), False, True)
     a.set_folder_path("R03_Werkstatt")
     done[label] = {"mesh": mesh.get_name(), "loc": loc, "yaw": yaw}
+
+# Room shell and set dressing (all share the room origin = workshop centre on the floor) replace the
+# graybox walls, lintel, inner ceiling and floor slab of g7_room.py; the graybox roof stays as the outer roof.
+for a in eas.get_all_level_actors():
+    lbl = a.get_actor_label()
+    if lbl.startswith("Workshop_") and lbl != "Workshop_Roof":
+        eas.destroy_actor(a)
+for label, asset in (("R03_Room", "Room/SM_R03_Room"), ("R03_ToolWall", "Dressing/ToolWall/SM_R03_ToolWall"),
+                     ("R03_BenchItems", "Dressing/BenchItems/SM_R03_BenchItems"), ("R03_FloorItems", "Dressing/FloorItems/SM_R03_FloorItems")):
+    mesh = eal.load_asset(f"{DST}/{asset}")
+    if mesh is None:
+        raise RuntimeError("asset missing: " + asset)
+    a = actors.get(label) or eas.spawn_actor_from_object(mesh, V(5050, 0, 0), R(0, 0, 0))
+    a.set_actor_label(label)
+    a.static_mesh_component.set_static_mesh(mesh)
+    a.set_actor_location_and_rotation(V(5050, 0, 0), R(0, 0, 0), False, True)
+    a.set_folder_path("R03_Werkstatt")
+    done[label] = {"mesh": mesh.get_name()}
 
 # LED bar light: rect light under the diffuser, 4000 K, 4000 lm, pointing down
 old = actors.get("R03_LightBar_Light")

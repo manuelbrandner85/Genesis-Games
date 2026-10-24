@@ -1,0 +1,241 @@
+{
+  "engine": "5.8.3-58210709+++UE5+Release-5.8",
+  "assets": {
+    "SM_R03_Room": {
+      "size_cm": [
+        816.0,
+        600.0,
+        361.0
+      ],
+      "z_min_cm": -11.0,
+      "nanite": false,
+      "simple_collision": 0,
+      "slots": [
+        [
+          "M_RM_BrickPlaster",
+          "MI_RM_BrickPlaster"
+        ],
+        [
+          "M_RM_GarageConcrete",
+          "MI_RM_GarageConcrete"
+        ],
+        [
+          "M_RM_CeilingPlanks",
+          "MI_RM_CeilingPlanks"
+        ],
+        [
+          "M_RM_PaintedWood",
+          "MI_RM_PaintedWood"
+        ],
+        [
+          "M_RM_WindowGlass",
+          "M_G7_WindowGlass"
+        ],
+        [
+          "M_RM_ZincSill",
+          "M_G7_Zinc"
+        ]
+      ]
+    },
+    "SM_R03_ToolWall": {
+      "size_cm": [
+        188.0,
+        25.0,
+        252.8
+      ],
+      "z_min_cm": 93.2,
+      "nanite": false,
+      "simple_collision": 0,
+      "slots": [
+        [
+          "M_DR_PegboardZinc",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_ToolSteel",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_ChromeVanadium",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_GripRed",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_GripBlue",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_GripYellow",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_AshHandle",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_PaintGrey",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_ClearTubPlastic",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_ScrewsZinc",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_PaintYellow",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_PlasticBlack",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_ClearJarGlass",
+          "M_G7_ClearPolycarbonate"
+        ],
+        [
+          "M_DR_PaintRed",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_Cardboard",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_PlasticWhite",
+          "MI_R03_ToolWall"
+        ],
+        [
+          "M_DR_CableBlack",
+          "MI_R03_ToolWall"
+        ]
+      ]
+    },
+    "SM_R03_BenchItems": {
+      "size_cm": [
+        143.3,
+        71.3,
+        48.1
+      ],
+      "z_min_cm": 89.9,
+      "nanite": false,
+      "simple_collision": 0,
+      "slots": [
+        [
+          "M_DR_PaintGrey",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_PlasticBlack",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_ClearJarGlass",
+          "M_G7_ClearPolycarbonate"
+        ],
+        [
+          "M_DR_CableBlack",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_PaintRed",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_PegboardZinc",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_ChromeVanadium",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_ScrewsZinc",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_GripRed",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_GripBlue",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_GripYellow",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_RagCloth",
+          "MI_R03_BenchItems"
+        ],
+        [
+          "M_DR_Cardboard",
+          "MI_R03_BenchItems"
+        ]
+      ]
+    },
+    "SM_R03_FloorItems": {
+      "size_cm": [
+        607.0,
+        547.0,
+        136.5
+      ],
+      "z_min_cm": -1.2,
+      "nanite": true,
+      "simple_collision": 0,
+      "slots": [
+        [
+          "M_DR_PaintRed",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_ChromeVanadium",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_PlasticBlack",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_Rubber",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_PaintGrey",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_PaintGreen",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_CableOrange",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_UsedOil",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_Cardboard",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_AshHandle",
+          "MI_R03_FloorItems"
+        ],
+        [
+          "M_DR_Bristles",
+          "MI_R03_FloorItems"
+        ]
+      ]
+    }
+  }
+}

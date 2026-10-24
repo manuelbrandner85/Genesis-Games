@@ -79,15 +79,29 @@ for seq in sequences:
     out.output_resolution = unreal.IntPoint(*req.get("resolution", [1920, 1080]))
     out.file_name_format = "{sequence_name}"
     out.override_existing_output = True
-    cfg.find_or_add_setting_by_class(unreal.MoviePipelineDeferredPassBase)
+    quality = req.get("quality", "preview")      # preview | max (Lumen, game look) | pathtracer (reference)
+    if quality == "pathtracer":
+        cfg.find_or_add_setting_by_class(unreal.MoviePipelineDeferredPass_PathTracer)
+    else:
+        cfg.find_or_add_setting_by_class(unreal.MoviePipelineDeferredPassBase)
     cfg.find_or_add_setting_by_class(unreal.MoviePipelineImageSequenceOutput_PNG)
     aa = cfg.find_or_add_setting_by_class(unreal.MoviePipelineAntiAliasingSetting)
     aa.override_anti_aliasing = True
     aa.anti_aliasing_method = unreal.AntiAliasingMethod.AAM_NONE
-    aa.spatial_sample_count = 1
-    aa.temporal_sample_count = 16
-    aa.engine_warm_up_count = 90
-    aa.render_warm_up_count = 32
+    aa.spatial_sample_count = {"preview": 1, "max": 4, "pathtracer": int(req.get("spp", 512))}[quality]
+    aa.temporal_sample_count = {"preview": 16, "max": 32, "pathtracer": 1}[quality]
+    aa.engine_warm_up_count = 90 if quality == "preview" else 180
+    aa.render_warm_up_count = 32 if quality == "preview" else 96
     aa.use_camera_cut_for_warm_up = False
+    if quality != "preview":
+        # Highest Lumen quality for stills: hardware ray tracing with hit lighting (no surface-cache
+        # colour noise in dark corners), denser screen probes, more shadow rays; path tracer denoised.
+        cvs = cfg.find_or_add_setting_by_class(unreal.MoviePipelineConsoleVariableSetting)
+        for name, val in (("r.Lumen.HardwareRayTracing", 1), ("r.Lumen.HardwareRayTracing.LightingMode", 2),
+                          ("r.Lumen.ScreenProbeGather.DownsampleFactor", 8), ("r.Lumen.ScreenProbeGather.TracingOctahedronResolution", 16),
+                          ("r.Lumen.Reflections.DownsampleFactor", 1), ("r.Shadow.Virtual.SMRT.RayCountDirectional", 16),
+                          ("r.Shadow.Virtual.SMRT.RayCountLocal", 16), ("r.PathTracing.Denoiser", 1),
+                          ("r.TextureStreaming", 0), ("r.ScreenPercentage", 100)):
+            cvs.add_or_update_console_variable(name, float(val))
 mqs.render_queue_with_executor(unreal.MoviePipelinePIEExecutor)
 print("MRQ queued", [s.get_name() for s in sequences], req["out_dir"])
