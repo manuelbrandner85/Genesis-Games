@@ -145,7 +145,7 @@ for name in PRESETS:
     results[name]["png"] = f"{OUT}/{name}.png"
     if os.environ.get("GENESIS_MH_EYES"):                       # close-up of the eyes (iris colour check), own run
         eyes = head + V(8, 0, float(os.environ.get("GENESIS_MH_EYE_DZ", "4")))
-        cam2_loc = eyes + V(55, 0, 0)
+        cam2_loc = eyes + (V(32, -38, 2) if os.environ.get("GENESIS_MH_EYE_SIDE") else V(55, 0, 0))   # side view shows lash length
         cam2 = eas.spawn_actor_from_class(unreal.CineCameraActor, cam2_loc, unreal.MathLibrary.find_look_at_rotation(cam2_loc, eyes))
         cam2.set_actor_label("MH_CamEyes")
         c2 = cam2.get_cine_camera_component()

@@ -77,8 +77,8 @@ mh.commit_makeup_settings(ch, mk)
 # Mascara: long, slightly curled, deep black lashes
 hm = ch.head_model_settings
 lash = hm.eyelashes
-lash.type = unreal.MetaHumanCharacterEyelashesType.LONG_SLIGHT_CURL
-lash.melanin, lash.lightness, lash.redness, lash.salt_and_pepper, lash.roughness = 0.9, 0.08, 0.10, 0.0, 0.4   # light mascara
+lash.type = unreal.MetaHumanCharacterEyelashesType.LONG_THICK_CURL      # Regie: "fette Lashes"
+lash.melanin, lash.lightness, lash.redness, lash.salt_and_pepper, lash.roughness = 1.0, 0.0, 0.05, 0.0, 0.3   # deep black mascara
 hm.eyelashes = lash
 mh.commit_head_model_settings(ch, hm)
 report["makeup"] = "day makeup + mascara"
