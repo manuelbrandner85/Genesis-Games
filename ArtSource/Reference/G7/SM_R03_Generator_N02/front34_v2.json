@@ -1,0 +1,33 @@
+{
+  "asset": "SM_R03_Generator_N02",
+  "view": "front34",
+  "file": "front34_v2.png",
+  "status": "GENERATED_PREVIEW",
+  "prompt": "Product reference photograph of a used portable petrol generator, 2.8 kW, wide and low proportions 60 cm long 45 cm wide 46 cm high, open tubular steel frame painted dark green with scuffed paint and bare steel on the edges, large red-orange painted steel fuel tank on top with black screw fuel cap and dried fuel stains, horizontal-shaft aluminium four-stroke engine on the left, black recoil starter housing with a black T-shaped pull handle on the engine side, a small transparent cylindrical inline fuel filter clearly visible in the black fuel hose under the tank, spark plug with black rubber boot on the cylinder head, alternator on the right with a black control panel holding two German Schuko sockets with hinged covers, an on-off switch and a choke lever, rubber feet, no brand names, no logos, no text. Three-quarter front view from slightly above, whole object fully in frame, plain light grey concrete floor, neutral seamless grey background, soft even studio light, photorealistic, sharp focus",
+  "seed": 11,
+  "size": [
+    1536,
+    1024
+  ],
+  "steps": 4,
+  "cfg": 1.0,
+  "sampler": "euler",
+  "models": {
+    "unet": {
+      "file": "flux-2-klein-4b.safetensors",
+      "sha256": "ec3d4e733a771f61c052fb4856c48b336c55eaf2c65487c2a1faeb9bbda7a343"
+    },
+    "text_encoder": {
+      "file": "qwen_3_4b.safetensors",
+      "sha256": "6c671498573ac2f7a5501502ccce8d2b08ea6ca2f661c458e708f36b36edfc5a"
+    },
+    "vae": {
+      "file": "flux2-vae.safetensors",
+      "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  },
+  "license": "FLUX.2 klein 4B Apache-2.0; not an approved game asset",
+  "generator": "ComfyUI local 127.0.0.1",
+  "seconds": 20.3,
+  "comfy_started_now": false
+}

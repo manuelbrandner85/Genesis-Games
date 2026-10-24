@@ -1,0 +1,50 @@
+{
+  "fbx": "SM_R03_Generator_N02.fbx",
+  "dimensions_mm": [
+    605.0,
+    462.0,
+    457.5
+  ],
+  "expected_mm": [
+    600.0,
+    450.0,
+    460.0
+  ],
+  "tolerance_mm": 15.0,
+  "z_min_mm": -0.0,
+  "tris": 36264,
+  "materials": [
+    "M_GEN_AluCast",
+    "M_GEN_FilterHousing",
+    "M_GEN_FilterPaper",
+    "M_GEN_Frame_PaintGreen",
+    "M_GEN_FuelHose",
+    "M_GEN_LabelSilver",
+    "M_GEN_MufflerBlack",
+    "M_GEN_MufflerShield",
+    "M_GEN_PlasticBlack",
+    "M_GEN_PlugCeramic",
+    "M_GEN_Rubber",
+    "M_GEN_SteelZinc",
+    "M_GEN_SwitchRed",
+    "M_GEN_Tank_PaintOrange"
+  ],
+  "collision": [
+    "UCX_SM_R03_Generator_N02_00"
+  ],
+  "sockets": [
+    "SOCKET_InspectFilter",
+    "SOCKET_InspectPlug",
+    "SOCKET_TryStart"
+  ],
+  "checks": {
+    "dimensions_within_tolerance": true,
+    "origin_on_floor": true,
+    "has_collision": true,
+    "sockets_present": true,
+    "uv_map": true,
+    "no_ngons": true,
+    "unit_scale_1": true
+  },
+  "pass": true
+}

@@ -1,0 +1,43 @@
+{
+  "fbx": "SM_R03_Workbench.fbx",
+  "dimensions_mm": [
+    2000.0,
+    956.0,
+    1050.0
+  ],
+  "expected_mm": [
+    2000.0,
+    956.0,
+    1050.0
+  ],
+  "tolerance_mm": 5.0,
+  "z_min_mm": -0.0,
+  "tris": 12024,
+  "materials": [
+    "M_WB_BeechMultiplex",
+    "M_WB_Frame_PaintGrey",
+    "M_WB_Rubber",
+    "M_WB_SteelBright",
+    "M_WB_Vise_CastIron"
+  ],
+  "collision": [
+    "UCX_SM_R03_Workbench_00",
+    "UCX_SM_R03_Workbench_01",
+    "UCX_SM_R03_Workbench_02",
+    "UCX_SM_R03_Workbench_03",
+    "UCX_SM_R03_Workbench_04",
+    "UCX_SM_R03_Workbench_05",
+    "UCX_SM_R03_Workbench_06"
+  ],
+  "sockets": [],
+  "checks": {
+    "dimensions_within_tolerance": true,
+    "origin_on_floor": true,
+    "has_collision": true,
+    "sockets_present": true,
+    "uv_map": true,
+    "no_ngons": true,
+    "unit_scale_1": true
+  },
+  "pass": true
+}
