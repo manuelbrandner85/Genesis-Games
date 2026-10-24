@@ -21,6 +21,29 @@ if not mh.is_object_added_for_editing(ch) and not mh.try_add_object_to_edit(ch):
     raise RuntimeError("cannot edit " + DST)
 report = {}
 
+# Face shape (Regie 2026-10-24: lips "etwas duenner"): Vivian's face model blended with a thinner-lipped
+# bundled face, like the Creator's blend tool. Always starts from the untouched Vivian preset.
+BLEND = os.environ.get("GENESIS_TOCHTER_BLEND", "Jelena:0.35")
+CAND = "/Game/Genesis/Characters/C00/Candidates/MHC_"
+
+
+def coeffs(name):
+    if not eal.does_asset_exist(CAND + name):
+        eal.duplicate_asset(f"/MetaHumanCharacter/Optional/Presets/{name}", CAND + name)
+    c = eal.load_asset(CAND + name)
+    if not mh.is_object_added_for_editing(c):
+        mh.try_add_object_to_edit(c)
+    return list(mh.get_face_model_coefficients(c))
+
+
+face = coeffs("Vivian")
+for part in filter(None, BLEND.split(",")):
+    other, w = part.split(":")
+    face = [a + float(w) * (b - a) for a, b in zip(face, coeffs(other))]
+mh.set_face_model_coefficients(ch, face)
+mh.commit_face_state(ch)
+report["face_blend"] = BLEND
+
 # Skin: an older local synthesis texture (mid forties: fine lines, some freckles), light neutral tone
 ss = ch.skin_settings
 skin = ss.skin
@@ -44,8 +67,8 @@ bl.type, bl.intensity = unreal.MetaHumanCharacterBlushMakeupType.APPLE, 0.14
 bl.color = unreal.LinearColor(0.55, 0.20, 0.17, 1.0)                        # muted rose
 mk.blush = bl
 lp = mk.lips
-lp.type, lp.opacity, lp.metalness, lp.roughness = unreal.MetaHumanCharacterLipsMakeupType.NATURAL, 0.35, 0.0, 0.45
-lp.color = unreal.LinearColor(0.30, 0.09, 0.08, 1.0)                        # natural rose
+lp.type, lp.opacity, lp.metalness, lp.roughness = unreal.MetaHumanCharacterLipsMakeupType.NATURAL, 0.18, 0.0, 0.5
+lp.color = unreal.LinearColor(0.24, 0.10, 0.09, 1.0)                        # subtle nude rose (Regie: "dezenter")
 mk.lips = lp
 mh.commit_makeup_settings(ch, mk)
 # Mascara: long, slightly curled, deep black lashes
