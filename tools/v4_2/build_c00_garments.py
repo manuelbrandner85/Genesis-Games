@@ -26,7 +26,7 @@ OUT = r"C:\Users\manue\Desktop\Genesis-Games\ArtSource\Export\C00\SKM_C00_Tochte
 
 BREAK = 1.20          # lapel break point: jacket closed below, V opening above
 BUTTONS = (1.045, 1.125)
-COLLAR_TOP = 1.468    # blouse stand collar height on the neck
+COLLAR_TOP = 1.500    # blouse stand collar on the neck (border smoothing pulls the edge ~3 cm down)
 
 
 def bone_head(name):
@@ -120,14 +120,14 @@ def v_half(z):
 
 
 def jacket_keep(p):
-    if p.z < 0.945 or p.z > 1.455:
+    if p.z < 0.945 or p.z > 1.485:
         return False
     t = arm_param(p)
     if t is not None:
         return t < 0.90
     if p.y < -0.02 and abs(p.x) < v_half(p.z):
         return False
-    if p.z > 1.41 and p.y < 0.0 and abs(p.x) < 0.075:                            # front of the neck stays free
+    if p.z > 1.40 and p.y < 0.01 and abs(p.x) < 0.085:                            # front of the neck stays free
         return False
     return True
 
@@ -198,6 +198,116 @@ def finish(ob, offset, thick, smooth, rgb, rough, sheen):
     return ob
 
 
+# --- lapels and collar -----------------------------------------------------------------------------------
+NECK_C = Vector((0.0, 0.012))          # neck axis (x, y) at collar height
+
+
+def lapel_width(z):
+    """Notched lapel: 0 at the break point, widest (7.5 cm) at the chest, notch at 1.37, collar end above."""
+    if z <= BREAK:
+        return 0.0
+    if z < 1.33:
+        k = (z - BREAK) / (1.33 - BREAK)
+        return 0.075 * math.sin(k * math.pi / 2) ** 0.7
+    if z < 1.368:
+        return 0.075
+    if z < 1.378:
+        return 0.075 - (z - 1.368) / 0.010 * 0.040        # notch cut
+    return 0.035 + (z - 1.378) / 0.05 * 0.010
+
+
+def strip_object(name, rows, mat, src_groups_from):
+    """Quad strip from a grid of world points rows[i][j], solidified, skinned like the source surface."""
+    if name in SC.objects:
+        bpy.data.objects.remove(SC.objects[name])
+    me = bpy.data.meshes.new(name)
+    ob = bpy.data.objects.new(name, me)
+    SC.collection.objects.link(ob)
+    ob.parent = ARM
+    ob.matrix_world = BODY.matrix_world
+    inv = ob.matrix_world.inverted()
+    verts, faces = [], []
+    w = len(rows[0])
+    for r in rows:
+        verts += [tuple(inv @ p) for p in r]
+    for i in range(len(rows) - 1):
+        for j in range(w - 1):
+            a = i * w + j
+            faces.append((a, a + 1, a + w + 1, a + w))
+    me.from_pydata(verts, [], faces)
+    me.update()
+    for poly in me.polygons:
+        poly.use_smooth = True
+    me.materials.append(mat)
+    # skin weights from the body surface (nearest face), applied so the FBX carries them
+    for g in src_groups_from.vertex_groups:
+        if g.name not in ("Wrap", "Lapel"):
+            ob.vertex_groups.new(name=g.name)
+    dt = ob.modifiers.new("Weights", "DATA_TRANSFER")
+    dt.object = src_groups_from
+    dt.use_vert_data = True
+    dt.data_types_verts = {"VGROUP_WEIGHTS"}
+    dt.vert_mapping = "POLYINTERP_NEAREST"
+    dt.layers_vgroup_select_src = "ALL"
+    dt.layers_vgroup_select_dst = "NAME"
+    with bpy.context.temp_override(window=bpy.context.window_manager.windows[0], scene=SC, view_layer=SC.view_layers[0],
+                                   object=ob, active_object=ob):
+        bpy.ops.object.modifier_apply(modifier=dt.name)
+    sol = ob.modifiers.new("Thickness", "SOLIDIFY")
+    sol.thickness, sol.offset, sol.use_rim = 0.0035 * LOCAL, -1.0, True
+    sub = ob.modifiers.new("Subdiv", "SUBSURF")
+    sub.levels = sub.render_levels = 1
+    arm = ob.modifiers.new("Armature", "ARMATURE")
+    arm.object = ARM
+    return ob
+
+
+def lapels_and_collar(jacket):
+    deps = bpy.context.evaluated_depsgraph_get()
+    jev = jacket.evaluated_get(deps)
+    jinv = jacket.matrix_world.inverted()
+    jmw = jacket.matrix_world
+
+    def on_jacket(x, z, lift):
+        origin = Vector((x, -0.6, z))
+        ok, loc, nrm, _ = jev.ray_cast(jinv @ origin, (jinv.to_3x3() @ Vector((0, 1, 0))).normalized())
+        if not ok:
+            return None
+        p, n = jmw @ loc, (jmw.to_3x3() @ nrm).normalized()
+        return p + n * lift
+
+    mat = bpy.data.materials["C00_Jackett_MAT"]
+    parts = []
+    for side in (1.0, -1.0):
+        rows = []
+        for i in range(19):
+            z = BREAK + (1.43 - BREAK) * i / 18
+            row = []
+            inner = max(0.004, v_half(z) - 0.007)                  # overlaps and hides the cut edge of the V
+            for j in range(6):
+                u = j / 5
+                x = side * (inner + lapel_width(z) * u)
+                lift = 0.004 + 0.003 * (1 - u)                     # rolled edge stands a little at the opening
+                p = on_jacket(x, z, lift)
+                row.append(p if p is not None else Vector((x, -0.12, z)))
+            rows.append(row)
+        parts.append(strip_object(f"C00_Revers_{'L' if side > 0 else 'R'}", rows, mat, SURF))
+    # collar: around the back of the neck from lapel top to lapel top, standing 3 cm then folded down
+    rows = []
+    for i in range(25):
+        a = math.radians(-125 + 250 * i / 24)                       # 0 = back of the neck
+        d = Vector((math.sin(a), math.cos(a), 0))
+        row = []
+        # neck radius ~7.7 cm at the back: stand at 8.8-9.5 cm, fall folded outwards down to 11.5 cm
+        back = max(0.0, math.cos(a))                                 # 1 at the back of the neck, 0 at the sides
+        lift = 0.045 * back                                          # the nape is higher than the shoulders
+        for (r, z) in ((0.095, 1.432 + lift), (0.086, 1.462 + lift), (0.084, 1.480 + lift), (0.097, 1.474 + lift), (0.112, 1.448 + lift)):
+            row.append(Vector((NECK_C.x + d.x * r * 1.05, NECK_C.y + d.y * r, z)))
+        rows.append(row)
+    parts.append(strip_object("C00_Kragen", rows, mat, SURF))
+    return parts
+
+
 # --- buttons ----------------------------------------------------------------------------------------------
 def buttons(jacket):
     """Dark horn buttons (20 mm front, 14 mm cuffs), each skinned rigidly to one bone."""
@@ -258,13 +368,15 @@ def buttons(jacket):
     return ob
 
 
-for n in ("C00_Bluse", "C00_Jackett", "C00_Hose", "C00_Knoepfe"):
+for n in ("C00_Bluse", "C00_Jackett", "C00_Hose", "C00_Knoepfe", "C00_Revers_L", "C00_Revers_R", "C00_Kragen"):
     if n in SC.objects:
         bpy.data.objects.remove(SC.objects[n])
 SURF = surface()
 blouse = finish(cut(SURF, "C00_Bluse", blouse_keep), 0.0045, 0.0015, 10, (0.80, 0.77, 0.71), 0.55, 0.35)
-jacket = finish(cut(SURF, "C00_Jackett", jacket_keep, lapels), 0.0140, 0.0035, 14, (0.045, 0.045, 0.050), 0.85, 0.25)
+jacket = finish(cut(SURF, "C00_Jackett", jacket_keep), 0.0140, 0.0035, 14, (0.045, 0.045, 0.050), 0.85, 0.25)
 trousers = finish(cut(SURF, "C00_Hose", trouser_keep), 0.0130, 0.0020, 28, (0.030, 0.030, 0.034), 0.75, 0.15)
 knoepfe = buttons(jacket)
+revers = lapels_and_collar(jacket)
 BODY.hide_set(False)
-result = {n: len(SC.objects[n].data.vertices) for n in ("C00_Bluse", "C00_Jackett", "C00_Hose", "C00_Knoepfe")}
+result = {n: len(SC.objects[n].data.vertices) for n in ("C00_Bluse", "C00_Jackett", "C00_Hose", "C00_Knoepfe",
+                                                     "C00_Revers_L", "C00_Revers_R", "C00_Kragen")}
