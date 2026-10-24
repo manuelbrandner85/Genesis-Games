@@ -20,5 +20,6 @@ void AGenesisWorldSetup::BeginPlay()
     S.MarketStock = MarketStock;
     S.ObjectStates = ObjectStates;
     WS->ResetState(S);
+    WS->EnsureIdentity();
     WS->SetClock(StartDay, StartHour, StartMinute);
 }

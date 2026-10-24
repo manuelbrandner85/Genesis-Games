@@ -1,3 +1,15 @@
+# GENESIS GODMODE 4.2 – AKTUELLSTE ZUSATZREGEL (CINEMATICS & MENU)
+
+V4.2 erweitert das bestätigte GENESIS V4.1-Komplett-Neustartprojekt, ersetzt weder das Story-/Spielkonzept noch die vorhandenen 24 Agenten. Lies **zuerst** `GENESIS_CLAUDE_CODE_MASTERPROMPT_V4_2.md`, `START_HIER_V4_2.md`, `GENESIS_GODMODE_4_2_ULTIMATE_CINEMATIC_MENU_EXPERIENCE.md`, `docs/v4_2/SCENE_MATRIX_C00_C21.json`, `docs/v4_2/MENU_FLOW.json`, `docs/v4_2/QA_ACCEPTANCE.md`, dann unverändert alle V4.1/V4/V3/V2- und Original-Quellen.
+
+**Pflicht-Produktionsziel:** Fertiger Prolog C00/C01, alle 22 C00–C21-Cinematics und das vollständige Haupt-/Pausen-/Save-/Load-/Optionen-/Credits-Menü, einschließlich Dialogen, Stimmen, Musik, Untertiteln, Kamera, Schauspiel, korrekten Weltzuständen und spielbarem Windows-Build. 50 V4.2-Funktionen sind volle Entwicklungsaufträge, keine fertigen Assets. C20 darf die C00-Aufnahme nicht neu rendern. Story-/Shot-/Dialogfreigabe fehlt? Nur Techniktests, keine Kanonerfindung.
+
+**Vorrang bei Konflikten:** Ältere Agententexte sprechen vom 'bestehenden Spiel'. Der **aktuelle Nutzerauftrag ist neuer eigenständiger V4-Neustart**, daher wird der alte GENESIS-Code/Repo nicht überschrieben. C15/C16 CON33-01, C17-Epochenbeschreibung, C21-Finale nicht heimlich ändern. Die Freigaberegeln V4.1 für kostenlose KI-/Musik-/Sprecherwerkzeuge bleiben in Kraft.
+
+**Nachweise:** Cinematic-Kapitel nur `ENGINE_TESTED` nach echter UE-/Movie-Render-Ausführung; Menüs nur `ENGINE_TESTED` nach echten Controller-, Save-/Load- und Windows-Testläufen. Keine automatische Freigabe oder voreilige 'FERTIG'-Meldung.
+
+---
+
 # GENESIS GODMODE 4.1 – FREE AI INTEGRATION (AKTUELLSTE REGEL)
 
 **Claude Code übernimmt weiterhin GENESIS komplett von Grund auf als eigenständiges neues Spielprojekt.**

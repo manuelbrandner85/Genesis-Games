@@ -97,8 +97,29 @@ bool FGenesisSaveStore::ReadVerified(const FString& Path, FGenesisWorldState& Ou
         OutError = TEXT("state does not match schema");
         return false;
     }
+    if (Loaded.SchemaVersion < FGenesisWorldState::CurrentSchema) {
+        Migrate(Loaded, Root->GetStringField(TEXT("sha1")));
+    }
     OutState = MoveTemp(Loaded);
     return true;
+}
+
+void FGenesisSaveStore::Migrate(FGenesisWorldState& State, const FString& PayloadSha1)
+{
+    if (State.SchemaVersion < 2) {
+        auto IdFrom = [&PayloadSha1](const TCHAR* Salt) {
+            const FString H = Sha1Hex(PayloadSha1 + Salt);
+            FGuid G;
+            FGuid::Parse(H.Left(32), G);
+            return G.ToString(EGuidFormats::DigitsWithHyphens);
+        };
+        State.SoulID = IdFrom(TEXT("soul"));
+        State.LifeID = IdFrom(TEXT("life"));
+        State.WorldID = IdFrom(TEXT("world"));
+        State.WorldSeed = int32(FCrc::StrCrc32(*PayloadSha1) & 0x7fffffff);
+        State.LifeNumber = 1;
+        State.SchemaVersion = 2;
+    }
 }
 
 bool FGenesisSaveStore::Load(const FString& Path, FGenesisWorldState& OutState, FString& OutError, bool* bOutUsedBackup)

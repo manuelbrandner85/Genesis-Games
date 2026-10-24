@@ -36,6 +36,8 @@ public:
     const FGenesisWorldState& GetState() const { return State; }
     FGenesisWorldState& GetMutableState() { return State; }
     void ResetState(const FGenesisWorldState& NewState);
+    /** New game: gives the state a fresh soul, life and world identity (keeps existing ones). */
+    void EnsureIdentity();
     FString GetObjectState(FName ObjectID) const;
 
     /** Records a change of ObjectID to AfterState. Returns the event, or nullptr if the

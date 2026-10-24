@@ -40,6 +40,21 @@ void UGenesisWorldStateSubsystem::ResetState(const FGenesisWorldState& NewState)
     MinuteAccumulator = 0.0;
 }
 
+void UGenesisWorldStateSubsystem::EnsureIdentity()
+{
+    auto Fill = [](FString& Id) {
+        if (Id.IsEmpty()) {
+            Id = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphens);
+        }
+    };
+    Fill(State.SoulID);
+    Fill(State.LifeID);
+    Fill(State.WorldID);
+    if (State.WorldSeed == 0) {
+        State.WorldSeed = int32(FGuid::NewGuid().A & 0x7fffffff) | 1;
+    }
+}
+
 FString UGenesisWorldStateSubsystem::GetObjectState(FName ObjectID) const
 {
     const FString* S = State.ObjectStates.Find(ObjectID);

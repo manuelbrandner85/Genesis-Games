@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "script_version": "1.1",
+  "scriptlock_file": "GENESIS_ScriptLock_11_Drehbuch_v1.1.md",
+  "scriptlock_sha256": "b23a047b13c1a7d77d00679c757f4fbcaa6cfc3e736305a7f77152c072ce732d",
+  "canon_status": "SCRIPT-LOCK-KANDIDAT - Game-Director-Beschluss ausstehend (IV.D: 'JA zu Vorschlag 11')",
+  "replay_master_rule": "C20 replays the C00 master asset byte-identical (OriginalRecording), never re-rendered",
+  "scenes": [
+    {
+      "scene_id": "C00",
+      "working_title": "Der letzte Augenblick",
+      "category": "A",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        72,
+        98
+      ],
+      "section_sha256": "cf7c77c0761d072f19f17b9a4d035b4cfec039959da7ca7663bff6dea275db5d",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C01",
+      "working_title": "Ein winziger Anfang",
+      "category": "A",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        99,
+        117
+      ],
+      "section_sha256": "376c9026aa89bcf96c557c3ceb522648267d101c85a6931e7ee0395ccdaf0c98",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C02",
+      "working_title": "Zwei werden eins",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        118,
+        135
+      ],
+      "section_sha256": "8f001df254f3ed8eba3497b16f914b985cacea06bc6b6d05ed6423f3b047de16",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C03",
+      "working_title": "Ich höre dich",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        136,
+        158
+      ],
+      "section_sha256": "1a9bf713a349473c28e37740367321867da0c948fcaf0c244db7e2a3dd931d88",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C04",
+      "working_title": "Der erste Atemzug",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        159,
+        181
+      ],
+      "section_sha256": "0f46ee97a17b7026902026df1d40016f5cbe6ad7423e714e23cdab61cbef6f96",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C05",
+      "working_title": "Der erste Schritt",
+      "category": "B",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        182,
+        204
+      ],
+      "section_sha256": "bb026140e025986785861d80c53a9ffe86f4489e473d78406916e8f51ea77ae0",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C06",
+      "working_title": "Der freie Platz",
+      "category": "B",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        205,
+        228
+      ],
+      "section_sha256": "2317f01bd37ea9c2b3f07ad13455dd9d7b01165f83e1f65d66a34ab0e7d685dc",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C07",
+      "working_title": "Der letzte Sommer",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        229,
+        257
+      ],
+      "section_sha256": "5d812349a5a25e56cd224a1ea46e735213533a8ed12c38067a8f3a1365bb5e49",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C08",
+      "working_title": "Das Versprechen",
+      "category": "B",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        258,
+        294
+      ],
+      "section_sha256": "c71122555b5e42135532465759643fc2ebfaea69430f73423ba0edac12ae470b",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C09",
+      "working_title": "Die Tür",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        295,
+        320
+      ],
+      "section_sha256": "a1ab5bf295ecf555b2b6287428fb95262c84cab35e9445b6abe9356a5e7dc379",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C10",
+      "working_title": "Zwischen uns",
+      "category": "B",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        321,
+        349
+      ],
+      "section_sha256": "807f29b964a089dd2c218df5fb018d4a4a94e86b13c8ecb0dc584742123cea70",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C11",
+      "working_title": "Die Nachricht",
+      "category": "B",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        350,
+        379
+      ],
+      "section_sha256": "cd3573121db266129a3c9fc097b3ff912ecaf108f320ab5f66cf24213af53646",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C12",
+      "working_title": "Der Tisch der Jahre",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        380,
+        402
+      ],
+      "section_sha256": "dd85e359b7ba7115c4e761b0dd77a3840da411157f0656a6d4e1a1369e80a57e",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C13",
+      "working_title": "Der Ort von damals",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        403,
+        432
+      ],
+      "section_sha256": "9a71f4bb37150bb16303db028a78f8f7d5688a01d16d983f863c360266ad1e00",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C14",
+      "working_title": "Was bleibt?",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        433,
+        457
+      ],
+      "section_sha256": "a7b238ff5ba074141626ce8cf04189c2ecdde7c23ca7726ec82bb2ab8e49bef5",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C15",
+      "working_title": "Kein Körper mehr",
+      "category": "C",
+      "interactive_no_auto_decision": false,
+      "open_conflict": "CON33-01 (C15/C16)",
+      "script_lines": [
+        458,
+        481
+      ],
+      "section_sha256": "a8da01005020e5dc772e91b0ecb26651230ea329bd1262e3b71509b03a21979c",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C16",
+      "working_title": "Die andere Seite",
+      "category": "C",
+      "interactive_no_auto_decision": true,
+      "open_conflict": "CON33-01 (C15/C16)",
+      "script_lines": [
+        482,
+        521
+      ],
+      "section_sha256": "67366684984b961c21da8336cd0d8382406de5c7c96fc84072b2db608c16231c",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C17",
+      "working_title": "Ein neuer Herzschlag",
+      "category": "D",
+      "interactive_no_auto_decision": false,
+      "open_conflict": "C17 Epochenwortlaut",
+      "script_lines": [
+        522,
+        547
+      ],
+      "section_sha256": "3c6ce4105f910657a3b85f262da7594d16f9449d4629da3e6b86f7f2cb73c2ee",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C18",
+      "working_title": "Die vertraute Fremde",
+      "category": "B",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        548,
+        573
+      ],
+      "section_sha256": "3edb18d8ed72aa5f04dd07e312056548ce7f9e863b33814629417854baee3432",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C19",
+      "working_title": "Wer spricht mit mir?",
+      "category": "A",
+      "interactive_no_auto_decision": false,
+      "open_conflict": null,
+      "script_lines": [
+        574,
+        624
+      ],
+      "section_sha256": "f5d5c20753c21df09f8621b9a4339f083c8e444b0727adc0929376556b67966b",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    },
+    {
+      "scene_id": "C20",
+      "working_title": "Die Schöpfer",
+      "category": "A/C",
+      "interactive_no_auto_decision": true,
+      "open_conflict": null,
+      "script_lines": [
+        625,
+        687
+      ],
+      "section_sha256": "40b4288fe15d20dbc8a6d677c4a94ef19cb17d20b429116bb1ae087aed3c8493",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": "C00"
+    },
+    {
+      "scene_id": "C21",
+      "working_title": "Der erste Morgen",
+      "category": "D",
+      "interactive_no_auto_decision": false,
+      "open_conflict": "C21 Finalkonflikt",
+      "script_lines": [
+        688,
+        721
+      ],
+      "section_sha256": "a08a921eaee2b927ef503ba5b0ae463a3527d2d979bffd70c791d2e3bef99952",
+      "approval_status": "SOURCE_CANDIDATE_AWAITING_DIRECTOR",
+      "implementation_status": "NOT_IMPLEMENTED",
+      "replay_of": null
+    }
+  ]
+}

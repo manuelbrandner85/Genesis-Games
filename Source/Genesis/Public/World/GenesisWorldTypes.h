@@ -36,8 +36,13 @@ USTRUCT()
 struct GENESIS_API FGenesisWorldState
 {
     GENERATED_BODY()
-    static constexpr int32 CurrentSchema = 1;
+    static constexpr int32 CurrentSchema = 2;     // 2: soul/life/world identity (V4.2 SceneContracts)
     UPROPERTY() int32 SchemaVersion = CurrentSchema;
+    UPROPERTY() FString SoulID;                     // stays across rebirths
+    UPROPERTY() FString LifeID;                     // new for every life
+    UPROPERTY() FString WorldID;                    // one continuous world history
+    UPROPERTY() int32 WorldSeed = 0;
+    UPROPERTY() int32 LifeNumber = 1;
     UPROPERTY() int64 WorldMinute = 0;
     UPROPERTY() int32 PlayerMoneyGE = 0;
     UPROPERTY() TMap<FName, int32> PlayerItems;

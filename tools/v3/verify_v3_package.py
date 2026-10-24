@@ -20,7 +20,7 @@ def verify(root=ROOT):
     for k,gl in dirs.items():
         paths=list(gl);stats[k]=len(paths)
         if is_v4 and k=='skills':
-            paths=[p for p in paths if not p.parent.name.startswith(('genesis-v4-', 'genesis-free-ai-'))]
+            paths=[p for p in paths if not p.parent.name.startswith(('genesis-v4-', 'genesis-free-ai-', 'genesis-cm42-'))]
             stats[k]=len(paths)
         if len(paths)!=expected[k]:errors.append(f'{k} expected {expected[k]}, found {len(paths)}')
         for p in paths:
@@ -49,7 +49,7 @@ def verify(root=ROOT):
             if is_v4:
                 # Legacy V3 test only protects inherited immutable V3 files.
                 # V4 intentionally replaces project root instructions and hook settings.
-                changed_by_v4={'CLAUDE.md','README.md','.claude/settings.json','.gitignore','tools/v3/verify_v3_package.py'}
+                changed_by_v4={'CLAUDE.md','README.md','.claude/settings.json','.gitignore','tools/v3/verify_v3_package.py','DATEIMANIFEST_SHA256.json'}
                 original_scope={k:v for k,v in listing.items() if k not in changed_by_v4}
                 actual={name:hashlib.sha256((root/name).read_bytes()).hexdigest()
                         for name in original_scope if (root/name).is_file()}

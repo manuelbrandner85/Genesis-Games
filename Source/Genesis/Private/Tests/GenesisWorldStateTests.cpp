@@ -127,7 +127,7 @@ bool FGenesisSaveRoundtripTest::RunTest(const FString&)
 
     // A save from a newer build is refused instead of being misread.
     FFileHelper::LoadFileToString(Text, *Path);
-    const FString Future = Text.Replace(TEXT("{\"schema\":1,"), TEXT("{\"schema\":99,"));
+    const FString Future = Text.Replace(*FString::Printf(TEXT("{\"schema\":%d,"), FGenesisWorldState::CurrentSchema), TEXT("{\"schema\":99,"));
     const FString FuturePath = TestSavePath(TEXT("future.genesis.json"));
     FFileHelper::SaveStringToFile(Future, *FuturePath);
     TestFalse(TEXT("Future schema refused"), FGenesisSaveStore::Load(FuturePath, L, Err));

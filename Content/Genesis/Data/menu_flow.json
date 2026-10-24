@@ -1,0 +1,198 @@
+{
+  "schema_version": "4.2.0",
+  "version_note": "Planungs- und QA-Routen, keine implementierten Widgets",
+  "initial": "BOOT",
+  "nodes": [
+    {
+      "id": "BOOT",
+      "actions": [
+        "check_save_integrity",
+        "startup_warning_accessibility",
+        "show_prolog_according_to_canon"
+      ],
+      "edges": [
+        "STORY_START",
+        "TITLE_CARD"
+      ],
+      "mode": "system"
+    },
+    {
+      "id": "STORY_START",
+      "actions": [
+        "play_approved_C00_C01_or_valid_skip"
+      ],
+      "edges": [
+        "TITLE_CARD"
+      ],
+      "mode": "cinematic"
+    },
+    {
+      "id": "TITLE_CARD",
+      "actions": [
+        "show_title",
+        "press_any_button"
+      ],
+      "edges": [
+        "MAIN_MENU"
+      ],
+      "mode": "presentation"
+    },
+    {
+      "id": "MAIN_MENU",
+      "actions": [
+        "continue_if_save",
+        "new_game",
+        "load",
+        "settings",
+        "accessibility",
+        "credits",
+        "quit"
+      ],
+      "edges": [
+        "CONTINUE",
+        "NEW_GAME",
+        "LOAD_GAME",
+        "SETTINGS",
+        "ACCESSIBILITY",
+        "CREDITS",
+        "QUIT"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "CONTINUE",
+      "actions": [
+        "validate_save_bundle",
+        "resume_or_error"
+      ],
+      "edges": [
+        "IN_GAME",
+        "MAIN_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "NEW_GAME",
+      "actions": [
+        "confirm_overwrite_only_if_needed",
+        "select_new_slot"
+      ],
+      "edges": [
+        "IN_GAME",
+        "MAIN_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "LOAD_GAME",
+      "actions": [
+        "list_consistent_saves",
+        "preview_last_checkpoint"
+      ],
+      "edges": [
+        "IN_GAME",
+        "MAIN_MENU",
+        "PAUSE_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "SETTINGS",
+      "actions": [
+        "graphics",
+        "separate_audio_sliders",
+        "language",
+        "keybind",
+        "controller",
+        "apply_cancel"
+      ],
+      "edges": [
+        "MAIN_MENU",
+        "PAUSE_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "ACCESSIBILITY",
+      "actions": [
+        "subtitle_size",
+        "speaker_labels",
+        "high_contrast",
+        "photosensitivity",
+        "camera_motion",
+        "trigger_skip"
+      ],
+      "edges": [
+        "MAIN_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "CREDITS",
+      "actions": [
+        "scroll_or_skip_credits"
+      ],
+      "edges": [
+        "MAIN_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "QUIT",
+      "actions": [
+        "confirm_exit"
+      ],
+      "edges": [
+        "MAIN_MENU",
+        "EXIT"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "IN_GAME",
+      "actions": [
+        "free_gameplay",
+        "pause",
+        "checkpoint"
+      ],
+      "edges": [
+        "PAUSE_MENU"
+      ],
+      "mode": "gameplay"
+    },
+    {
+      "id": "PAUSE_MENU",
+      "actions": [
+        "resume",
+        "settings",
+        "save",
+        "load",
+        "main_menu"
+      ],
+      "edges": [
+        "IN_GAME",
+        "SETTINGS",
+        "LOAD_GAME",
+        "MAIN_MENU"
+      ],
+      "mode": "ui"
+    },
+    {
+      "id": "EXIT",
+      "actions": [
+        "close_application"
+      ],
+      "edges": [],
+      "mode": "system"
+    }
+  ],
+  "constraints": [
+    "MAIN_MENU must not reveal C19/C20 mystery before unlocked",
+    "Saves always use actual transactional system",
+    "Menu background is separate nonpersistent demo simulation or fixed video",
+    "Keyboard/controller focus must be visible",
+    "No dead UI action claims",
+    "No hidden time limit on story choices"
+  ],
+  "runtime_note": "Runtime copy of docs/v4_2/MENU_FLOW.json. Added: SETTINGS->PAUSE_MENU and LOAD_GAME->PAUSE_MENU (back from screens opened in the pause menu returns there, not to the main menu)."
+}
