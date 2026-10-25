@@ -153,24 +153,39 @@ def capsule(name, a, b, r):
 # render without the duvet (hips/shorts and hands were the widest parts).
 A = POSE["a_pose"]
 BACK_Y = -BACK * 100                                   # back of the torso in local cm (lies on the mattress)
-for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
-    capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
-# the own skinned shirt (SKM_C00_Mann_Shirt) follows the pose, but its loose front still stands ~19 cm off the back
-capsule("SZ_Proxy_ShirtFront", to_world(0, 15.5 - 12, A["pelvis"][2] + 6), to_world(0, 15.5 - 12, A["spine_05"][2] - 10), 0.12)   # front at local y 15.5 (shirt laid onto the body)
-# pelvis front: the base body's shorts stand ~2 cm proud of the torso capsules
-capsule("SZ_Proxy_Pelvis", to_world(-7, BACK_Y + 15, A["pelvis"][2] - 9), to_world(7, BACK_Y + 15, A["pelvis"][2] - 9), 0.11)
-for s, side in ((1, "l"), (-1, "r")):
-    j = JOINTS[side]
-    th, ca = Vector(A[f"thigh_{side}"]), Vector(A[f"calf_{side}"])
-    capsule(f"SZ_Proxy_Hip{s}", to_world(*th), to_world(*(th + (ca - th) * 0.45)), 0.10)      # hip, upper thigh, shorts
-    capsule(f"SZ_Proxy_Thigh{s}", to_world(*th), to_world(*ca), 0.082)
-    capsule(f"SZ_Proxy_Calf{s}", to_world(*A[f"calf_{side}"]), to_world(*A[f"foot_{side}"]), 0.065)
-    # feet in the relaxed plantar flexion of A_C00_Mann_Liegen: heel behind the ankle, toes past the posed ball
-    ank, ball = Vector(j.get("foot_out", A[f"foot_{side}"])), Vector(j.get("ball_out", j["ball"]))   # right leg turned out
-    toe = ball + (ball - ank).normalized() * 7
-    capsule(f"SZ_Proxy_Foot{s}", to_world(ank.x, ank.y - 6, ank.z), to_world(*toe), 0.062)
-    # Regie 2026-10-25: the arms lie ON the duvet (hands resting on it) - no arm proxies; the pose is fitted to the
-    # simulated duvet afterwards (height map below -> tools/v4_2/c00_pose_lying.py)
+POSED = bpy.data.collections.get("C00_SZ_Collision")
+if POSED and len(POSED.objects):
+    # Regie 2026-10-25 ("Teile vom Hemd schauen durch die Decke", "Decke muss sich anatomisch anpassen"): the real
+    # posed body + shirt (tools/v4_2/build_c00_posed_man.py, Blender armature space = S c / 100) instead of capsules.
+    # Arms/hands are not in it - they rest on the duvet. Into the bed: world = P0 + R @ S @ v.
+    _S = Matrix(((1, 0, 0), (0, -1, 0), (0, 0, 1)))
+    _M = Matrix.Translation(P0) @ (R @ _S).to_4x4()
+    for src in POSED.objects:
+        me = src.data.copy()
+        me.transform(_M)
+        me.flip_normals()                                # R @ S mirrors - keep the normals pointing outward
+        o = bpy.data.objects.new("SZ_Proxy_" + src.name, me)
+        col.objects.link(o)
+        proxy_parts.append(o)
+else:
+    for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
+        capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
+    # the own skinned shirt (SKM_C00_Mann_Shirt) follows the pose, but its loose front still stands ~19 cm off the back
+    capsule("SZ_Proxy_ShirtFront", to_world(0, 15.5 - 12, A["pelvis"][2] + 6), to_world(0, 15.5 - 12, A["spine_05"][2] - 10), 0.12)   # front at local y 15.5 (shirt laid onto the body)
+    # pelvis front: the base body's shorts stand ~2 cm proud of the torso capsules
+    capsule("SZ_Proxy_Pelvis", to_world(-7, BACK_Y + 15, A["pelvis"][2] - 9), to_world(7, BACK_Y + 15, A["pelvis"][2] - 9), 0.11)
+    for s, side in ((1, "l"), (-1, "r")):
+        j = JOINTS[side]
+        th, ca = Vector(A[f"thigh_{side}"]), Vector(A[f"calf_{side}"])
+        capsule(f"SZ_Proxy_Hip{s}", to_world(*th), to_world(*(th + (ca - th) * 0.45)), 0.10)      # hip, upper thigh, shorts
+        capsule(f"SZ_Proxy_Thigh{s}", to_world(*th), to_world(*ca), 0.082)
+        capsule(f"SZ_Proxy_Calf{s}", to_world(*A[f"calf_{side}"]), to_world(*A[f"foot_{side}"]), 0.065)
+        # feet in the relaxed plantar flexion of A_C00_Mann_Liegen: heel behind the ankle, toes past the posed ball
+        ank, ball = Vector(j.get("foot_out", A[f"foot_{side}"])), Vector(j.get("ball_out", j["ball"]))   # right leg turned out
+        toe = ball + (ball - ank).normalized() * 7
+        capsule(f"SZ_Proxy_Foot{s}", to_world(ank.x, ank.y - 6, ank.z), to_world(*toe), 0.062)
+        # Regie 2026-10-25: the arms lie ON the duvet (hands resting on it) - no arm proxies; the pose is fitted to the
+        # simulated duvet afterwards (height map below -> tools/v4_2/c00_pose_lying.py)
 for o in proxy_parts:
     o.modifiers.new("Collision", "COLLISION")
     o.collision.thickness_outer = 0.006
@@ -197,7 +212,7 @@ for o in proxy_parts + [bpy.data.objects[n] for n in ("SZ_Mattress", "SZ_Pillow-
     ev.to_mesh_clear()
 bvh = BVHTree.FromPolygons(verts, polys)
 HALF_W, FOOT = 0.70, BY0 - 0.10 - 2.0                  # mattress half width, foot end
-TOP, THICK = MATTRESS_TOP, 0.03
+TOP, THICK = MATTRESS_TOP, 0.045                       # down duvet ~4.5 cm thick
 X0, X1, Y0, Y1, STEP = BX - 0.80, BX + 0.80, FOOT - 0.16, chest_y, 0.02
 nx, ny = int(round((X1 - X0) / STEP)), int(round((Y1 - Y0) / STEP))
 
@@ -238,22 +253,55 @@ for _ in range(60):                                       # constrained smoothin
     grid = nxt
 # Regie 2026-10-25: the right foot looks out - the duvet corner over it is pushed back diagonally
 _fr = to_world(*JOINTS["r"].get("foot_out", A["foot_r"]))
-XR = P0.x + 0.05
+# fold line: a diagonal across the foot-end corner on the window side, from the foot end of the duvet (FA) to the
+# bed side (FB); the triangle beyond it (containing the right foot) is turned back onto the duvet
+FA = Vector((MAN_X - 0.10, FOOT - 0.02))                   # turned-back triangle: the whole right foot is free,
+FB = Vector((BX + 0.72, FOOT + 0.55))                      # the ankle sits at the fold
 
 
 def corner_open(x, y):
-    return x > XR and y < _fr.y + 0.06 + 0.30 * (x - XR)
+    ab, ap = FB - FA, Vector((x, y)) - FA
+    return ab.x * ap.y - ab.y * ap.x < 0
 
 
+# Regie 2026-10-25 ("umgeschlagen, nicht ein fehlendes Stueck"): the small corner triangle over the right foot is
+# turned back over the fold line FA-FB and laid on the duvet (base surface + one duvet thickness), with a rounded
+# crease. It is pinned in the simulation (no self collision needed - that crumpled the whole duvet).
+_ab = (FB - FA).normalized()
+_nn = Vector((_ab.y, -_ab.x))
+_base = [[grid[j][i].copy() for i in range(nx + 1)] for j in range(ny + 1)]
+
+
+def base_z(x, y):
+    fi, fj = (x - X0) / STEP, (y - Y0) / STEP
+    i, j = max(0, min(nx - 1, int(fi))), max(0, min(ny - 1, int(fj)))
+    tx, ty = min(1, max(0, fi - i)), min(1, max(0, fj - j))
+    z0 = _base[j][i].z * (1 - tx) + _base[j][i + 1].z * tx
+    z1 = _base[j + 1][i].z * (1 - tx) + _base[j + 1][i + 1].z * tx
+    return z0 * (1 - ty) + z1 * ty
+
+
+flap_ij = set()
+for j in range(ny + 1):
+    for i in range(nx + 1):
+        x, y = X0 + i * STEP, Y0 + j * STEP                  # grid (unhung) position decides the side of the fold
+        if not corner_open(x, y):
+            continue
+        d = (Vector((x, y)) - FA).dot(_nn)
+        r = Vector((x, y)) - _nn * (2 * d)
+        crease = 0.022 * math.exp(-(d / 0.03) ** 2)
+        grid[j][i] = Vector((r.x, r.y, base_z(r.x, r.y) + THICK + 0.004 + crease))
+        flap_ij.add((j, i))
 bm = bmesh.new()
 bv = [[bm.verts.new(grid[j][i]) for i in range(nx + 1)] for j in range(ny + 1)]
+FLAP = [j * (nx + 1) + i for (j, i) in flap_ij]            # vertex index = creation order
 for j in range(ny):
     for i in range(nx):
-        c = (grid[j][i] + grid[j + 1][i + 1]) * 0.5
-        if corner_open(c.x, c.y):
-            continue
-        bm.faces.new((bv[j][i], bv[j][i + 1], bv[j + 1][i + 1], bv[j + 1][i]))
-bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+        f = bm.faces.new((bv[j][i], bv[j][i + 1], bv[j + 1][i + 1], bv[j + 1][i]))
+uv_layer = bm.loops.layers.uv.new("UVMap")                 # duvet cover UVs (1 unit = 1 m): quilting channels in Unreal
+for f in bm.faces:
+    for loop in f.loops:
+        loop[uv_layer].uv = ((loop.vert.co.x - X0), (loop.vert.co.y - Y0))
 me = bpy.data.meshes.new("SZ_DuvetCloth")
 bm.to_mesh(me)
 bm.free()
@@ -284,12 +332,13 @@ for v in duv.data.vertices:
 pin = duv.vertex_groups.new(name="Pin")
 top_y = max(v.co.y for v in duv.data.vertices)
 pin.add([v.index for v in duv.data.vertices if v.co.y > top_y - 0.04 and abs(v.co.x - MAN_X) < 0.30], 1.0, "REPLACE")
+pin.add(FLAP, 1.0, "REPLACE")                              # the turned-back flap stays where it was laid
 cl = duv.modifiers.new("Cloth", "CLOTH")
 st = cl.settings
 st.vertex_group_mass = "Pin"
 st.quality, st.mass, st.air_damping = 10, 1.2, 4.0          # heavy down duvet
 st.tension_stiffness = st.compression_stiffness = 8.0
-st.shear_stiffness, st.bending_stiffness = 3.0, 0.08        # low bending: soft folds
+st.shear_stiffness, st.bending_stiffness = 3.0, 0.35        # a little stiffer: bridges between the legs (stiff+self collision crumpled)
 st.use_internal_springs = False
 cl.collision_settings.use_self_collision = False
 cl.collision_settings.collision_quality = 5
@@ -302,17 +351,28 @@ for f in range(1, 71):
 with bpy.context.temp_override(object=duv, active_object=duv, selected_objects=[duv], scene=sc):
     bpy.ops.object.modifier_apply(modifier="Cloth")
 sc.frame_set(1)
+# Regie 2026-10-25 ("an der Huefte merkwuerdig verknotet"): the solver pinches the cloth into tight knots where it
+# meets the shorts' waistband. A relaxed duvet does not form knots: smooth the result (keeps the large folds),
+# then push it back outside the body so smoothing never sinks it in.
+sm0 = duv.modifiers.new("Relax", "SMOOTH")
+sm0.factor, sm0.iterations = 0.8, 25
+with bpy.context.temp_override(object=duv, active_object=duv, selected_objects=[duv], scene=sc):
+    bpy.ops.object.modifier_apply(modifier="Relax")
+for v in duv.data.vertices:
+    loc, nrm, _, dist = bvh.find_nearest(v.co)
+    if loc is not None and ((v.co - loc).dot(nrm) < 0 or dist < THICK * 0.6):
+        v.co = loc + nrm * THICK * 0.6
+duv.data.update()
 so = duv.modifiers.new("Puff", "SOLIDIFY")
-so.thickness, so.offset, so.use_even_offset = 0.035, -1.0, False   # even offset shot spikes out of sharp folds
+so.thickness, so.offset, so.use_even_offset = 0.045, -1.0, False   # even offset shot spikes out of sharp folds
 so.thickness_clamp, so.use_quality_normals = 1.0, True
 sm = duv.modifiers.new("Smooth", "SUBSURF")
 sm.levels = sm.render_levels = 1
 folds = bpy.data.textures.get("TX_SZ_Folds") or bpy.data.textures.new("TX_SZ_Folds", "CLOUDS")
 folds.noise_scale, folds.noise_depth = 0.12, 2
 dp = duv.modifiers.new("Folds", "DISPLACE")
-dp.texture, dp.strength, dp.texture_coords = folds, 0.008, "GLOBAL"
-dp2 = duv.modifiers.new("Creases", "DISPLACE")
-dp2.texture, dp2.strength, dp2.texture_coords = bpy.data.textures["TX_SZ_Crease"], 0.006, "GLOBAL"
+dp.texture, dp.strength, dp.texture_coords = folds, 0.004, "GLOBAL"
+# no cellular crease texture on the duvet: its ridges read as knots (Regie 2026-10-25) - the simulation's folds stay
 sc.frame_set(1)
 for o in proxy_parts:
     bpy.data.objects.remove(o, do_unlink=True)

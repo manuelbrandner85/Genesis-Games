@@ -286,5 +286,11 @@ ctrl.close_bracket(True)
 eal.save_loaded_asset(anim)
 import json
 with open(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "docs/v4_2/C00_POSE_JOINTS.json", "w") as f:
-    json.dump({"note": "MetaHuman component space (cm); joints = arms in A_C00_Mann_Liegen, a_pose = all bones", "joints": joints, "a_pose": a_pose}, f, indent=1)
+    def _tq(t):
+        q = t.rotation
+        return [list(t.translation.to_tuple()), [q.x, q.y, q.z, q.w]]
+    posed = {b: {"ref": _tq(cs[b]), "new": _tq(new[b])} for b in new}     # Blender reproduces the posed body
+    json.dump({"note": "MetaHuman component space (cm); joints = arms in A_C00_Mann_Liegen, a_pose = all bones, "
+                       "posed = component-space ref/new transforms of every posed bone (parents first in PARENT order)",
+               "joints": joints, "a_pose": a_pose, "posed": posed, "parent": PARENT}, f, indent=1)
 print("C00_POSE_ASSET", anim.get_path_name())
