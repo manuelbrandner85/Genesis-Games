@@ -240,10 +240,13 @@ if HMAP:
     for side, hx, hz in (("l", 10.5, 105.0), ("r", -10.5, 95.0)):
         new.update(arm_ik(side, V3(hx, duvet_y(hx, hz) + 3.0, hz)))
 
-# Regie 2026-10-25: anatomically flat on the mattress, head raised on the pillow: neck flexed ~30 deg
+# Regie 2026-10-25: anatomically flat on the mattress, head raised on the pillow: neck flexed ~36 deg; the head joint
+# itself adds 14 (probe = crown point: with the head joint as probe its own sign was a tie and it had tipped back),
+# so the skull base stays where the pillow expects it and only the chin drops
 # (chin toward the chest, as on a pillow); feet relaxed in plantar flexion (~35 deg) so the toes do not
 # stand straight up under the duvet.
-neck = bend_chain(["neck_01", "neck_02", "head"], [11, 11, 8], lambda c: c["head"], 1)
+neck = bend_chain(["neck_01", "neck_02", "head"], [11, 11, 14],
+                  lambda c: unreal.Transform(location=c["head"].translation + unreal.Vector(0, 0, 12)), 1)
 new.update(neck)
 for side in ("l", "r"):
     f = f"foot_{side}"
