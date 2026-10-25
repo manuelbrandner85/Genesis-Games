@@ -1,4 +1,4 @@
-"""C00 (runs INSIDE the Unreal Editor): the moving animations for shot 00-B (18 s, 24 fps = 432 frames).
+"""C00 (runs INSIDE the Unreal Editor): the moving animations for shot 00-B (18 s, sampled at 30 fps = 540 frames).
 
 Shot list 00-B (approved by the Game Director 2026-10-25): his hand in his daughter's hand, her thumb moves; rain, sheets,
 breathing; no forced sobbing. Built on the approved single-frame poses (A_C00_Mann_Liegen_Built,
@@ -17,7 +17,7 @@ import math
 import unreal
 
 POSEN = "/Game/Genesis/Characters/C00/Posen"
-FPS, SECONDS = 24, 18.0
+FPS, SECONDS = 30, 18.0                      # anim sample rate (must suit the project's 30 fps); the sequence plays at 24
 N = int(FPS * SECONDS)                       # frames; keys = N + 1
 eal = unreal.EditorAssetLibrary
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -60,7 +60,9 @@ def base_curves(anim):
 def write(name, skeleton, frames_tracks, frames_curves):
     """frames_tracks: list (N+1) of {bone: Transform local}; frames_curves: list (N+1) of {curve: value}"""
     path = f"{POSEN}/{name}"
-    anim = eal.load_asset(path) if eal.does_asset_exist(path) else None
+    if eal.does_asset_exist(path):                       # not referenced yet (the sequence is built afterwards)
+        eal.delete_asset(path)
+    anim = None
     if anim is None:
         fac = unreal.AnimSequenceFactory()
         fac.set_editor_property("target_skeleton", skeleton)

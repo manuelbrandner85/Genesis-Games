@@ -69,6 +69,51 @@ def master(name, translucent=False):
 
 
 OPAQUE, GLASS = master("M_C00_SetSurface"), master("M_C00_SetGlass", True)
+
+
+def glass_object_master():
+    """QA 2026-10-25: the drinking glass on the nightstand rendered as a sharp-edged ghost box inside the out-of-focus
+    background (translucency composited after depth of field) and without refraction. Own master for small glass
+    objects: composited before DOF (blurs with the scene), refraction by pixel normal offset (bends what is behind it
+    along the curved walls), fresnel-driven opacity (rim reads, faces stay clear)."""
+    path = f"{SET}/Materials/M_C00_SetGlassObject"
+    if eal.does_asset_exist(path):
+        return eal.load_asset(path)
+    m = at.create_asset("M_C00_SetGlassObject", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
+    m.set_editor_property("translucency_pass", unreal.MaterialTranslucencyPass.MTP_BEFORE_DOF)
+    m.set_editor_property("refraction_method", unreal.RefractionMode.RM_PIXEL_NORMAL_OFFSET)
+    E = lambda cls, x, y: mel.create_material_expression(m, cls, x, y)
+    col = E(unreal.MaterialExpressionVectorParameter, -600, 0)
+    col.set_editor_property("parameter_name", "Color")
+    col.set_editor_property("default_value", unreal.LinearColor(0.92, 0.95, 0.95, 1))
+    mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    for pn, val, prop, y in (("Roughness", 0.03, unreal.MaterialProperty.MP_ROUGHNESS, 120),
+                             ("Specular", 0.5, unreal.MaterialProperty.MP_SPECULAR, 220),
+                             ("Refraction", 1.25, unreal.MaterialProperty.MP_REFRACTION, 320)):
+        e = E(unreal.MaterialExpressionScalarParameter, -600, y)
+        e.set_editor_property("parameter_name", pn)
+        e.set_editor_property("default_value", val)
+        mel.connect_material_property(e, "", prop)
+    fr = E(unreal.MaterialExpressionFresnel, -600, 440)
+    fr.set_editor_property("exponent", 4.0)
+    base = E(unreal.MaterialExpressionScalarParameter, -600, 560)
+    base.set_editor_property("parameter_name", "Opacity")
+    base.set_editor_property("default_value", 0.08)
+    lp = E(unreal.MaterialExpressionLinearInterpolate, -350, 480)
+    mel.connect_material_expressions(base, "", lp, "A")
+    one = E(unreal.MaterialExpressionConstant, -600, 660)
+    one.set_editor_property("r", 0.6)
+    mel.connect_material_expressions(one, "", lp, "B")
+    mel.connect_material_expressions(fr, "", lp, "Alpha")
+    mel.connect_material_property(lp, "", unreal.MaterialProperty.MP_OPACITY)
+    mel.recompile_material(m)
+    eal.save_loaded_asset(m)
+    return m
+
+
+GLASS_OBJ = glass_object_master()
 WEAVE_N = "/Game/Fab/MetaHuman/Jeans/Materials/Textures/Clothing/Micros/micro_weave_plain_normal"   # Fab, local only
 WEAVE_A = "/Game/Fab/MetaHuman/Jeans/Materials/Textures/Clothing/Micros/micro_weave_plain"
 
@@ -161,7 +206,7 @@ LOOK = {
     "M_SZ_SkirtingWhite": (OPAQUE, (0.82, 0.82, 0.80), 0.45, 0, None, None),
     "M_SZ_PVCAnthracite": (OPAQUE, (0.055, 0.058, 0.062), 0.35, 0, None, None),
     "M_SZ_Glass": (GLASS, (0.9, 0.93, 0.93), 0.02, 0, None, 0.06),
-    "M_SZ_Water": (GLASS, (0.95, 0.97, 1.0), 0.0, 0, None, 0.25),
+    "M_SZ_Water": (GLASS_OBJ, (0.95, 0.97, 1.0), 0.0, 0, None, 0.10),
     "M_SZ_RainStreak": (GLASS, (0.8, 0.85, 0.9), 0.1, 0, None, 0.15),
     "M_SZ_SillWhite": (OPAQUE, (0.78, 0.78, 0.76), 0.25, 0, None, None),
     "M_SZ_RadiatorWhite": (OPAQUE, (0.80, 0.80, 0.78), 0.35, 0, None, None),
@@ -193,11 +238,16 @@ LOOK = {
     "M_SZ_StreetLED": (OPAQUE, (0, 0, 0), 1.0, 0, (25.0, 21.0, 16.0), None),
     # lived-in decor (build_c00_bedroom_decor.py)
     "M_SZ_PassepartoutWhite": (OPAQUE, (0.82, 0.80, 0.76), 0.85, 0, None, None),
-    "M_SZ_BookCover0": (OPAQUE, (0.08, 0.13, 0.30), 0.55, 0, None, None),
-    "M_SZ_BookCover1": (OPAQUE, (0.55, 0.42, 0.18), 0.55, 0, None, None),
-    "M_SZ_BookCover2": (OPAQUE, (0.38, 0.10, 0.08), 0.55, 0, None, None),
-    "M_SZ_BookPages": (OPAQUE, (0.78, 0.74, 0.64), 0.8, 0, None, None),
-    "M_SZ_DrinkGlass": (GLASS, (0.92, 0.95, 0.95), 0.02, 0, None, 0.12),
+    # books (build_c00_nightstand.py): cloth-bound hardcovers, a soft paper cover, gold foil and ink spine titles
+    "M_SZ_BookCover0": (FABRIC, (0.05, 0.08, 0.18), 0.8, 0, None, None),
+    "M_SZ_BookCover1": (OPAQUE, (0.62, 0.50, 0.30), 0.55, 0, None, None),
+    "M_SZ_BookCover2": (FABRIC, (0.30, 0.06, 0.05), 0.8, 0, None, None),
+    "M_SZ_BookPages": (OPAQUE, (0.80, 0.76, 0.66), 0.85, 0, None, None),
+    "M_SZ_BookFoil": (OPAQUE, (0.80, 0.62, 0.32), 0.35, 1, None, None),
+    "M_SZ_BookInk": (OPAQUE, (0.05, 0.05, 0.06), 0.55, 0, None, None),
+    "M_SZ_BookHeadband": (FABRIC, (0.55, 0.12, 0.10), 0.5, 0, None, None),
+    "M_SZ_BookRibbon": (FABRIC, (0.42, 0.06, 0.07), 0.45, 0, None, None),
+    "M_SZ_DrinkGlass": (GLASS_OBJ, (0.92, 0.95, 0.95), 0.02, 0, None, 0.06),
     "M_SZ_MedicineBox": (OPAQUE, (0.80, 0.80, 0.78), 0.5, 0, None, None),
     "M_SZ_RugWool": (OPAQUE, (0.55, 0.47, 0.38), 0.95, 0, None, None),
     "M_SZ_ThrowWool": (OPAQUE, (0.55, 0.36, 0.08), 0.95, 0, None, None),
@@ -209,7 +259,7 @@ LOOK = {
 
 # weave repeats per UV unit: set meshes have 1 UV unit = 1 m; the shirt's Fab UVs span ~1.4 m of fabric
 # (first test at 30/m read as coarse knitting: one tile of the weave map holds ~25 threads -> ~0.25 mm linen threads)
-WEAVE_SCALE = {"M_SZ_DuvetSage": 160.0, "M_SZ_PillowLinen": 180.0, "M_SZ_BedLinenWhite": 180.0, "M_C00_ShirtFabric": 260.0}
+WEAVE_SCALE = {"M_SZ_BookCover0": 600.0, "M_SZ_BookCover2": 600.0, "M_SZ_DuvetSage": 160.0, "M_SZ_PillowLinen": 180.0, "M_SZ_BedLinenWhite": 180.0, "M_C00_ShirtFabric": 260.0}
 
 
 def photo_material(key="VaterTochter"):
@@ -266,6 +316,11 @@ def instance(slot):
 # ------------------------------------------------------------------ import (once) + level
 MESHES = f"{SET}/Meshes"
 if os.environ.get("GENESIS_SZ_REIMPORT") or not eal.list_assets(MESHES, recursive=False):
+    # QA 2026-10-25: meshes whose Blender objects were removed or renamed (old books, the CR-002 photo) stayed in the
+    # folder and were spawned again - clear the folder first (from an empty level, nothing references it then)
+    les.new_level("/Temp/C00_ReimportEmpty")
+    for _p in eal.list_assets(MESHES, recursive=False):
+        eal.delete_asset(_p.split(".")[0])
     task = unreal.AssetImportTask()
     task.filename, task.destination_path = FBX, MESHES
     task.automated, task.replace_existing, task.save = True, True, True
@@ -445,6 +500,10 @@ elif SHOT == "00b":                                      # test 00-B: 85 mm on t
     # from the foot end, ~90 cm before the hands: her forearm comes in from behind them (+x, +y), not in front
     # aimed between the hands and the old photo on the nightstand, so the focus pull (c00_seq_00b.py) lands in frame
     cam_loc, target, focal = ue((0.25, -0.85, 1.00)), ue((0.42, 0.62, 0.74)), 85.0
+elif SHOT == "nacht":                                    # QA: the nightstand close (books, glass, lamp, photo back)
+    cam_loc, target, focal = ue((0.30, 0.70, 0.98)), ue((0.78, 1.30, 0.63)), 40.0
+elif SHOT == "stuhl":                                    # QA: chair, knitted throw, rug, radiator
+    cam_loc, target, focal = ue((0.10, -0.60, 1.20)), ue((1.05, 0.40, 0.45)), 28.0
 elif SHOT == "arme":                                     # QA: both of his arms from above (elbows, sleeves, wrists)
     cam_loc, target, focal = ue((-0.40, 0.30, 1.60)), ue((0.15, 0.62, 0.62)), 30.0   # wall side: she cannot block it
 elif SHOT == "tochter":                                  # test: the daughter at the bedside, from the foot end (wall side)

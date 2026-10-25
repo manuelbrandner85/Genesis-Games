@@ -181,20 +181,9 @@ framed("Strand", (-W / 2 + 0.002, 0.55, 1.45), (1, 0, 0), 0.92, 0.58, 0.82, 0.48
 framed("Ehefrau", (1.22, D / 2 - 0.004, 1.50), (0, -1, 0), 0.40, 0.40, 0.30, 0.30, (0.42, 0.29, 0.17))
 
 # ------------------------------------------------------------------ nightstand: books, water glass, medicine
-books = (((0.15, 0.22, 0.028), (0.08, 0.13, 0.30)), ((0.14, 0.21, 0.022), (0.55, 0.42, 0.18)), ((0.13, 0.20, 0.032), (0.38, 0.10, 0.08)))
-z = NS_TOP
-for i, (size, rgb) in enumerate(books):
-    block(f"SZ_Book{i}", size, (NX + 0.10, NY - 0.05, z + size[2] / 2), mat(f"M_SZ_BookCover{i}", rgb, 0.55),
-          rot_z=math.radians((-6, 4, -2)[i]), bevel=0.003)
-    block(f"SZ_BookPages{i}", (size[0] - 0.008, size[1] - 0.006, size[2] - 0.004), (NX + 0.10 + 0.004, NY - 0.05, z + size[2] / 2),
-          mat("M_SZ_BookPages", (0.78, 0.74, 0.64), 0.8), rot_z=math.radians((-6, 4, -2)[i]), bevel=0.001)
-    z += size[2]
-glass = mat("M_SZ_DrinkGlass", (0.95, 0.97, 0.97), 0.02, trans=1.0, ior=1.5)
-water = bpy.data.materials["M_SZ_Water"]                              # same water as the rain drops (glass BSDF, IOR 1.33)
-cylinder("SZ_DrinkGlass", 0.034, 0.105, (NX - 0.13, NY - 0.10, NS_TOP + 0.0525), glass)
-cylinder("SZ_DrinkWater", 0.031, 0.062, (NX - 0.13, NY - 0.10, NS_TOP + 0.034), water)
-block("SZ_MedicineBox", (0.095, 0.05, 0.022), (NX - 0.02, NY - 0.15, NS_TOP + 0.011), mat("M_SZ_MedicineBox", (0.80, 0.80, 0.78), 0.5),
-      rot_z=math.radians(18), bevel=0.0015)
+# rebuilt 2026-10-25 with real construction and a collision-checked layout (tools/v4_2/build_c00_nightstand.py)
+_ns = os.path.join(os.path.dirname(__file__), "build_c00_nightstand.py")
+exec(compile(open(_ns, encoding="utf8").read(), _ns, "exec"), {"__file__": _ns, "__name__": "__main__"})
 
 # ------------------------------------------------------------------ wool rug beside the bed (window side)
 rug = block("SZ_Rug", (0.80, 1.40, 0.012), (0.85, 0.15, 0.006), mat("M_SZ_RugWool", (0.55, 0.47, 0.38), 0.95), bevel=0.004)

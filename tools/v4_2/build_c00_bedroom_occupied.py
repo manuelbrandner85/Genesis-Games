@@ -27,7 +27,11 @@ BX, BY0 = -0.25, D / 2 - 0.03
 MATTRESS_TOP = 0.53
 THETA = 0.0                                             # Regie 2026-10-25: lies flat, anatomically on the mattress
 # Regie 2026-10-25: "der Kopf ist zu dicht am Kopfende" - 10 cm lower in the bed than before (head now mid-pillow)
-FEET_Y = BY0 - 0.10 - 2.0 + 0.10                       # 10 cm from the foot end: relaxed toes stay under the duvet
+# QA 2026-10-25: at +0.10 the toe tips stood 3.5 cm past the mattress end and pierced the hanging duvet - +0.15 keeps
+# them 1.5 cm inside (still 5 cm lower than the original +0.20)
+BED_L = 2.10                                            # mattress length (Regie 2026-10-25: 2.10 m comfort length)
+# Regie 2026-10-25: 5 cm deeper into the pillow on the 2.10 m bed - the toe tips stay 6.5 cm inside the foot end
+FEET_Y = BY0 - 0.10 - BED_L + 0.20
 
 # local character (m) -> Blender world
 # columns: images of local X (character's left), Y (face), Z (crown). Lying face up with the head at the headboard
@@ -234,7 +238,7 @@ for o in proxy_parts + [bpy.data.objects[n] for n in ("SZ_Mattress", "SZ_Pillow-
     polys += [tuple(base + i for i in p.vertices) for p in m.polygons]
     ev.to_mesh_clear()
 bvh = BVHTree.FromPolygons(verts, polys)
-HALF_W, FOOT = 0.70, BY0 - 0.10 - 2.0                  # mattress half width, foot end
+HALF_W, FOOT = 0.70, BY0 - 0.10 - BED_L                # mattress half width, foot end
 TOP, THICK = MATTRESS_TOP, 0.045                       # down duvet ~4.5 cm thick
 X0, X1, Y0, Y1, STEP = BX - 0.80, BX + 0.80, FOOT - 0.16, chest_y, 0.02
 nx, ny = int(round((X1 - X0) / STEP)), int(round((Y1 - Y0) / STEP))
@@ -511,6 +515,10 @@ for v in duv.data.vertices:
         under = c.z - math.sqrt(max(0.0, r * r - min(d, r) ** 2)) - 0.003
         target = under if d <= r else under + (w.z - under) * smoothstep(0.0, 1.0, (d - r) / FALL)
         target = max(target, w.z - 0.025)                 # down filling compresses ~2.5 cm, never through to the body
+        # QA 2026-10-25: a dent beside the waist went below the shirt (a white sliver pierced the duvet) - a dent never
+        # comes closer to body/shirt than the safety distance of the drape
+        if abs(w.x - BX) <= HALF_W and w.y >= FOOT:
+            target = max(target, surface(w.x, w.y) + THICK * 0.9)   # UE skins the shirt ~1 cm fuller than Blender
         if target < w.z:
             v.co.z -= (w.z - target)
 duv.data.update()

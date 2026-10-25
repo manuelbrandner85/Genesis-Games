@@ -67,7 +67,9 @@ for src, name in ((body, "SZ_PosedBody"), (shirt, "SZ_PosedShirt")):
     drop = set()
     for v in src.data.vertices:                         # same vertex order as the evaluated mesh (no topology change)
         w_arm = sum(g.weight for g in v.groups if g.group in arm_groups)
-        if w_arm > 0.3:
+        # QA 2026-10-25: at 0.3 the shirt lost its sleeve roots from the collision and a shirt sliver pierced the duvet
+        # beside the chest; the shirt keeps everything except the sleeve proper, the body still drops its arms
+        if w_arm > (0.3 if src is body else 0.85):
             drop.add(v.index)
     import bmesh
     bm = bmesh.new()

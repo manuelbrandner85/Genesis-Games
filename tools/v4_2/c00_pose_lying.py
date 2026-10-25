@@ -243,8 +243,15 @@ def arm_ik(side, target):
         palm_c = palm_c * -1.0
     fore = norm(Wc - E1)
     flat = norm(V3(fore.x, 0.0, fore.z))
-    dir_t = norm(flat - V3(0, 0.18, 0))                    # fingers relaxed slightly down onto the duvet
-    palm_t = V3(0, -1, 0)
+    # Regie 2026-10-25 ("fuer einen Sterbenden unlogisch, dass die Haende in der Luft schweben"): a dying man's hands lie
+    # limp ON the duvet - the hand follows the duvet surface itself: from the wrist to the knuckles 9 cm further, both on
+    # the surface (palm ~1.5 cm thick), palm normal = surface normal (height map gradient)
+    kx, kz = Wc.x + flat.x * 9.0, Wc.z + flat.z * 9.0
+    knuckle = V3(kx, duvet_y(kx, kz) + 1.3, kz)
+    dir_t = norm(knuckle - Wc)
+    gx = (duvet_y(Wc.x + 2, Wc.z) - duvet_y(Wc.x - 2, Wc.z)) / 4.0
+    gz = (duvet_y(Wc.x, Wc.z + 2) - duvet_y(Wc.x, Wc.z - 2)) / 4.0
+    palm_t = norm(V3(gx, -1.0, gz))                       # palm faces into the duvet
     q3 = frame_quat(dir_t, palm_t) * qinv(frame_quat(dir_c, palm_c))
     # Regie 2026-10-25 ("beide Arme sehr verdreht und unnatuerlich"): turning the whole forearm bone about its axis for
     # the ~90 deg pronation (A-pose palm medial -> palm down) wrung the elbow skin and the sleeve like a sweet wrapper.
@@ -263,11 +270,9 @@ if HMAP:
     # side faces the window (east) - the Blender side of the pipeline had mirrored this until 2026-10-25 and called it
     # "right". (With both hands on the belly the upper arm lay in front of the chest and its sleeve cut through the
     # shirt's torso panel.)
-    # the wrist sits over the highest duvet point under the whole hand (wrist to fingertips ~18 cm toward the feet,
-    # +-4 cm across): beside the hip the duvet rises over the pelvis and a wrist-only height let the fingers sink in
     for side, hx, hz in (("r", -10.5, 105.0), ("l", 23.0, 88.0)):
-        top = max(duvet_y(hx + dx, hz - dz) for dx in (-4.0, 0.0, 4.0) for dz in (0.0, 6.0, 12.0, 18.0))
-        new.update(arm_ik(side, V3(hx, top + 3.0, hz)))
+        # wrist resting on the duvet: its centre one wrist half-thickness (~2 cm) above the surface right below it
+        new.update(arm_ik(side, V3(hx, duvet_y(hx, hz) + 2.0, hz)))
 
 # Regie 2026-10-25: anatomically flat on the mattress, head raised on the pillow: neck flexed ~36 deg; the head joint
 # itself adds 14 (probe = crown point: with the head joint as probe its own sign was a tie and it had tipped back),

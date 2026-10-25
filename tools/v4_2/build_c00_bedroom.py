@@ -198,14 +198,15 @@ parts.append(curtain("SZ_CurtainL", y0 - 0.25, 0.55))
 parts.append(curtain("SZ_CurtainR", y1 + 0.25, 0.55))
 parts.append(cyl("SZ_CurtainRod", 0.010, W - 0.4, (W / 2 - 0.16, WIN_Y, top + 0.16), "steel", rot=(math.pi / 2, 0, 0)))
 
-# ---------------------------------------------------------------- bed (1.40 x 2.00, headboard on the north wall)
+# ---------------------------------------------------------------- bed (1.40 x 2.10 comfort length, headboard north)
+# Regie 2026-10-25: 2.10 m - the man lies ~1.88 m from crown to pointed toes, plus the pillow at the headboard
 BX, BY0 = -0.25, D / 2 - 0.03                   # bed centre x, headboard face y
-parts.append(box("SZ_BedBase", (1.50, 2.08, 0.30), (BX, BY0 - 1.04, 0.15 + 0.03), "upholstery", bevel=0.02))
+parts.append(box("SZ_BedBase", (1.50, 2.18, 0.30), (BX, BY0 - 1.09, 0.15 + 0.03), "upholstery", bevel=0.02))
 for fx in (-0.65, 0.65):
-    for fy in (-0.08, -1.98):
+    for fy in (-0.08, -2.08):
         parts.append(cyl(f"SZ_BedFoot{fx}{fy}", 0.02, 0.06, (BX + fx, BY0 + fy, 0.03), "oak"))
 parts.append(box("SZ_Headboard", (1.56, 0.10, 0.75), (BX, BY0 - 0.05, 0.33 + 0.375), "upholstery", bevel=0.035))
-parts.append(box("SZ_Mattress", (1.40, 2.00, 0.20), (BX, BY0 - 0.10 - 1.0, 0.33 + 0.10), "linen", bevel=0.04))
+parts.append(box("SZ_Mattress", (1.40, 2.10, 0.20), (BX, BY0 - 0.10 - 1.05, 0.33 + 0.10), "linen", bevel=0.04))
 # duvet: soft slab over 2/3 of the mattress, hanging over the sides a little
 duv = box("SZ_Duvet", (1.52, 1.40, 0.08), (BX, BY0 - 0.10 - 1.32, 0.53 + 0.035), "linen", bevel=0.035)
 sub = duv.modifiers.new("Soft", "SUBSURF")
@@ -226,12 +227,15 @@ for fx in (-0.19, 0.19):
         parts.append(cyl(f"SZ_NSLeg{fx}{fy}", 0.012, 0.06, (NX + fx, NY + fy, 0.03), "oak", r2=0.008))
 parts.append(cyl("SZ_LampBase", 0.065, 0.24, (NX + 0.10, NY + 0.06, 0.56 + 0.12), "ceramic", r2=0.045))
 parts.append(cyl("SZ_LampShade", 0.16, 0.20, (NX + 0.10, NY + 0.06, 0.80 + 0.10), "shade", r2=0.12, verts=48))
-# old picture frame on the nightstand, turned so the camera at the bed sees only its back (ScriptLock 00-B)
-fr_obj = box("SZ_PhotoFrame", (0.13, 0.018, 0.18), (NX - 0.11, NY - 0.06, 0.56 + 0.09), "frame", bevel=0.003,
-             rot=(math.radians(-12), 0, math.radians(200)))
-parts.append(fr_obj)
-parts.append(box("SZ_PhotoBack", (0.115, 0.004, 0.165), (NX - 0.11 - 0.003, NY - 0.06 - 0.010, 0.56 + 0.09), "cardboard", bevel=None,
-                 rot=(math.radians(-12), 0, math.radians(200))))
+# old picture frame on the nightstand, turned so the camera at the bed sees only its back (ScriptLock 1.2, 00-B).
+# CR-002 (draft, Game Director 2026-10-25): books instead of the photograph - set to True to restore it
+NIGHTSTAND_PHOTO = False
+if NIGHTSTAND_PHOTO:
+    fr_obj = box("SZ_PhotoFrame", (0.13, 0.018, 0.18), (NX - 0.11, NY - 0.06, 0.56 + 0.09), "frame", bevel=0.003,
+                 rot=(math.radians(-12), 0, math.radians(200)))
+    parts.append(fr_obj)
+    parts.append(box("SZ_PhotoBack", (0.115, 0.004, 0.165), (NX - 0.11 - 0.003, NY - 0.06 - 0.010, 0.56 + 0.09), "cardboard",
+                     bevel=None, rot=(math.radians(-12), 0, math.radians(200))))
 
 # ---------------------------------------------------------------- chair for the daughter (bedside, window side)
 CX, CY = BX + 0.95, -0.15
