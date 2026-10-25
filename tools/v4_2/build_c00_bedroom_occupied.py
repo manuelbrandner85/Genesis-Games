@@ -167,6 +167,11 @@ if POSED and len(POSED.objects):
         o = bpy.data.objects.new("SZ_Proxy_" + src.name, me)
         col.objects.link(o)
         proxy_parts.append(o)
+    # the thin toes of the left foot pierced the duvet (Regie 2026-10-25): a margin capsule from heel to toe tip
+    _jl = JOINTS["l"]
+    _ank, _ball = Vector(A["foot_l"]), Vector(_jl["ball"])
+    _toe = _ball + (_ball - _ank).normalized() * 8
+    capsule("SZ_Proxy_FootMargin_l", to_world(_ank.x, _ank.y - 5, _ank.z), to_world(*_toe), 0.075)
 else:
     for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
         capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
