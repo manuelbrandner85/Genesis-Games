@@ -29,6 +29,11 @@ probe = mh.spawn_meta_human_actor(ch, True)
 mh.assemble_for_preview(ch)
 body = next(c for c in probe.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
 skel = body.get_skeletal_mesh_asset().skeleton
+# built (animatable) MetaHuman: same bone names, but its own skeleton copy under Built/Common
+import os as _os_b
+if _os_b.environ.get("GENESIS_POSE_BUILT"):
+    skel = eal.load_asset("/Game/Genesis/Characters/C00/Built/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel")
+    NAME = NAME + "_Built"
 BONES = ("pelvis", "spine_03", "spine_05", "neck_01", "neck_02", "head", "clavicle_l", "clavicle_r", "upperarm_l", "upperarm_r",
          "lowerarm_l", "lowerarm_r", "hand_l", "hand_r", "middle_03_l", "middle_03_r", "thigh_l", "thigh_r",
          "calf_l", "calf_r", "foot_l", "foot_r", "ball_l", "ball_r", "middle_01_l", "middle_01_r",

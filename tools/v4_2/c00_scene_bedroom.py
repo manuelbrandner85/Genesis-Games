@@ -266,20 +266,29 @@ ppv.set_editor_property("settings", st)
 # ------------------------------------------------------------------ the man in bed
 with open(ROOT + "docs/v4_2/C00_BEDROOM_LYING.json", encoding="utf8") as f:
     lying = json.load(f)
-ch = eal.load_asset("/Game/Genesis/Characters/C00/MHC_C00_Mann")
-if not mh.is_object_added_for_editing(ch):
-    mh.try_add_object_to_edit(ch)
-man = mh.spawn_meta_human_actor(ch, True)
-man.set_actor_label("MH_C00_Mann")
+BUILT = os.environ.get("GENESIS_SZ_MAN", "built") == "built"
 rot = unreal.MathLibrary.make_rot_from_yz(ue_dir(lying["local_y"]), ue_dir(lying["local_z"]))
+if BUILT:
+    # 2026-10-25: the built, animatable MetaHuman (4K textures, auto-rigged face; tools/v4_2/c00_mh_build.py).
+    # Its skeletons are copies under Built/Common, so it uses the *_Built pose assets (same bone names).
+    man = eas.spawn_actor_from_class(eal.load_blueprint_class(
+        "/Game/Genesis/Characters/C00/Built/Mann/MHC_C00_Mann/BP_MHC_C00_Mann"), ue(lying["P0"]), rot)
+    SUF = "_Built"
+else:
+    ch = eal.load_asset("/Game/Genesis/Characters/C00/MHC_C00_Mann")
+    if not mh.is_object_added_for_editing(ch):
+        mh.try_add_object_to_edit(ch)
+    man = mh.spawn_meta_human_actor(ch, True)
+    mh.assemble_for_preview(ch)
+    SUF = ""
+man.set_actor_label("MH_C00_Mann")
 man.set_actor_location_and_rotation(ue(lying["P0"]), rot, False, True)
-mh.assemble_for_preview(ch)
 body = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
 body.set_update_animation_in_editor(True)
-body.override_animation_data(eal.load_asset("/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Liegen"), False, True, 0.0, 0.0)
+body.override_animation_data(eal.load_asset(f"/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Liegen{SUF}"), False, True, 0.0, 0.0)
 face = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
 face.set_update_animation_in_editor(True)                 # Regie: the features of a dying man (c00_face_dying.py)
-face.override_animation_data(eal.load_asset("/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Gesicht_Sterbend"), False, True, 0.0, 0.0)
+face.override_animation_data(eal.load_asset(f"/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Gesicht_Sterbend{SUF}"), False, True, 0.0, 0.0)
 # own skinned shirt (tools/v4_2/c00_shirt_gs_skin.py) follows the posed body - the MetaHuman outfit would not
 shirt_skm = eal.load_asset("/Game/Genesis/Characters/C00/Kleidung/SKM_C00_Mann_Shirt")
 if shirt_skm:

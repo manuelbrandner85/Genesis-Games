@@ -27,6 +27,11 @@ probe = mh.spawn_meta_human_actor(ch, True)
 mh.assemble_for_preview(ch)
 face = next(c for c in probe.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
 skel = face.get_skeletal_mesh_asset().skeleton
+# built (animatable) MetaHuman: same bone names, but its own skeleton copy under Built/Common
+import os as _os_b
+if _os_b.environ.get("GENESIS_POSE_BUILT"):
+    skel = eal.load_asset("/Game/Genesis/Characters/C00/Built/Common/Face/Face_Archetype_Skeleton")
+    NAME = NAME + "_Built"
 names = [str(face.get_bone_name(i)) for i in range(face.get_num_bones())]
 cs = {b: face.get_socket_transform(b, CS) for b in names}
 parent = {b: str(face.get_parent_bone(b)) for b in names}
