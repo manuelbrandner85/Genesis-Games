@@ -198,6 +198,34 @@ for p in eal.list_assets(MESHES, recursive=False):
         a = eas.spawn_actor_from_object(mesh, V(0, 0, 0), R(0, 0, 0))
         a.set_actor_label(mesh.get_name())
 
+# ------------------------------------------------------------------ lived-in decor from Epic's ArchViz Interior
+# (Fab, Epic content, local only: Content/Meshes|Plants|Materials|textures are gitignored). Regie 2026-10-25:
+# "viel wohnlicher, nicht so kalt ... alles muss passen". Positions in Blender metres; the mesh is set down on
+# the given surface height by its bounds; yaw turns pictures to face into the room.
+ARCHVIZ = (
+    ("/Game/Plants/SM_Dracaena_01", (1.40, -1.25), 0.0, 0.0),          # window corner, beside the curtain
+    ("/Game/Plants/SM_SnakePlant_01", (-1.45, 1.05), 0.0, 30.0),        # beside the door, near the headboard wall
+    ("/Game/Meshes/SM_Rug_01", (0.95, 0.10), 0.0, 90.0),                # wool rug along the bed, window side
+    ("/Game/Meshes/SM_Picture_03", (1.785, -1.05), 1.35, -90.0),         # east wall between window and corner
+    ("/Game/Meshes/SM_Picture_04", (-1.785, 0.40), 1.30, 90.0),        # west wall, door side
+    ("/Game/Meshes/SM_Pillow_02", (-0.80, 1.22), 0.60, 180.0),          # decorative pillow on the free side
+)
+for path, (bx, by), surface, yaw in ARCHVIZ:
+    mesh = eal.load_asset(path)
+    if not mesh:
+        continue
+    bb = mesh.get_bounding_box()
+    c = (bb.min + bb.max) * 0.5
+    off = unreal.MathLibrary.greater_greater_vector_rotator(V(c.x, c.y, 0), unreal.Rotator(0, 0, yaw))   # rotate the pivot offset
+    loc = ue((bx, by, surface)) - off - V(0, 0, bb.min.z)
+    if path.endswith(("Picture_03", "Picture_04")):                     # hang by the centre, not the bottom
+        loc = ue((bx, by, surface)) - off - V(0, 0, c.z)
+    a = eas.spawn_actor_from_object(mesh, loc, R(0, 0, yaw))
+    a.set_actor_label("AV_" + path.rsplit("/", 1)[-1])
+for a in eas.get_all_level_actors():                                   # the ArchViz rug replaces the plain one
+    if a.get_actor_label() == "UE_SZ_Rug":
+        eas.destroy_actor(a)
+
 # ------------------------------------------------------------------ light
 blender_lamp = (-0.25 + 0.75 + 0.27 + 0.10, 3.20 / 2 - 0.22 + 0.06, 0.88)
 lamp = eas.spawn_actor_from_class(unreal.PointLight, ue(blender_lamp))
@@ -253,7 +281,9 @@ for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
 
 # ------------------------------------------------------------------ camera + render
 head = ue(lying["head_world"])
-if SHOT == "wand":                                       # from the foot end: bed, man and the photo above the bed
+if SHOT == "weit":                                       # wide overview from above the door corner
+    cam_loc, target, focal = ue((-1.65, -1.50, 2.05)), ue((0.70, 0.50, 0.75)), 14.0
+elif SHOT == "wand":                                       # from the foot end: bed, man and the photo above the bed
     cam_loc, target, focal = ue((0.55, -1.30, 1.40)), ue((-0.20, 1.40, 1.20)), 22.0
 elif SHOT == "raum":
     cam_loc, target, focal = ue((-1.55, -1.45, 1.25)), ue((0.30, 0.95, 0.70)), 24.0
