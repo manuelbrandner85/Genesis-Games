@@ -8,7 +8,7 @@
   (docs/v4_2/C00_BEDROOM_LYING.json), body in pose A_C00_Mann_Liegen, face in A_C00_Mann_Gesicht_Sterbend,
   outfit cloth simulation off
 - renders through the real viewport: env GENESIS_SZ_SHOT = "bett" (bed-edge height, ScriptLock 00-A) or
-  "raum" (door corner); output docs/evidence/V42/C00_Schlafzimmer_UE_<shot>.png
+  "raum" (door corner) or "wand" (foot end, photo above the bed); output docs/evidence/V42/C00_Schlafzimmer_UE_<shot>.png
 Blender metres -> Unreal cm: (100x, -100y, 100z).
 """
 import json
@@ -104,10 +104,46 @@ LOOK = {
     "M_SZ_WetAsphalt": (OPAQUE, (0.02, 0.02, 0.022), 0.08, 0, None, None),
     "M_SZ_LampPole": (OPAQUE, (0.05, 0.05, 0.05), 0.4, 1, None, None),
     "M_SZ_StreetLED": (OPAQUE, (0, 0, 0), 1.0, 0, (25.0, 21.0, 16.0), None),
+    # lived-in decor (build_c00_bedroom_decor.py)
+    "M_SZ_PassepartoutWhite": (OPAQUE, (0.82, 0.80, 0.76), 0.85, 0, None, None),
+    "M_SZ_BookCover0": (OPAQUE, (0.08, 0.13, 0.30), 0.55, 0, None, None),
+    "M_SZ_BookCover1": (OPAQUE, (0.55, 0.42, 0.18), 0.55, 0, None, None),
+    "M_SZ_BookCover2": (OPAQUE, (0.38, 0.10, 0.08), 0.55, 0, None, None),
+    "M_SZ_BookPages": (OPAQUE, (0.78, 0.74, 0.64), 0.8, 0, None, None),
+    "M_SZ_DrinkGlass": (GLASS, (0.92, 0.95, 0.95), 0.02, 0, None, 0.12),
+    "M_SZ_MedicineBox": (OPAQUE, (0.80, 0.80, 0.78), 0.5, 0, None, None),
+    "M_SZ_RugWool": (OPAQUE, (0.55, 0.47, 0.38), 0.95, 0, None, None),
+    "M_SZ_ThrowWool": (OPAQUE, (0.55, 0.36, 0.08), 0.95, 0, None, None),
 }
 
 
+def photo_material():
+    """The father-and-daughter print above the bed: texture from tools/v4_2/c00_photo_vater_tochter.py."""
+    tex_path = f"{SET}/Textures/T_C00_Foto_VaterTochter"
+    task = unreal.AssetImportTask()
+    task.filename = ROOT + "ArtSource/Export/C00/T_C00_Foto_VaterTochter.png"
+    task.destination_path, task.automated, task.replace_existing, task.save = f"{SET}/Textures", True, True, True
+    at.import_asset_tasks([task])
+    tex = eal.load_asset(tex_path)
+    path = f"{SET}/Materials/M_C00_SetPhoto"
+    if eal.does_asset_exist(path):
+        eal.delete_asset(path)
+    m = at.create_asset("M_C00_SetPhoto", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    t = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, 0)
+    t.set_editor_property("parameter_name", "Photo")
+    t.set_editor_property("texture", tex)
+    mel.connect_material_property(t, "RGB", unreal.MaterialProperty.MP_BASE_COLOR)
+    r = mel.create_material_expression(m, unreal.MaterialExpressionConstant, -300, 200)
+    r.set_editor_property("r", 0.38)                              # satin photo paper
+    mel.connect_material_property(r, "", unreal.MaterialProperty.MP_ROUGHNESS)
+    mel.recompile_material(m)
+    eal.save_loaded_asset(m)
+    return m
+
+
 def instance(slot):
+    if slot == "M_SZ_FotoVaterTochter":
+        return photo_material()
     name = "MI_" + slot[2:]
     path = f"{SET}/Materials/{name}"
     parent, rgb, rough, metal, emis, opac = LOOK.get(slot, (OPAQUE, (0.5, 0.5, 0.5), 0.6, 0, None, None))
@@ -217,7 +253,9 @@ for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
 
 # ------------------------------------------------------------------ camera + render
 head = ue(lying["head_world"])
-if SHOT == "raum":
+if SHOT == "wand":                                       # from the foot end: bed, man and the photo above the bed
+    cam_loc, target, focal = ue((0.55, -1.30, 1.40)), ue((-0.20, 1.40, 1.20)), 22.0
+elif SHOT == "raum":
     cam_loc, target, focal = ue((-1.55, -1.45, 1.25)), ue((0.30, 0.95, 0.70)), 24.0
 else:                                                    # bed-edge height, window side, looking at his face
     cam_loc, target, focal = ue((1.30, 0.15, 1.30)), head + V(0, 22, -8), 35.0
