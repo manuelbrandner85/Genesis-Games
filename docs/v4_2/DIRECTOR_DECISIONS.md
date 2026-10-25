@@ -82,3 +82,13 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Antwort des Game Directors | „Freigabe für Phase 3 (Look der Mikrowelt) aus dem CR-001-Umsetzungsplan: zuerst Referenzbilder zur Abnahme.“ |
 | Umfang jetzt | Referenzbilder lokal (ComfyUI + FLUX.2 klein 4B, Apache-2.0, bereits installiert): Eileiter-Schleimhaut, Cumulus-Oozyten-Komplex, Zona pellucida mit Samenzelle, Samenzellen, Zygote mit Vorkernen, 2-Zell-Stadium → Abnahme der Bildsprache durch den Game Director |
 | Danach (Phase 3, Schritt 2–4) | Blender-Assets, Unreal-Materialien/Niagara, Reality Check – erst nach Abnahme der Referenzen |
+
+## GD-2026-10-25-04 – Abnahme C02-Referenzen (Bildsprache Mikrowelt)
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-25 |
+| Vorlage | `ArtSource/Reference/C02/C02_Referenzen_Abnahmeblatt.jpg` (Commit f7d7e8a) |
+| Antwort des Game Directors | „Ja alle gut aber die Samen sehen noch nicht richtig aus also realistisch“ |
+| Abgenommen | Eileiter `lumen_v1`, Eizelle + Cumulus `complex_v3`, Zona + Samenzelle `zona_sperm_v4` (Look), Zygote `pronuclei_v3`, 2-Zell `two_cell_v1` |
+| Offen | Samenzelle: noch nicht realistisch → neue Entwürfe zur Abnahme |
