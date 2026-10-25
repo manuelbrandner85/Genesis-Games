@@ -48,3 +48,17 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Antwort des Game Directors | „Rev. 2 abgenommen, MetaHuman freigegeben.“ |
 | Umfang | Aktivieren der mit UE 5.8.3 **bereits installierten** MetaHuman-Plugins im Projekt (kein Download), Plan `docs/v4_1/install_plans/FA-METAHUMAN-001.json` |
 | Nicht enthalten | **Epic-Cloud-Dienste** des MetaHuman Creators (Gesichts-Auto-Rigging, Hauttextur-Synthese): Sie senden Gesichtsdaten an Epic und brauchen eine Anmeldung mit dem Epic-Konto des Game Directors. Das ist eine eigene Freigabe (Typ EXTERNAL_API, standardmäßig gesperrt). Claude Code meldet sich nirgends an. |
+
+## GD-2026-10-25-01 – Änderungsantrag CR-001 (Anfang: Lichtschlag, Pflicht-Schwimmphase)
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-25 |
+| Antrag | [`change_requests/CR-001_ANFANG_LICHT_SAMENZELLE.md`](change_requests/CR-001_ANFANG_LICHT_SAMENZELLE.md) (Commit fc3f174) |
+| Antwort des Game Directors | „JA zu CR-001 mit den Vorschlägen E1 bis E4.“ |
+| Inhalt | C00 bleibt (Bild/Ton/Dialog, C20-Replay); C01 wird ein kurzer greller Lichtschlag mit direktem Übergang in den Eileiter (Erde, Alltagsmontage und Erzählstimme VO_C01_001/002 entfallen); C02-B Schwimmphase wird Pflicht |
+| Entscheidungen | **E1** Titel und Hauptmenü nach der Befruchtung (Ende C02) · **E2** kein Game Over (eine andere Samenzelle verschmilzt), Hilfe „automatisch schwimmen“ · **E3** C17-Schwangerschaftskapitel bleibt optional · **E4** Schwimmphase 60–120 s |
+| Neue Fassung | ScriptLock **1.2**, vorbereitet lokal in `canon_proposals/CR-001/GENESIS_ScriptLock_12_Drehbuch_v1.2.md` (SHA-256 `79c1b1b64dbbc0a7b71be7f2c4ae54eff7014da954d6e1c2e0a50ea5d5fc1928`), gebaut aus 1.1 (`b23a047b…732d`) mit `build_scriptlock_12.py`; Unterschied nur C01, C02, Verweiszeilen (Status, Prolog-Länge, C00-Übergabezeile, Übergangstabelle, Einstieg, `ScriptVersion`) und Änderungsprotokoll |
+| Ablage | Der Game Director legt die Datei selbst im Canon-Ordner (`scriptlock/`) ab – der Ordner ist für Claude gesperrt; 1.1 bleibt als Historie liegen |
+
+**Was die Freigabe NICHT bewirkt:** keine Asset-, Code- oder Produktionsfreigabe. Die technischen Folgen (MENU_FLOW, Szenenverträge C01/C02, Zustandsmaschine, Spielstand-Schema, Automationstests, neue Registerbindung an 1.2) brauchen eine eigene Freigabe. Bis dahin bindet das Register weiter an 1.1.

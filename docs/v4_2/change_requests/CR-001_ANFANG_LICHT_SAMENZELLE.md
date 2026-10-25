@@ -5,7 +5,7 @@
 | Antrag | CR-001 · Drehbuch ScriptLock 1.1 → **1.2** (nach Freigabe) |
 | Gestellt von | Game Director, 2026-10-25: „Variante A: Der Prolog mit dem alten Mann bleibt. C01 beginnt mit einem kurzen grellen Licht, danach direkt die Samenzelle, und die Schwimmphase ist Pflicht statt optional.“ |
 | Grundlage | ScriptLock 1.1, Abschnitt IV.D (Änderungen nur über versionierte Anträge mit Szenen, Dialog-IDs, Triggern, Musik, Save-Migration) · Sperre GD-2026-10-24-01 |
-| Status | **ENTWURF – wartet auf „JA zu CR-001“** |
+| Status | **FREIGEGEBEN** – GD-2026-10-25-01 („JA zu CR-001 mit den Vorschlägen E1 bis E4“). Fassung 1.2 vorbereitet, Ablage durch den Game Director ausstehend |
 | Öffentliche Fassung | nur IDs und Auswirkungen. Der genaue neue Szenentext liegt lokal in `canon_proposals/CR-001/` (nicht im Repo). |
 
 ## 1. Was sich ändert
