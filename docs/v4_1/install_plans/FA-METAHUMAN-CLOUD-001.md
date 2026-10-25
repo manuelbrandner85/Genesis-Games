@@ -1,6 +1,6 @@
 # FA-METAHUMAN-CLOUD-001 – Epic-Cloud für die C00-MetaHumans (Auto-Rig + hochauflösende Texturen)
 
-Status: **WAITING_APPROVAL**. Diese Datei ist kein Freigabenachweis. Freigegeben wird nur im Chat, durch den Game Director.
+Status: **APPROVED_IN_CHAT 2026-10-25**. Der Game Director schrieb im Chat: "FA-METAHUMAN-CLOUD-001 freigegeben, mit 4K-Texturen. Ich melde mich im Editor an, falls gefragt." Freigegeben sind 4K-Texturen (nicht 8K) und das Auto-Rig; EXTERNAL_API, PUBLISH und PAYMENT bleiben ausgeschlossen.
 Freigabetyp: `NETWORK_SERVICE` (Epic-Cloud über die Editor-Funktionen).
 Ausdrücklich **nicht** enthalten: `EXTERNAL_API`, `PUBLISH`, `PAYMENT`.
 
