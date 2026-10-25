@@ -92,3 +92,12 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Antwort des Game Directors | „Ja alle gut aber die Samen sehen noch nicht richtig aus also realistisch“ |
 | Abgenommen | Eileiter `lumen_v1`, Eizelle + Cumulus `complex_v3`, Zona + Samenzelle `zona_sperm_v4` (Look), Zygote `pronuclei_v3`, 2-Zell `two_cell_v1` |
 | Offen | Samenzelle: noch nicht realistisch → neue Entwürfe zur Abnahme |
+
+## GD-2026-10-26-01 – Abnahme Samenzelle (Runde 3), weiter mit Blender-Assets
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-26 |
+| Vorlage | `CHR_C02_SPERMIUM/swimming_phase_v3` (Gesamtbild), `single_dic_v2` (Kopfdetail), Commit 957072a |
+| Antwort des Game Directors | „Ja“ (auf: „Passen diese Samenzellen …, sodass ich mit den Blender-Modellen weitermachen kann?“) |
+| Folge | Bildsprache C02 vollständig abgenommen; Phase 3 Schritt 2: eigene Blender-Modelle nach Maßblatt (keine Fremdassets) |
