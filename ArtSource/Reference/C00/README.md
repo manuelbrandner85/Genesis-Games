@@ -17,3 +17,7 @@ Lokal erzeugt mit FLUX.2 klein 4B (ComfyUI, Apache-2.0); Prompt, Seed und Modell
 | SET_C00_SCHLAFZIMMER_2026 | `mood_00D_v1` | ersetzt (Altbau) |
 
 Grenze: FLUX hält ein Gesicht nicht über mehrere Ansichten identisch. Die verbindliche, für C20 exakt reproduzierbare Figur entsteht erst im 3D-Modell (geplant MetaHuman, Freigabe ausstehend).
+
+## PROPS_C00_FOTOS (2026-10-25, Regie: Bilder in die leeren Rahmen)
+
+Lokal mit FLUX.2 klein 4B (ComfyUI, Apache-2.0) erzeugt, Prompt/Seed/Hashes in der JSON neben jedem Bild. Als gerahmte Fotos im Schlafzimmer eingesetzt (Status `ENGINE_TESTED` als Set-Dressing, Texturen `T_C00_Foto_<Key>`): Ehefrau des Mannes (Garten, späte 1990er), junge Familie mit der Tochter mit etwa 3 Jahren (Film 1984), Nordseestrand bei Sonnenuntergang. Die Gesichter sind bewusst als alte Fotos gehalten und nicht identisch mit den MetaHumans.

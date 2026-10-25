@@ -112,6 +112,74 @@ if os.path.exists(img_path):                                    # Blender previe
 # glass in front of the print (thin, subtle reflections)
 block("SZ_WallFrameGlass", (FW - 2 * PROF, 0.002, FH - 2 * PROF), (cx, wall_y - 0.022, cz), bpy.data.materials["M_SZ_Glass"], bevel=0)
 
+# ------------------------------------------------------------------ more family photos (Regie 2026-10-25: "Bilder in die
+# leeren Rahmen: die Frau des Mannes, die Tochter sehr klein mit Vater und Mutter, ein schoenes Strandbild").
+# Prints from the local FLUX.2 klein 4B (Apache-2.0, ArtSource/Reference/C00/PROPS_C00_FOTOS, provenance JSON there),
+# old-film look so the faces need not match the MetaHumans exactly. Frames are own geometry (the ArchViz picture
+# meshes lost their materials). u runs along the viewer's right (forward x up), as for the photo above the bed.
+
+
+def framed(key, center, n, fw, fh, pw, ph, color=(0.20, 0.13, 0.08)):
+    n, up = Vector(n), Vector((0, 0, 1))
+    right = (-n).cross(up)
+    c = Vector(center)
+    fr_mat = mat(f"M_SZ_Rahmen_{key}", color, 0.5)
+    prof, depth = 0.025, 0.025
+
+    def at(u, v, d):
+        return c + right * u + up * v + n * d
+
+    def bar(nm, u, v, su, sv):
+        bm = bmesh.new()
+        bmesh.ops.create_cube(bm, size=1.0)
+        for vv in bm.verts:
+            vv.co = at(u + vv.co.x * su, v + vv.co.z * sv, depth / 2 + vv.co.y * depth)
+        me = bpy.data.meshes.new(nm)
+        bm.to_mesh(me)
+        bm.free()
+        o = bpy.data.objects.new(nm, me)
+        dc.objects.link(o)
+        me.materials.append(fr_mat)
+        b = o.modifiers.new("Bevel", "BEVEL")
+        b.width, b.segments = 0.002, 2
+
+    bar(f"SZ_Frame_{key}_T", 0, fh / 2 - prof / 2, fw, prof)
+    bar(f"SZ_Frame_{key}_B", 0, -fh / 2 + prof / 2, fw, prof)
+    bar(f"SZ_Frame_{key}_L", -fw / 2 + prof / 2, 0, prof, fh)
+    bar(f"SZ_Frame_{key}_R", fw / 2 - prof / 2, 0, prof, fh)
+    for nm, w2, h2, d, m, uvs in ((f"SZ_FrameMat_{key}", fw - 2 * prof, fh - 2 * prof, 0.008, mat_white, False),
+                                  (f"SZ_Photo_{key}", pw, ph, 0.010, None, True)):
+        bm = bmesh.new()
+        f = bm.faces.new([bm.verts.new(at(x, z, d)) for x, z in ((-w2 / 2, -h2 / 2), (w2 / 2, -h2 / 2), (w2 / 2, h2 / 2), (-w2 / 2, h2 / 2))])
+        if uvs:
+            uv = bm.loops.layers.uv.new("UVMap")
+            for loop, (u, v) in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))):
+                loop[uv].uv = (u, v)
+        me = bpy.data.meshes.new(nm)
+        bm.to_mesh(me)
+        bm.free()
+        o = bpy.data.objects.new(nm, me)
+        dc.objects.link(o)
+        if uvs:
+            pm = mat(f"M_SZ_Foto_{key}", (0.6, 0.5, 0.4), 0.35)        # Unreal maps T_C00_Foto_<key> onto this slot
+            img_path = os.path.join(ROOT, "ArtSource", "Export", "C00", f"T_C00_Foto_{key}.png")
+            if os.path.exists(img_path):
+                nt = pm.node_tree
+                tex = next((x for x in nt.nodes if x.type == "TEX_IMAGE"), None) or nt.nodes.new("ShaderNodeTexImage")
+                tex.image = bpy.data.images.load(img_path, check_existing=True)
+                nt.links.new(tex.outputs["Color"], next(x for x in nt.nodes if x.type == "BSDF_PRINCIPLED").inputs["Base Color"])
+            me.materials.append(pm)
+        else:
+            me.materials.append(m)
+
+
+# east wall, between the window and the corner: the young family (1984), 50 x 42 frame
+framed("Familie", (W / 2 - 0.002, -1.05, 1.42), (-1, 0, 0), 0.50, 0.42, 0.40, 0.336, (0.42, 0.29, 0.17))
+# west wall, beside the door: the beach, 92 x 58 frame
+framed("Strand", (-W / 2 + 0.002, 0.55, 1.45), (1, 0, 0), 0.92, 0.58, 0.82, 0.488)
+# north wall above the nightstand: his wife, 40 x 40 frame
+framed("Ehefrau", (1.22, D / 2 - 0.004, 1.50), (0, -1, 0), 0.40, 0.40, 0.30, 0.30, (0.42, 0.29, 0.17))
+
 # ------------------------------------------------------------------ nightstand: books, water glass, medicine
 books = (((0.15, 0.22, 0.028), (0.08, 0.13, 0.30)), ((0.14, 0.21, 0.022), (0.55, 0.42, 0.18)), ((0.13, 0.20, 0.032), (0.38, 0.10, 0.08)))
 z = NS_TOP

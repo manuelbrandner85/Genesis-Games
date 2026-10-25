@@ -114,21 +114,26 @@ LOOK = {
     "M_SZ_MedicineBox": (OPAQUE, (0.80, 0.80, 0.78), 0.5, 0, None, None),
     "M_SZ_RugWool": (OPAQUE, (0.55, 0.47, 0.38), 0.95, 0, None, None),
     "M_SZ_ThrowWool": (OPAQUE, (0.55, 0.36, 0.08), 0.95, 0, None, None),
+    "M_SZ_Rahmen_Familie": (OPAQUE, (0.42, 0.29, 0.17), 0.5, 0, None, None),
+    "M_SZ_Rahmen_Ehefrau": (OPAQUE, (0.42, 0.29, 0.17), 0.5, 0, None, None),
+    "M_SZ_Rahmen_Strand": (OPAQUE, (0.20, 0.13, 0.08), 0.5, 0, None, None),
 }
 
 
-def photo_material():
-    """The father-and-daughter print above the bed: texture from tools/v4_2/c00_photo_vater_tochter.py."""
-    tex_path = f"{SET}/Textures/T_C00_Foto_VaterTochter"
+def photo_material(key="VaterTochter"):
+    """Framed prints: father and daughter (tools/v4_2/c00_photo_vater_tochter.py) and the family photos
+    (local FLUX.2 klein, ArtSource/Reference/C00/PROPS_C00_FOTOS) - texture T_C00_Foto_<key>."""
+    tex_path = f"{SET}/Textures/T_C00_Foto_{key}"
     task = unreal.AssetImportTask()
-    task.filename = ROOT + "ArtSource/Export/C00/T_C00_Foto_VaterTochter.png"
+    task.filename = ROOT + f"ArtSource/Export/C00/T_C00_Foto_{key}.png"
     task.destination_path, task.automated, task.replace_existing, task.save = f"{SET}/Textures", True, True, True
     at.import_asset_tasks([task])
     tex = eal.load_asset(tex_path)
-    path = f"{SET}/Materials/M_C00_SetPhoto"
+    name = "M_C00_SetPhoto" if key == "VaterTochter" else f"M_C00_SetPhoto_{key}"
+    path = f"{SET}/Materials/{name}"
     if eal.does_asset_exist(path):
         eal.delete_asset(path)
-    m = at.create_asset("M_C00_SetPhoto", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    m = at.create_asset(name, f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
     t = mel.create_material_expression(m, unreal.MaterialExpressionTextureSampleParameter2D, -500, 0)
     t.set_editor_property("parameter_name", "Photo")
     t.set_editor_property("texture", tex)
@@ -144,6 +149,8 @@ def photo_material():
 def instance(slot):
     if slot == "M_SZ_FotoVaterTochter":
         return photo_material()
+    if slot.startswith("M_SZ_Foto_"):
+        return photo_material(slot[len("M_SZ_Foto_"):])
     name = "MI_" + slot[2:]
     path = f"{SET}/Materials/{name}"
     parent, rgb, rough, metal, emis, opac = LOOK.get(slot, (OPAQUE, (0.5, 0.5, 0.5), 0.6, 0, None, None))
@@ -211,8 +218,7 @@ ARCHVIZ = (
     ("/Game/Meshes/SM_Soil", (-1.45, 1.05), 0.315, 0.0),
     ("/Game/Plants/SM_SnakePlant_02", (-1.45, 1.05), 0.30, 30.0),       # beside the door, near the headboard wall
     ("/Game/Meshes/SM_Rug_01", (0.95, 0.10), 0.0, 90.0),                # wool rug along the bed, window side
-    ("/Game/Meshes/SM_Picture_03", (1.785, -1.05), 1.35, -90.0),        # east wall between window and corner
-    ("/Game/Meshes/SM_Picture_04", (-1.785, 0.40), 1.30, 90.0),         # west wall, door side
+    # (the ArchViz picture frames lost their materials - own framed family photos, build_c00_bedroom_decor.py)
 )
 for path, (bx, by), surface, yaw in ARCHVIZ:
     mesh = eal.load_asset(path)
@@ -304,7 +310,9 @@ for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
 
 # ------------------------------------------------------------------ camera + render
 head = ue(lying["head_world"])
-if SHOT == "weit":                                       # wide overview from above the door corner
+if SHOT == "tuer":                                       # from the window corner toward the door / west wall
+    cam_loc, target, focal = ue((1.55, 1.30, 1.65)), ue((-1.70, -0.10, 1.30)), 18.0
+elif SHOT == "weit":                                       # wide overview from above the door corner
     cam_loc, target, focal = ue((-1.65, -1.50, 2.05)), ue((0.70, 0.50, 0.75)), 14.0
 elif SHOT == "wand":                                       # from the foot end: bed, man and the photo above the bed
     cam_loc, target, focal = ue((0.55, -1.30, 1.40)), ue((-0.20, 1.40, 1.20)), 22.0
