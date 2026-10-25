@@ -443,7 +443,8 @@ elif SHOT == "raum":
     cam_loc, target, focal = ue((-1.55, -1.45, 1.25)), ue((0.30, 0.95, 0.70)), 24.0
 elif SHOT == "00b":                                      # test 00-B: 85 mm on the held hands, near bed-edge height
     # from the foot end, ~90 cm before the hands: her forearm comes in from behind them (+x, +y), not in front
-    cam_loc, target, focal = ue((0.25, -0.85, 1.00)), ue((0.34, 0.36, 0.76)), 85.0
+    # aimed between the hands and the old photo on the nightstand, so the focus pull (c00_seq_00b.py) lands in frame
+    cam_loc, target, focal = ue((0.25, -0.85, 1.00)), ue((0.42, 0.62, 0.74)), 85.0
 elif SHOT == "arme":                                     # QA: both of his arms from above (elbows, sleeves, wrists)
     cam_loc, target, focal = ue((-0.40, 0.30, 1.60)), ue((0.15, 0.62, 0.62)), 30.0   # wall side: she cannot block it
 elif SHOT == "tochter":                                  # test: the daughter at the bedside, from the foot end (wall side)
@@ -459,6 +460,8 @@ cc.set_editor_property("constrain_aspect_ratio", False)
 fs = cc.focus_settings
 fs.focus_method = unreal.CameraFocusMethod.MANUAL
 fs.manual_focus_distance = (target - cam_loc).length()
+if SHOT == "00b":                                        # 00-B opens focused on the hands
+    fs.manual_focus_distance = (ue((0.36, 0.40, 0.77)) - cam_loc).length()
 cc.set_editor_property("focus_settings", fs)
 les.save_current_level()
 out = ROOT + f"docs/evidence/V42/C00_Schlafzimmer_UE_{SHOT}.png"
