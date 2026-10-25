@@ -2,7 +2,7 @@
 
 Kanon gesperrt durch [GD-2026-10-24-01](DIRECTOR_DECISIONS.md). Das vollständige Paket mit Shotinhalt, Dialog-Cues und Figurenbeschreibung liegt nur lokal unter `canon_sources/production/C00/` (gitignored). Hier stehen nur IDs und technische Daten.
 
-**Status:** CM4 – Entwurf zur Regieabnahme. **Keine** Produktionsfreigabe.
+**Status:** CM4 – Shotliste freigegeben (2026-10-25); Figuren-DNA, Stimmen und Vorfilm-Quelle offen.
 
 ## Technische Eckdaten
 
@@ -19,7 +19,7 @@ Kanon gesperrt durch [GD-2026-10-24-01](DIRECTOR_DECISIONS.md). Das vollständig
 
 ## Offene Entscheidungen beim Game Director
 
-1. Abnahme der Shotliste und der Figuren-DNA (Entwürfe im lokalen Paket, Referenzbilder in `ArtSource/Reference/C00/`)
+1. ~~Abnahme der Shotliste~~ – **Shotliste 00-A bis 00-E freigegeben** (2026-10-25, Game Director: „Ja, die Shotliste 00-A bis 00-E ist freigegeben. Baue als Nächstes 00-B als echte Sequencer-Sequenz mit Bewegung (Daumen, Atem) und MRQ-Render, sobald der Editor frei ist.“; Eintrag in `DIRECTOR_DECISIONS.md` folgt). Figuren-DNA weiter offen (Entwürfe im lokalen Paket, Referenzbilder in `ArtSource/Reference/C00/`)
 2. Stimmen: echte deutsche Sprecher:innen (Voraussetzung für die Abnahme) – Besetzung
 3. ~~Freigabe MetaHuman~~ – erledigt: GD-2026-10-24-03 (Plugins), FA-METAHUMAN-CLOUD-001 (4K-Texturen, Auto-Rig)
 4. Quelle `Docs/33_Der_Vorfilm.md` (Vorfilm-Migration) bereitstellen
