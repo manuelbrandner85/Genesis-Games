@@ -26,7 +26,8 @@ D = 3.20
 BX, BY0 = -0.25, D / 2 - 0.03
 MATTRESS_TOP = 0.53
 THETA = 0.0                                             # Regie 2026-10-25: lies flat, anatomically on the mattress
-FEET_Y = BY0 - 0.10 - 2.0 + 0.20                       # 20 cm from the foot end: relaxed toes stay under the duvet
+# Regie 2026-10-25: "der Kopf ist zu dicht am Kopfende" - 10 cm lower in the bed than before (head now mid-pillow)
+FEET_Y = BY0 - 0.10 - 2.0 + 0.10                       # 10 cm from the foot end: relaxed toes stay under the duvet
 
 # local character (m) -> Blender world
 R0 = Matrix(((-1, 0, 0), (0, 0, 1), (0, 1, 0)))      # columns: images of local X, Y, Z
@@ -70,13 +71,20 @@ for n in ("SZ_Pillow-0.36", "SZ_Pillow0.36"):
     o = bpy.data.objects.get(n)
     if o:
         bpy.data.objects.remove(o, do_unlink=True)
-head_back = to_world(POSE["joints"]["head"][0], POSE["joints"]["head"][1] - 9.0, POSE["joints"]["head"][2] + 4)   # Regie: head rests in the pillow, not above it
+# Regie 2026-10-25 ("der Kopf schwebt ueber dem Kissen"): the back of the skull from the real head pose - the head is
+# flexed ~20 deg (chin to the chest, c00_pose_lying.py; measured in Unreal: nose 20 deg toward the feet), which lifts
+# the occiput off a dent made for an unflexed head. Back of skull = head joint - 9 cm along the face axis + 4 cm along
+# the crown axis (local cm, y = face, z = crown); the pillow is filled up to it, minus 5 mm of sinking in.
+_hf = math.radians(20.0)
+_hj = POSE["joints"]["head"]
+head_back = to_world(_hj[0], _hj[1] - 9.0 * math.cos(_hf) + 4.0 * math.sin(_hf), _hj[2] + 9.0 * math.sin(_hf) + 4.0 * math.cos(_hf))
+head_back.z -= 0.005
 
 
 def pillow(name, cx, cy, dent=None, seed=0):
     import random
     rnd = random.Random(seed)
-    W2, D2, H2 = 0.40, 0.20, 0.075                       # half sizes: 80 x 40 cm, up to 15 cm thick
+    W2, D2, H2 = 0.40, 0.20, 0.10                        # half sizes: 80 x 40 cm, up to 20 cm thick (Regie: "Kissen dicker")
     lumps = [(rnd.uniform(-W2, W2), rnd.uniform(-D2, D2), rnd.uniform(0.08, 0.16), rnd.uniform(-0.012, 0.012)) for _ in range(7)]
     bm = bmesh.new()
     nu, nv = 48, 26
@@ -85,7 +93,9 @@ def pillow(name, cx, cy, dent=None, seed=0):
         for j in range(nv + 1):
             for i in range(nu + 1):
                 u, v = -1 + 2 * i / nu, -1 + 2 * j / nv
-                fill = max(0.0, (1 - abs(u) ** 2.6)) ** 0.55 * max(0.0, (1 - abs(v) ** 2.2)) ** 0.55
+                # Regie 2026-10-25 (close-up): the steep 0.55 profile read as a flat mat with a vertical edge - a
+                # filled down pillow rolls out round from the middle to the piped seam
+                fill = max(0.0, (1 - abs(u) ** 2.2)) ** 0.8 * max(0.0, (1 - abs(v) ** 2.0)) ** 0.85
                 x, y = cx + u * W2, cy + v * D2
                 h = H2 * fill
                 for lx, ly, lr, la in lumps:               # uneven down filling
@@ -93,10 +103,10 @@ def pillow(name, cx, cy, dent=None, seed=0):
                 if side > 0:
                     z = MATTRESS_TOP + 0.012 + h
                     if dent:                                # head dent: smooth bowl, filling pushed to the sides
-                        d2 = ((x - dent.x) / 0.13) ** 2 + ((y - dent.y) / 0.11) ** 2
+                        d2 = ((x - dent.x) / 0.17) ** 2 + ((y - dent.y) / 0.14) ** 2   # wide soft hollow, no crater rim
                         floor = dent.z
-                        push = math.exp(-d2)
-                        z = z * (1 - push) + min(z, floor) * push + 0.02 * math.exp(-(math.sqrt(d2) - 1.3) ** 2 / 0.15) * fill
+                        push = math.exp(-d2 * 1.4)
+                        z = z * (1 - push) + min(z, floor) * push + 0.012 * math.exp(-(math.sqrt(d2) - 1.4) ** 2 / 0.3) * fill
                 else:
                     z = MATTRESS_TOP + 0.012 - min(h, 0.012)  # flat underside resting on the sheet
                 rows[(side, j, i)] = bm.verts.new((x, y, z))
@@ -106,6 +116,10 @@ def pillow(name, cx, cy, dent=None, seed=0):
                 q = (rows[(side, j, i)], rows[(side, j, i + 1)], rows[(side, j + 1, i + 1)], rows[(side, j + 1, i)])
                 bm.faces.new(q if side > 0 else q[::-1])
     bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.0005)
+    uvl = bm.loops.layers.uv.new("UVMap")              # 1 UV unit = 1 m: woven linen in Unreal (M_C00_SetFabric)
+    for f in bm.faces:
+        for loop in f.loops:
+            loop[uvl].uv = (loop.vert.co.x - cx + W2, loop.vert.co.y - cy + D2)
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()
@@ -245,7 +259,32 @@ for j in range(ny + 1):
             z = surface(x, y) + THICK
             grid[j][i] = Vector((x, y, z))
             floor_z[j][i] = z
-for _ in range(60):                                       # constrained smoothing: tent, never sink into the body
+# Regie 2026-10-25 (close-up "Decke und Hemd"): the cloth solver pinched the duvet into a funnel at the hip and the
+# relax pass ironed every fold flat - a heavy down duvet does neither. It bridges the body like a tent and, by its
+# weight, settles onto the mattress a hand's width beside it: constrained smoothing with a small gravity term per pass
+# (never below body/mattress + duvet thickness), so concave spots (waist, between the legs) are spanned, not followed.
+# the posed body has holes where the arms were cut away (shoulders, armpits): rays fall through to the mattress and the
+# duvet sank into pits - a morphological closing (max then min, 7 x 7 cells = 14 cm) fills holes narrower than that
+def _win(field, fn, r):
+    out = [row[:] for row in field]
+    for j in range(ny + 1):
+        for i in range(nx + 1):
+            if field[j][i] < -1:
+                continue
+            vals = [field[jj][ii] for jj in range(max(0, j - r), min(ny, j + r) + 1)
+                    for ii in range(max(0, i - r), min(nx, i + r) + 1) if field[jj][ii] > -1]
+            out[j][i] = fn(vals)
+    return out
+
+
+_closed = _win(_win(floor_z, max, 3), min, 3)
+for j in range(ny + 1):
+    for i in range(nx + 1):
+        if floor_z[j][i] > -1:
+            floor_z[j][i] = max(floor_z[j][i], _closed[j][i])
+            grid[j][i].z = max(grid[j][i].z, floor_z[j][i])
+SAG = 0.0011
+for _ in range(160):
     nxt = [[v.copy() for v in row] for row in grid]
     for j in range(ny + 1):
         for i in range(nx + 1):
@@ -254,8 +293,53 @@ for _ in range(60):                                       # constrained smoothin
             nb = [grid[jj][ii].z for jj, ii in ((j - 1, i), (j + 1, i), (j, i - 1), (j, i + 1))
                   if 0 <= jj <= ny and 0 <= ii <= nx and floor_z[jj][ii] > -1]      # edge rows too (one-sided)
             if nb:
-                nxt[j][i].z = max(floor_z[j][i], grid[j][i].z * 0.5 + sum(nb) / len(nb) * 0.5)
+                nxt[j][i].z = max(floor_z[j][i], grid[j][i].z * 0.5 + sum(nb) / len(nb) * 0.5 - SAG)
     grid = nxt
+# folds of a real duvet (three scales; the finest comes from the woven normal map in Unreal):
+# - drape folds on the slopes from the body down to the mattress: crests run downhill, ~18-24 cm apart,
+#   irregular in spacing and strength (low-frequency phase/amplitude noise, no visible pattern)
+# - hanging folds where the duvet falls over the bed side and the foot end
+# - faint compression folds over the top of the body
+import random as _rnd
+_r = _rnd.Random(11)
+_waves = [(_r.uniform(0, math.pi), _r.uniform(3.0, 7.0), _r.uniform(0, 2 * math.pi)) for _ in range(5)]
+
+
+def lowfreq(x, y):
+    return sum(math.sin(k * (x * math.cos(a) + y * math.sin(a)) + ph) for a, k, ph in _waves) / len(_waves) * 1.6
+
+
+def smoothstep(e0, e1, v):
+    t = min(1.0, max(0.0, (v - e0) / (e1 - e0)))
+    return t * t * (3 - 2 * t)
+
+
+TAU = 2 * math.pi
+_z = [[grid[j][i].z for i in range(nx + 1)] for j in range(ny + 1)]
+for j in range(ny + 1):
+    for i in range(nx + 1):
+        p = grid[j][i]
+        if floor_z[j][i] < -1:                               # hanging part: folds bulge outward from the bed
+            amp = 0.016 * (0.6 + 0.4 * lowfreq(p.y * 1.3, p.x))
+            if abs(p.x - BX) > HALF_W:                       # long sides
+                f = 0.5 + 0.5 * math.sin(TAU * p.y / 0.23 + 1.4 * lowfreq(p.x, p.y))
+                p.x += math.copysign(amp * f, p.x - BX)
+            else:                                            # foot end
+                f = 0.5 + 0.5 * math.sin(TAU * p.x / 0.21 + 1.4 * lowfreq(p.y, p.x))
+                p.y -= amp * f
+            continue
+        jj0, jj1, ii0, ii1 = max(0, j - 1), min(ny, j + 1), max(0, i - 1), min(nx, i + 1)
+        gx = (_z[j][ii1] - _z[j][ii0]) / max(STEP, (ii1 - ii0) * STEP)
+        gy = (_z[jj1][i] - _z[jj0][i]) / max(STEP, (jj1 - jj0) * STEP)
+        mag = math.hypot(gx, gy)
+        mask = smoothstep(0.10, 0.75, mag)
+        wx = gx * gx / (mag * mag + 1e-9)                    # slope toward the bed side vs. toward the foot end
+        side = math.sin(TAU * p.y / 0.20 + 1.5 * lowfreq(p.x, p.y))
+        foot = math.sin(TAU * p.x / 0.22 + 1.5 * lowfreq(p.y, p.x))
+        amp = 0.018 * (0.55 + 0.45 * lowfreq(p.x * 1.7, p.y * 1.3))
+        dz = amp * mask * (wx * side + (1 - wx) * foot)
+        dz += 0.004 * (1 - mask) * math.sin(TAU * (p.x * 0.6 + p.y * 0.8) / 0.30 + 1.5 * lowfreq(p.y, p.x))
+        p.z = max(floor_z[j][i], p.z + dz)
 # Regie 2026-10-25: the right foot looks out - the duvet corner over it is pushed back diagonally
 _fr = to_world(*JOINTS["r"].get("foot_out", A["foot_r"]))
 # fold line: a diagonal across the foot-end corner on the window side, from the foot end of the duvet (FA) to the
@@ -321,52 +405,13 @@ if SAGE is None:                                          # Regie: friendlier, m
     recolor(SAGE, (0.30, 0.38, 0.29))
 duv.data.materials.append(SAGE)
 
-# Regie 2026-10-25: "realistisch an den Koerper ... realistische Falten, nicht wie gegossen". The drape above
-# is only the starting shape: the duvet gets 7 % extra width (real duvets are wider than the body they cover),
-# is lifted 2 cm and then settles in a real cloth simulation on body proxy, pillows and mattress. Starting
-# close to rest keeps the solver stable (the free fall from 1 m exploded on the narrow proxy).
-for o in proxy_parts + [bpy.data.objects[n] for n in ("SZ_Mattress", "SZ_BedBase", "SZ_Pillow0.36", "SZ_Pillow-0.36")]:
-    if not any(m.type == "COLLISION" for m in o.modifiers):
-        o.modifiers.new("Collision", "COLLISION")
-    o.collision.thickness_outer = 0.006
-    o.collision.cloth_friction = 10
+# Regie 2026-10-25: "realistisch an den Koerper ... realistische Falten, nicht wie gegossen". Folds come from the drape
+# above (no cloth solver any more - it pinched a funnel at the hip). Safety pass: nothing of the duvet top may come
+# closer to body, pillows or mattress than 60 % of its thickness (the Solidify grows downward).
+# (straight down from above: nearest-point normals flip inward at the open arm cuts of the posed body and dug pits)
 for v in duv.data.vertices:
-    v.co.x = BX + (v.co.x - BX) * 1.07
-    v.co.z += 0.02
-# the top edge (folded over at the collarbones) is held in place, otherwise the duvet slides over the head
-pin = duv.vertex_groups.new(name="Pin")
-top_y = max(v.co.y for v in duv.data.vertices)
-pin.add([v.index for v in duv.data.vertices if v.co.y > top_y - 0.04 and abs(v.co.x - MAN_X) < 0.30], 1.0, "REPLACE")
-pin.add(FLAP, 1.0, "REPLACE")                              # the turned-back flap stays where it was laid
-cl = duv.modifiers.new("Cloth", "CLOTH")
-st = cl.settings
-st.vertex_group_mass = "Pin"
-st.quality, st.mass, st.air_damping = 10, 1.2, 4.0          # heavy down duvet
-st.tension_stiffness = st.compression_stiffness = 8.0
-st.shear_stiffness, st.bending_stiffness = 4.0, 2.5         # Regie: loose over the legs - a filled duvet bridges between them
-st.use_internal_springs = False
-cl.collision_settings.use_self_collision = False
-cl.collision_settings.collision_quality = 5
-cl.collision_settings.distance_min = 0.006
-cl.point_cache.frame_start, cl.point_cache.frame_end = 1, 70
-sc.frame_start, sc.frame_end = 1, 70
-sc.frame_set(1)
-for f in range(1, 71):
-    sc.frame_set(f)
-with bpy.context.temp_override(object=duv, active_object=duv, selected_objects=[duv], scene=sc):
-    bpy.ops.object.modifier_apply(modifier="Cloth")
-sc.frame_set(1)
-# Regie 2026-10-25 ("an der Huefte merkwuerdig verknotet"): the solver pinches the cloth into tight knots where it
-# meets the shorts' waistband. A relaxed duvet does not form knots: smooth the result (keeps the large folds),
-# then push it back outside the body so smoothing never sinks it in.
-sm0 = duv.modifiers.new("Relax", "SMOOTH")
-sm0.factor, sm0.iterations = 0.8, 40
-with bpy.context.temp_override(object=duv, active_object=duv, selected_objects=[duv], scene=sc):
-    bpy.ops.object.modifier_apply(modifier="Relax")
-for v in duv.data.vertices:
-    loc, nrm, _, dist = bvh.find_nearest(v.co)
-    if loc is not None and ((v.co - loc).dot(nrm) < 0 or dist < THICK * 0.6):
-        v.co = loc + nrm * THICK * 0.6
+    if abs(v.co.x - BX) <= HALF_W and v.co.y >= FOOT:
+        v.co.z = max(v.co.z, surface(v.co.x, v.co.y) + THICK * 0.6)
 duv.data.update()
 # Regie 2026-10-25 ("harte Kante an der Brust"): a duvet is sewn flat at its seams - the filling thickness runs
 # from 0 at every border to full ~12 cm inside (vertex group drives the Solidify thickness)
@@ -389,11 +434,20 @@ so.vertex_group, so.thickness_vertex_group = "Filling", 0.15
 so.thickness, so.offset, so.use_even_offset = 0.045, -1.0, False   # even offset shot spikes out of sharp folds
 so.thickness_clamp, so.use_quality_normals = 1.0, True
 sm = duv.modifiers.new("Smooth", "SUBSURF")
-sm.levels = sm.render_levels = 1
+sm.levels = sm.render_levels = 2                      # 5 mm: the crinkles need the density
 folds = bpy.data.textures.get("TX_SZ_Folds") or bpy.data.textures.new("TX_SZ_Folds", "CLOUDS")
 folds.noise_scale, folds.noise_depth = 0.12, 2
 dp = duv.modifiers.new("Folds", "DISPLACE")
-dp.texture, dp.strength, dp.texture_coords = folds, 0.004, "GLOBAL"
+dp.texture, dp.strength, dp.texture_coords = folds, 0.0035, "GLOBAL"
+crk = bpy.data.textures.get("TX_SZ_Crinkle") or bpy.data.textures.new("TX_SZ_Crinkle", "STUCCI")
+crk.noise_scale, crk.turbulence = 0.035, 3.0
+_emp = bpy.data.objects.get("SZ_CrinkleSpace") or bpy.data.objects.new("SZ_CrinkleSpace", None)
+if _emp.name not in col.objects:
+    col.objects.link(_emp)
+_emp.scale = (1.0, 2.6, 1.0)                                # stretched along the bed: cover wrinkles run lengthwise
+_emp.hide_render = _emp.hide_viewport = True
+ck = duv.modifiers.new("Crinkle", "DISPLACE")
+ck.texture, ck.strength, ck.texture_coords, ck.texture_coords_object = crk, 0.0022, "OBJECT", _emp
 # no cellular crease texture on the duvet: its ridges read as knots (Regie 2026-10-25) - the simulation's folds stay
 sc.frame_set(1)
 for o in proxy_parts:
@@ -419,5 +473,40 @@ with open(OUT_JSON, encoding="utf8") as f:
 lying_json["duvet_height_local"] = hmap
 with open(OUT_JSON, "w", encoding="utf8") as f:
     json.dump(lying_json, f, indent=1)
+
+# ------------------------------------------------------------------ the arms press into the duvet
+# Regie 2026-10-25 (close-up): forearms and hands lay *in* the duvet - its geometry cut through them and cast dark
+# shadow patches onto the skin. Real arms resting on a down duvet sink in: the duvet top under each forearm and hand
+# (pose from c00_pose_lying.py, written after the height map above, which stays the undented surface the IK uses)
+# is pressed down to the underside of the limb plus a soft 4 cm shoulder of compressed filling around it.
+_posed = POSE.get("posed", {})
+
+
+def _cap(a, b, r):
+    return to_world(*a), to_world(*b), r / 100
+
+
+_caps = []
+for side in ("l", "r"):
+    el, ha = _posed.get(f"lowerarm_{side}"), _posed.get(f"hand_{side}")
+    if el and ha:
+        e, h = Vector(el["new"][0]), Vector(ha["new"][0])
+        tip = h + (h - e).normalized() * 9.0
+        _caps += [_cap(e, h, 4.0), _cap(h, tip, 3.0)]
+FALL = 0.04
+for v in duv.data.vertices:
+    w = duv.matrix_world @ v.co
+    for a, b, r in _caps:
+        ab = Vector((b.x - a.x, b.y - a.y))
+        t = max(0.0, min(1.0, (Vector((w.x - a.x, w.y - a.y))).dot(ab) / max(ab.length_squared, 1e-9)))
+        c = a.lerp(b, t)
+        d = math.hypot(w.x - c.x, w.y - c.y)
+        if d > r + FALL:
+            continue
+        under = c.z - math.sqrt(max(0.0, r * r - min(d, r) ** 2)) - 0.003
+        target = under if d <= r else under + (w.z - under) * smoothstep(0.0, 1.0, (d - r) / FALL)
+        if target < w.z:
+            v.co.z -= (w.z - target)
+duv.data.update()
 
 result = {"P0": [round(v, 3) for v in P0], "head": [round(v, 3) for v in to_world(*POSE["joints"]["head"])], "chest_y": round(chest_y, 3)}

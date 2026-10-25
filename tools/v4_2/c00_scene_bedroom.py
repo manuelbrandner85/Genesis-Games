@@ -69,6 +69,90 @@ def master(name, translucent=False):
 
 
 OPAQUE, GLASS = master("M_C00_SetSurface"), master("M_C00_SetGlass", True)
+WEAVE_N = "/Game/Fab/MetaHuman/Jeans/Materials/Textures/Clothing/Micros/micro_weave_plain_normal"   # Fab, local only
+WEAVE_A = "/Game/Fab/MetaHuman/Jeans/Materials/Textures/Clothing/Micros/micro_weave_plain"
+
+
+def fabric_master():
+    """Regie 2026-10-25 ("Decke und Hemd fuer die Nahaufnahme"): textiles were flat colours - a plastic balloon up close.
+    Fibre sheen (grazing-angle brightening, as on cotton/linen; the Cloth shading model's input is not reachable from
+    Python) with three detail levels: plain-weave normal + thread shading (micro, UV-tiled,
+    1 UV unit = 1 m on the set meshes), a soft mottling of colour and roughness (medium, world noise ~15 cm) and the
+    geometry folds from Blender (macro)."""
+    path = f"{SET}/Materials/M_C00_SetFabric"
+    if eal.does_asset_exist(path):
+        return eal.load_asset(path)
+    m = at.create_asset("M_C00_SetFabric", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    E = lambda cls, x, y: mel.create_material_expression(m, cls, x, y)
+    C = mel.connect_material_expressions
+
+    def scalar(name, val, x, y):
+        e = E(unreal.MaterialExpressionScalarParameter, x, y)
+        e.set_editor_property("parameter_name", name)
+        e.set_editor_property("default_value", val)
+        return e
+
+    def mul(a, b, x, y, ao="", bo=""):
+        e = E(unreal.MaterialExpressionMultiply, x, y)
+        C(a, ao, e, "A")
+        C(b, bo, e, "B")
+        return e
+
+    def lerp(a, b, alpha, x, y, alpha_out=""):
+        e = E(unreal.MaterialExpressionLinearInterpolate, x, y)
+        C(a, "", e, "A")
+        C(b, "", e, "B")
+        C(alpha, alpha_out, e, "Alpha")
+        return e
+
+    def const(v, x, y):
+        e = E(unreal.MaterialExpressionConstant, x, y)
+        e.set_editor_property("r", v)
+        return e
+
+    col = E(unreal.MaterialExpressionVectorParameter, -1400, 0)
+    col.set_editor_property("parameter_name", "Color")
+    col.set_editor_property("default_value", unreal.LinearColor(0.5, 0.5, 0.5, 1))
+    uv = E(unreal.MaterialExpressionTextureCoordinate, -1600, 300)
+    uvs = mul(uv, scalar("WeaveScale", 40.0, -1600, 420), -1400, 300)
+    wn = E(unreal.MaterialExpressionTextureSampleParameter2D, -1200, 300)
+    wn.set_editor_property("parameter_name", "WeaveNormal")
+    wn.set_editor_property("texture", eal.load_asset(WEAVE_N))
+    wn.set_editor_property("sampler_type", unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL)
+    C(uvs, "", wn, "UVs")
+    flat = E(unreal.MaterialExpressionConstant3Vector, -1200, 520)
+    flat.set_editor_property("constant", unreal.LinearColor(0, 0, 1, 1))
+    nrm = lerp(flat, wn, scalar("WeaveNormalStrength", 0.6, -1200, 620), -900, 400)
+    nn = E(unreal.MaterialExpressionNormalize, -700, 400)
+    C(nrm, "", nn, "VectorInput")
+    mel.connect_material_property(nn, "", unreal.MaterialProperty.MP_NORMAL)
+    wa = E(unreal.MaterialExpressionTextureSampleParameter2D, -1200, 0)
+    wa.set_editor_property("parameter_name", "WeaveThreads")
+    wa.set_editor_property("texture", eal.load_asset(WEAVE_A))
+    C(uvs, "", wa, "UVs")
+    thread = lerp(const(0.86, -1000, -120), const(1.0, -1000, -60), wa, -850, -60, "R")   # thread/gap shading
+    noise = E(unreal.MaterialExpressionNoise, -1200, 160)                                     # soft mottling, worn spots
+    noise.set_editor_property("scale", 6.0)
+    noise.set_editor_property("levels", 4)
+    noise.set_editor_property("output_min", 0.0)
+    noise.set_editor_property("output_max", 1.0)
+    mott = lerp(const(0.92, -1000, 100), const(1.05, -1000, 160), noise, -850, 120)
+    fres = E(unreal.MaterialExpressionFresnel, -850, 200)                                     # fibre sheen at grazing angles
+    fres.set_editor_property("exponent", 3.0)
+    fres.set_editor_property("base_reflect_fraction", 0.0)
+    sheen = lerp(const(1.0, -700, 160), scalar("Sheen", 1.25, -700, 200), fres, -600, 160)
+    base = mul(mul(mul(col, thread, -650, 0), mott, -450, 40), sheen, -300, 60)
+    mel.connect_material_property(base, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    rough = mul(scalar("Roughness", 0.85, -700, 220), lerp(const(0.95, -900, 260), const(1.04, -900, 320), noise, -700, 300), -450, 240)
+    mel.connect_material_property(rough, "", unreal.MaterialProperty.MP_ROUGHNESS)
+    sp = scalar("Specular", 0.4, -450, 360)
+    mel.connect_material_property(sp, "", unreal.MaterialProperty.MP_SPECULAR)
+    mel.recompile_material(m)
+    eal.save_loaded_asset(m)
+    return m
+
+
+FABRIC = fabric_master()
 # slot name -> (master, colour, roughness, metallic, emissive, opacity); colours are the Blender values
 LOOK = {
     "M_SZ_WallWhite": (OPAQUE, (0.80, 0.79, 0.76), 0.9, 0, None, None),
@@ -84,9 +168,12 @@ LOOK = {
     "M_SZ_ShutterAlu": (OPAQUE, (0.06, 0.065, 0.07), 0.45, 1, None, None),
     "M_SZ_CurtainGrey": (OPAQUE, (0.42, 0.42, 0.41), 0.9, 0, None, None),
     "M_SZ_BedUpholstery": (OPAQUE, (0.30, 0.30, 0.31), 0.9, 0, None, None),
-    "M_SZ_BedLinenWhite": (OPAQUE, (0.78, 0.78, 0.76), 0.8, 0, None, None),
-    "M_SZ_DuvetSage": (OPAQUE, (0.30, 0.38, 0.29), 0.85, 0, None, None),      # Regie: washed sage-green linen
-    "M_SZ_PillowLinen": (OPAQUE, (0.74, 0.70, 0.63), 0.85, 0, None, None),
+    "M_SZ_BedLinenWhite": (FABRIC, (0.78, 0.78, 0.76), 0.8, 0, None, None),
+    "M_SZ_DuvetSage": (FABRIC, (0.30, 0.38, 0.29), 0.85, 0, None, None),      # Regie: washed sage-green linen
+    "M_SZ_PillowLinen": (FABRIC, (0.74, 0.70, 0.63), 0.85, 0, None, None),
+    # the man's sleep shirt: light blue-grey cotton jersey (replaces the Fab MI, whose vertex-colour layer masks
+    # broke into patches on the fitted, subdivided shirt)
+    "M_C00_ShirtFabric": (FABRIC, (0.36, 0.42, 0.50), 0.8, 0, None, None),
     "M_SZ_OakVeneer": (OPAQUE, (0.42, 0.29, 0.17), 0.45, 0, None, None),
     "M_SZ_LampShadeLinen": (OPAQUE, (0.85, 0.80, 0.70), 0.8, 0, (1.0, 0.62, 0.32), None),
     "M_SZ_LampCeramic": (OPAQUE, (0.62, 0.60, 0.56), 0.3, 0, None, None),
@@ -118,6 +205,11 @@ LOOK = {
     "M_SZ_Rahmen_Ehefrau": (OPAQUE, (0.42, 0.29, 0.17), 0.5, 0, None, None),
     "M_SZ_Rahmen_Strand": (OPAQUE, (0.20, 0.13, 0.08), 0.5, 0, None, None),
 }
+
+
+# weave repeats per UV unit: set meshes have 1 UV unit = 1 m; the shirt's Fab UVs span ~1.4 m of fabric
+# (first test at 30/m read as coarse knitting: one tile of the weave map holds ~25 threads -> ~0.25 mm linen threads)
+WEAVE_SCALE = {"M_SZ_DuvetSage": 160.0, "M_SZ_PillowLinen": 180.0, "M_SZ_BedLinenWhite": 180.0, "M_C00_ShirtFabric": 260.0}
 
 
 def photo_material(key="VaterTochter"):
@@ -164,6 +256,9 @@ def instance(slot):
         mel.set_material_instance_vector_parameter_value(mi, "Emissive", unreal.LinearColor(*emis, 1))
     if opac is not None:
         mel.set_material_instance_scalar_parameter_value(mi, "Opacity", opac)
+    if parent == FABRIC and slot in WEAVE_SCALE:
+        mel.set_material_instance_scalar_parameter_value(mi, "WeaveScale", WEAVE_SCALE[slot])
+        mel.set_material_instance_scalar_parameter_value(mi, "WeaveNormalStrength", 0.35)
     eal.save_loaded_asset(mi)
     return mi
 
@@ -264,7 +359,10 @@ ppv.set_editor_property("unbound", True)
 st = ppv.settings
 for prop, val in (("auto_exposure_method", unreal.AutoExposureMethod.AEM_MANUAL), ("auto_exposure_apply_physical_camera_exposure", True),
                   ("camera_iso", 400.0), ("camera_shutter_speed", 50.0), ("depth_of_field_fstop", 2.0),
-                  ("film_grain_intensity", 0.15), ("vignette_intensity", 0.35)):
+                  ("film_grain_intensity", 0.15), ("vignette_intensity", 0.35),
+                  # camera white balance 5000 K (3700 K made the dusk-lit room moon-blue; 6500 K turned skin orange), as a photographer would set it:
+                  # the room stays warm, but skin is no longer orange and the blue-grey shirt no longer reads brown
+                  ("white_temp", 5000.0)):
     st.set_editor_property(prop, val)
     st.set_editor_property("override_" + prop, True)
 ppv.set_editor_property("settings", st)
@@ -305,6 +403,8 @@ if shirt_skm:
     wc_.attach_to_component(body, "", unreal.AttachmentRule.SNAP_TO_TARGET, unreal.AttachmentRule.SNAP_TO_TARGET,
                             unreal.AttachmentRule.SNAP_TO_TARGET, False)
     wc_.set_leader_pose_component(body)
+    for i in range(wc_.get_num_materials()):
+        wc_.set_material(i, instance("M_C00_ShirtFabric"))
 for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
     cloth.set_enable_simulation(False)
 

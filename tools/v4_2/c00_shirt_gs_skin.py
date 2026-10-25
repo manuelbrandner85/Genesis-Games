@@ -67,5 +67,12 @@ mats = container.materials
 for m in mats:
     m.material_interface = mi
 container.materials = mats
+# the written mesh carries no usable tangents: the shirt's normal map then shaded in triangular patches - let the
+# build recompute MikkTSpace tangents (normals stay the smooth Blender normals)
+ses = unreal.get_editor_subsystem(unreal.SkeletalMeshEditorSubsystem)
+bs = ses.get_lod_build_settings(container, 0)
+bs.set_editor_property("recompute_tangents", True)
+bs.set_editor_property("use_mikk_t_space", True)
+ses.set_lod_build_settings(container, 0, bs)
 eal.save_loaded_asset(container)
 print("C00_GS_SKIN", out3, len(mats))
