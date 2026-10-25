@@ -25,6 +25,13 @@ def check(payload):
  cmd=str(inp.get('command') or inp.get('cmd') or '')
  if name.lower() in ('bash','powershell'):
   if any(re.search(x,cmd,re.I) for x in PATTERNS):return 'Destructive or remote-push command requires explicit Director approval outside this session.'
+  # 2026-10-25 (Game Director): einziger Weg in den Canon-Ordner ist canon_import.py - nur neue Drehbuchfassungen, deren
+  # SHA-256 in einer Regieentscheidung mit "JA" steht, nie ueberschreiben. Nur die schlichte Form ist erlaubt
+  # (kein Verketten, Umleiten oder Mehrfachaufruf), damit nichts Weiteres mitlaeuft.
+  if re.search(r'(?:^|[\s;&|(])(?:\S*[/\\])?(?:python3?|py)(?:\.exe)?\s[^\n]*canon_import\.py',cmd,re.I):   # a call, not a mere mention (git add x.py ...)
+   if not re.fullmatch(r'\s*(?:cd\s+\S+\s*&&\s*)?(?:python3?|py)(?:\s+-I)?\s+(?:\S*/)?tools[/\\]v4[/\\]hooks[/\\]canon_import\.py\s+(?:"[^"]+"|\S+)\s+GD-\d{4}-\d{2}-\d{2}-\d{2}\s*',cmd,re.I):
+    return 'Canon-Import nur in der schlichten Form: python tools/v4/hooks/canon_import.py <Datei> <GD-ID>.'
+   return None
   if any(s.lower() in cmd.lower() for s in PROTECTED) and re.search(r'\b(mv|move-item|cp|copy-item|sed\s+-i|rm|remove-item|del|unlink|write_text)\b',cmd,re.I):
    return 'Command might alter protected original source paths.'
  return None
