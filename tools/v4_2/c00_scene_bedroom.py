@@ -432,7 +432,15 @@ fs.manual_focus_distance = (target - cam_loc).length()
 cc.set_editor_property("focus_settings", fs)
 les.save_current_level()
 out = ROOT + f"docs/evidence/V42/C00_Schlafzimmer_UE_{SHOT}.png"
+# Regie 2026-10-25 ("Haare fuer die Nahaufnahme"): a still has no temporal history, so 0.1 mm hair strands alias into
+# grain and the hairline reads as a cut-out patch. More visibility samples per pixel for the strands, and the shot is
+# taken at 2x (3200 x 1800) and filtered down to 1600 x 900 by tools/v4_2/c00_render_bedroom_shots.py (supersampling).
+for cv in ("r.HairStrands.Visibility.MSAA.SamplePerPixel 8", "r.HairStrands.DeepShadow.Resolution 4096"):
+    unreal.SystemLibrary.execute_console_command(None, cv)
+SS = int(os.environ.get("GENESIS_SZ_SS", "2"))
+shot_png = out if SS == 1 else ROOT + f"Saved/Shots/C00_Schlafzimmer_UE_{SHOT}_{SS}x.png"
 eas.select_nothing()                                     # no selection outline / gizmo in the shot
 unreal.EditorLevelLibrary.editor_set_game_view(True)      # hide editor billboards (light icons)
-unreal.AutomationLibrary.take_high_res_screenshot(1600, 900, out, cam, False, False, unreal.ComparisonTolerance.LOW, "", 1.0)
+unreal.AutomationLibrary.take_high_res_screenshot(1600 * SS, 900 * SS, shot_png, cam, False, False, unreal.ComparisonTolerance.LOW, "", 1.0)
+print("C00_SZ_SHOT", shot_png)
 print("C00_SZ_SCENE", {"shot": SHOT, "man": [round(v) for v in ue(lying["P0"]).to_tuple()], "rot": str(rot), "png": out})
