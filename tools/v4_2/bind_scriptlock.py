@@ -26,9 +26,12 @@ def main():
     ap.add_argument("--matrix", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--runtime", type=Path)
-    ap.add_argument("--director-decision", help="id of the recorded decision in docs/v4_2/DIRECTOR_DECISIONS.md")
+    ap.add_argument("--director-decision", help="id(s) of the recorded decision(s) in docs/v4_2/DIRECTOR_DECISIONS.md, comma-separated "
+                    "(lock + change requests, e.g. GD-2026-10-24-01,GD-2026-10-25-01)")
     a = ap.parse_args()
     raw = a.scriptlock.read_bytes()
+    vm = re.search(r"_v(\d+(?:\.\d+)+)\.md$", a.scriptlock.name)     # GENESIS_ScriptLock_<n>_Drehbuch_v1.2.md -> "1.2"
+    script_version = vm.group(1) if vm else "1.1"
     lines = raw.decode("utf8").splitlines(keepends=True)
     heads = [(i, m.group(1)) for i, l in enumerate(lines) if (m := re.match(r"^## (C\d\d) ", l))]
     end_part = next(i for i, l in enumerate(lines) if l.startswith("# III."))
@@ -48,7 +51,7 @@ def main():
     ids = [s["scene_id"] for s in scenes]
     if ids != [f"C{i:02d}" for i in range(22)]:
         raise SystemExit(f"expected C00..C21, found {ids}")
-    reg = {"schema_version": 1, "script_version": "1.1",
+    reg = {"schema_version": 1, "script_version": script_version,
            "scriptlock_file": a.scriptlock.name, "scriptlock_sha256": hashlib.sha256(raw).hexdigest(),
            "canon_status": (f"KANON GESPERRT - Game-Director-Beschluss {a.director_decision} (IV.D). Keine automatische Referenz-/Asset-/Produktionsfreigabe"
                             if a.director_decision else "SCRIPT-LOCK-KANDIDAT - Game-Director-Beschluss ausstehend (IV.D: 'JA zu Vorschlag 11')"),
