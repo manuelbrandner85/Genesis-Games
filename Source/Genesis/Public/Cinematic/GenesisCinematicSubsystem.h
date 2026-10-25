@@ -21,6 +21,8 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     static FString DefaultRegistryPath();
+    /** ScriptLock version this build implements (CR-001: 1.2). Registry and contracts must match. */
+    static const TCHAR* ScriptVersion;
     bool LoadRegistry(const FString& Path, FString& OutError);
     const FGenesisSceneRegistryEntry* FindScene(FName SceneID) const { return Registry.Find(SceneID); }
     int32 NumScenes() const { return Registry.Num(); }
@@ -35,6 +37,9 @@ public:
     bool Play(FGenesisSceneContract& Contract) const;
     /** End of the playback: interactive scenes wait for the player, others go to CommitPending. */
     bool FinishPlayback(FGenesisSceneContract& Contract) const;
+    /** CR-001: Playing -> InGameplaySegment (only with a pending segment) and back after it ended. */
+    bool BeginSegment(FGenesisSceneContract& Contract) const;
+    bool EndSegment(FGenesisSceneContract& Contract) const;
     /** Skip: never past an open decision and never past the commit. HasSeenBefore: this soul committed it already. */
     bool Skip(FGenesisSceneContract& Contract, bool bHasSeenBefore) const;
     /** The player's decision in an interactive scene. */

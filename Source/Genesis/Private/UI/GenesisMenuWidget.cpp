@@ -2,6 +2,7 @@
 #include "UI/GenesisChoiceButton.h"
 #include "UI/GenesisUserSettings.h"
 #include "Cinematic/GenesisCinematicSubsystem.h"
+#include "Cinematic/GenesisLightStrike.h"
 #include "GenesisGameInstance.h"
 #include "Player/GenesisPlayerController.h"
 #include "Blueprint/WidgetTree.h"
@@ -60,6 +61,8 @@ namespace
         case EGenesisMenuScreen::QuitConfirm:    return TEXT("QUIT");
         case EGenesisMenuScreen::Pause:
         case EGenesisMenuScreen::MainMenuConfirm: return TEXT("PAUSE_MENU");
+        case EGenesisMenuScreen::StoryStart:     return TEXT("STORY_START");
+        case EGenesisMenuScreen::ChapterCard:    return TEXT("CHAPTER_CARD");
         default:                                 return NAME_None;
         }
     }
@@ -117,6 +120,23 @@ void UGenesisMenuWidget::NativeOnInitialized()
     Center->AddChildToVerticalBox(Press)->SetPadding(FMargin(0.f, 64.f, 0.f, 0.f));
     PlaceInCanvas(Root->AddChildToCanvas(Center), FAnchors(0.5f, 0.5f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
 
+    // C01 light strike: a round point of light, then the full-screen white (FGenesisLightStrike).
+    FSlateBrush Round;
+    Round.DrawAs = ESlateBrushDrawType::RoundedBox;
+    Round.OutlineSettings.RoundingType = ESlateBrushRoundingType::HalfHeightRadius;
+    LightPoint = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("LightPoint"));
+    LightPoint->SetBrush(Round);
+    LightPoint->SetBrushColor(FGenesisLightStrike::Color());
+    LightPoint->SetVisibility(ESlateVisibility::Collapsed);
+    const FVector2D NoSize(0.f, 0.f);
+    PlaceInCanvas(Root->AddChildToCanvas(LightPoint), FAnchors(0.5f, 0.5f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f), &NoSize);
+    Flash = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Flash"));
+    Flash->SetBrushColor(FGenesisLightStrike::Color());
+    Flash->SetVisibility(ESlateVisibility::Collapsed);
+    UCanvasPanelSlot* FlashSlot = Root->AddChildToCanvas(Flash);
+    FlashSlot->SetAnchors(FAnchors(0.f, 0.f, 1.f, 1.f));
+    FlashSlot->SetOffsets(FMargin(0.f));
+
     // Left column: dark glass panel with header, info line and the focusable entries.
     Panel = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Panel"));
     Panel->SetBrushColor(FLinearColor(0.01f, 0.01f, 0.012f, 0.72f));
@@ -159,12 +179,131 @@ void UGenesisMenuWidget::StartMainMenu(bool bSkipBoot)
     }
 }
 
-void UGenesisMenuWidget::StartPauseMenu()
+void UGenesisMenuWidget::StartPauseMenu(bool bStoryStart)
 {
     bInGame = true;
+    bStoryPause = bStoryStart;
     ReturnScreen = EGenesisMenuScreen::Pause;
-    Flow.Current = TEXT("IN_GAME");
+    Flow.Current = bStoryStart ? TEXT("STORY_SWIM") : TEXT("IN_GAME");
     ShowScreen(EGenesisMenuScreen::Pause);
+}
+
+UGenesisGameInstance* UGenesisMenuWidget::GetGenesisGI() const
+{
+    return Cast<UGenesisGameInstance>(GetGameInstance());
+}
+
+void UGenesisMenuWidget::ResumeStoryStart()
+{
+    bInGame = false;
+    ReturnScreen = EGenesisMenuScreen::Main;
+    Flow.Reset();
+    Flow.Current = TEXT("STORY_SWIM");          // back from the swim map
+    ShowScreen(EGenesisMenuScreen::StoryStart);
+}
+
+float UGenesisMenuWidget::StoryPartSeconds() const
+{
+    const UGenesisGameInstance* GI = GetGenesisGI();
+    const UGenesisUserSettings* U = UGenesisUserSettings::Get();
+    switch (GI ? GI->StoryStart.Step : EGenesisStoryStep::NotStarted) {
+    case EGenesisStoryStep::C00:     return 6.f;        // placeholder until the C00 master exists
+    case EGenesisStoryStep::C01:     return FGenesisLightStrike::Duration(!U || U->bReduceFlashes);
+    case EGenesisStoryStep::C02Film: return 4.f;
+    case EGenesisStoryStep::C02End:  return 5.f;
+    default:                         return 0.f;
+    }
+}
+
+float UGenesisMenuWidget::GetFlashLevel() const
+{
+    const UGenesisGameInstance* GI = GetGenesisGI();
+    if (Screen != EGenesisMenuScreen::StoryStart || !GI || GI->StoryStart.Step != EGenesisStoryStep::C01) {
+        return 0.f;
+    }
+    const UGenesisUserSettings* U = UGenesisUserSettings::Get();
+    return FGenesisLightStrike::WhiteLevel(ScreenTime, !U || U->bReduceFlashes);
+}
+
+void UGenesisMenuWidget::FinishStoryPart(bool bSkipped)
+{
+    UGenesisGameInstance* GI = GetGenesisGI();
+    UGenesisCinematicSubsystem* Cine = GI ? GI->GetSubsystem<UGenesisCinematicSubsystem>() : nullptr;
+    if (!Cine || !GI->StoryStart.FinishFilm(*Cine, bSkipped)) {
+        return;
+    }
+    ConfirmSkipUntil = -1.f;
+    switch (GI->StoryStart.Step) {
+    case EGenesisStoryStep::C02Swim:
+        if (!bSwimRequested && Flow.Go(TEXT("STORY_SWIM"))) {
+            bSwimRequested = true;
+            GI->EnterSwim();
+        }
+        break;
+    case EGenesisStoryStep::Title:
+        ShowScreen(GI->bStoryStartForNewLife ? EGenesisMenuScreen::ChapterCard : EGenesisMenuScreen::Title);
+        break;
+    default:
+        ScreenTime = 0.f;
+        Rebuild();
+        break;
+    }
+}
+
+void UGenesisMenuWidget::StoryKey()
+{
+    const UGenesisGameInstance* GI = GetGenesisGI();
+    if (Screen != EGenesisMenuScreen::StoryStart || !GI || !GI->StoryStart.CanSkip()) {
+        return;
+    }
+    if (GI->StoryStart.NeedsSkipConfirmation() && !IsSkipConfirmPending()) {
+        ConfirmSkipUntil = ScreenTime + 3.f;     // C00: a single accidental press never skips the prologue
+        Rebuild();
+        return;
+    }
+    FinishStoryPart(true);
+}
+
+void UGenesisMenuWidget::StoryStartTick()
+{
+    const UGenesisGameInstance* GI = GetGenesisGI();
+    if (!GI || !GI->StoryStart.IsFilmPart()) {
+        return;
+    }
+    const float Level = GetFlashLevel();
+    const bool bC01 = GI->StoryStart.Step == EGenesisStoryStep::C01;
+    Flash->SetVisibility(bC01 && Level > 0.f ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+    Flash->SetRenderOpacity(Level);
+    const bool bPoint = bC01 && ScreenTime < FGenesisLightStrike::PointSeconds + 0.3f;
+    LightPoint->SetVisibility(bPoint ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+    if (bPoint) {
+        const float Size = FMath::Max(2.f, FGenesisLightStrike::PointSize(ScreenTime) * 1080.f);
+        if (UCanvasPanelSlot* S = Cast<UCanvasPanelSlot>(LightPoint->Slot)) {
+            S->SetSize(FVector2D(Size, Size));
+        }
+    }
+    if (ConfirmSkipUntil > 0.f && ScreenTime > ConfirmSkipUntil) {
+        ConfirmSkipUntil = -1.f;
+        Rebuild();
+    }
+    if (ScreenTime > StoryPartSeconds()) {
+        FinishStoryPart(false);
+    }
+}
+
+void UGenesisMenuWidget::ChooseNewGameSlot(const FString& SaveSlotName)
+{
+    UGenesisGameInstance* GI = GetGenesisGI();
+    if (!GI) {
+        return;
+    }
+    PendingSlot = SaveSlotName;
+    if (GI->HasCompletedStoryLife()) {
+        ShowScreen(EGenesisMenuScreen::ChapterCard);       // the life of this session's story start
+    }
+    else if (Flow.CanGo(TEXT("STORY_START")) && GI->BeginStoryStart(true, SaveSlotName)) {
+        ShowScreen(EGenesisMenuScreen::StoryStart);        // every life begins with C00-C02
+    }
 }
 
 bool UGenesisMenuWidget::ShowScreen(EGenesisMenuScreen NewScreen)
@@ -193,20 +332,34 @@ void UGenesisMenuWidget::AdvanceIntro()
             Rebuild();
             return;
         }
-        // BOOT -> STORY_START only with the director-approved, produced C00/C01. Until then
-        // (ScriptLock 1.1 is a candidate) the prologue is not shown: BOOT -> TITLE_CARD.
-        const UGenesisCinematicSubsystem* Cine = GetGameInstance() ? GetGameInstance()->GetSubsystem<UGenesisCinematicSubsystem>() : nullptr;
-        const FGenesisSceneRegistryEntry* C00 = Cine ? Cine->FindScene(TEXT("C00")) : nullptr;
-        if (C00 && C00->IsDirectorApproved()) {
-            UE_LOG(LogTemp, Log, TEXT("Genesis menu: C00 is canon (director-approved) but has no produced master yet (CM5): title card"));
-        }
-        if (UGenesisGameInstance* GI = Cast<UGenesisGameInstance>(GetGameInstance())) {
+        // CR-001 (ScriptLock 1.2): the first start - no valid save yet - begins with the story
+        // start C00 -> C01 -> C02 (swim), the title follows after C02 (E1). A returning player goes
+        // to the title card; a new life from the menu plays the story start there.
+        UGenesisGameInstance* GI = GetGenesisGI();
+        if (GI) {
             GI->bBootSequenceShown = true;
+        }
+        if (GI && UGenesisGameInstance::MostRecentSlot().IsEmpty() && GI->BeginStoryStart(false)) {
+            ShowScreen(EGenesisMenuScreen::StoryStart);
+            return;
         }
         ShowScreen(EGenesisMenuScreen::Title);
     }
     else if (Screen == EGenesisMenuScreen::Title) {
+        if (UGenesisGameInstance* GI = GetGenesisGI()) {
+            GI->StoryStart.Complete();
+        }
         ShowScreen(EGenesisMenuScreen::Main);
+    }
+    else if (Screen == EGenesisMenuScreen::ChapterCard && ScreenTime > 0.5f) {
+        UGenesisGameInstance* GI = GetGenesisGI();
+        if (GI && Flow.Go(TEXT("IN_GAME"))) {
+            GI->StoryStart.Complete();
+            GI->StartNewGame(PendingSlot.IsEmpty() ? GI->StoryStartSlot : PendingSlot);
+        }
+    }
+    else if (Screen == EGenesisMenuScreen::StoryStart) {
+        StoryKey();
     }
 }
 
@@ -214,7 +367,9 @@ void UGenesisMenuWidget::Back()
 {
     switch (Screen) {
     case EGenesisMenuScreen::Boot:
-    case EGenesisMenuScreen::Title:          AdvanceIntro(); break;
+    case EGenesisMenuScreen::Title:
+    case EGenesisMenuScreen::ChapterCard:
+    case EGenesisMenuScreen::StoryStart:     AdvanceIntro(); break;
     case EGenesisMenuScreen::Main:           ShowScreen(EGenesisMenuScreen::QuitConfirm); break;
     case EGenesisMenuScreen::NewGameConfirm: Screen = EGenesisMenuScreen::NewGame; LastFocused = 0; Rebuild(); break;
     case EGenesisMenuScreen::QuitConfirm:    ShowScreen(EGenesisMenuScreen::Main); break;
@@ -233,7 +388,7 @@ void UGenesisMenuWidget::Back()
 
 void UGenesisMenuWidget::Resume()
 {
-    if (Flow.Go(TEXT("IN_GAME"))) {
+    if (Flow.Go(bStoryPause ? TEXT("STORY_SWIM") : TEXT("IN_GAME"))) {
         OnResume.ExecuteIfBound();
     }
 }
@@ -355,8 +510,8 @@ void UGenesisMenuWidget::BuildEntries()
                     LastFocused = 1;                  // default: "No"
                     Rebuild();
                 }
-                else if (GI && Flow.Go(TEXT("IN_GAME"))) {
-                    GI->StartNewGame(SaveSlotName);
+                else {
+                    ChooseNewGameSlot(SaveSlotName);
                 }
             });
         }
@@ -365,11 +520,7 @@ void UGenesisMenuWidget::BuildEntries()
     case EGenesisMenuScreen::NewGameConfirm:
         Title = TEXT("Überschreiben?");
         Hint = FString::Printf(TEXT("%s ist belegt. Ein neues Leben ersetzt diesen Spielstand endgültig."), *SlotLabel(PendingSlot, false));
-        AddButton(TEXT("Ja, neues Leben beginnen"), [this, GI]() {
-            if (GI && Flow.Go(TEXT("IN_GAME"))) {
-                GI->StartNewGame(PendingSlot);
-            }
-        });
+        AddButton(TEXT("Ja, neues Leben beginnen"), [this]() { ChooseNewGameSlot(PendingSlot); });
         AddButton(TEXT("Nein"), [this]() { Back(); });
         break;
     case EGenesisMenuScreen::Load:
@@ -412,7 +563,7 @@ void UGenesisMenuWidget::BuildEntries()
         break;
     case EGenesisMenuScreen::Accessibility:
         Title = TEXT("Barrierefreiheit");
-        Hint = TEXT("Textgröße wirkt sofort in Menü und Anzeige. Untertitel, Lesetempo sowie Blitz- und Wackel-Reduktion werden gespeichert und von den Zwischensequenzen genutzt, sobald diese eingebaut sind. Es gibt keine Pflicht-Reaktionstests und keine versteckten Zeitlimits bei Entscheidungen.");
+        Hint = TEXT("Textgröße wirkt sofort in Menü und Anzeige. „Lichtblitze verringern“ ist von Anfang an eingeschaltet: Der Lichtschlag zu Beginn wird dann zu einem weichen Aufblenden. „Automatisch schwimmen“ übernimmt in der Schwimmphase die Richtung. Untertitel, Lesetempo und Wackel-Reduktion werden gespeichert und von den Zwischensequenzen genutzt, sobald diese eingebaut sind. Es gibt keine Pflicht-Reaktionstests und keine versteckten Zeitlimits bei Entscheidungen.");
         if (U) {
             AddToggle(TEXT("Untertitel"), &U->bSubtitles);
             AddToggle(TEXT("Sprechername in Untertiteln"), &U->bSubtitleSpeakerNames);
@@ -423,6 +574,7 @@ void UGenesisMenuWidget::BuildEntries()
                 { TEXT("Langsam"), TEXT("Normal"), TEXT("Schnell") });
             AddToggle(TEXT("Lichtblitze verringern"), &U->bReduceFlashes);
             AddToggle(TEXT("Kamerawackeln verringern"), &U->bReduceCameraShake);
+            AddToggle(TEXT("Automatisch schwimmen"), &U->bAutoSwim);
         }
         AddButton(TEXT("Zurück"), [this]() { Back(); });
         break;
@@ -450,6 +602,14 @@ void UGenesisMenuWidget::BuildEntries()
     case EGenesisMenuScreen::Pause: {
         Title = TEXT("Pause");
         AddButton(TEXT("Fortsetzen"), [this]() { Resume(); });
+        if (bStoryPause) {
+            // C02-B swim: no slot yet, so no saving or loading; the swim cannot be skipped.
+            Hint = TEXT("Die Schwimmphase lässt sich nicht überspringen. Unter „Barrierefreiheit“ kann „Automatisch schwimmen“ die Richtung übernehmen.");
+            AddButton(TEXT("Einstellungen"), [this]() { ShowScreen(EGenesisMenuScreen::Settings); });
+            AddButton(TEXT("Barrierefreiheit"), [this]() { ShowScreen(EGenesisMenuScreen::Accessibility); });
+            AddButton(TEXT("Hauptmenü"), [this]() { Screen = EGenesisMenuScreen::MainMenuConfirm; LastFocused = 1; Rebuild(); });
+            break;
+        }
         AddButton(TEXT("Speichern"), [this, GI]() {
             AGenesisPlayerController* PC = Cast<AGenesisPlayerController>(GetOwningPlayer());
             FString Err;
@@ -459,6 +619,7 @@ void UGenesisMenuWidget::BuildEntries()
         }, GI && GI->ActiveSlot != TEXT("Dev"));
         AddButton(TEXT("Laden"), [this]() { ShowScreen(EGenesisMenuScreen::Load); });
         AddButton(TEXT("Einstellungen"), [this]() { ShowScreen(EGenesisMenuScreen::Settings); });
+        AddButton(TEXT("Barrierefreiheit"), [this]() { ShowScreen(EGenesisMenuScreen::Accessibility); });
         AddButton(TEXT("Hauptmenü"), [this]() { Screen = EGenesisMenuScreen::MainMenuConfirm; LastFocused = 1; Rebuild(); });
         if (GI && GI->ActiveSlot == TEXT("Dev")) {
             Hint = TEXT("Direkt im Editor gestartet: Speichern im Menü nur bei Start über das Hauptmenü (F5 speichert in den Entwickler-Platz).");
@@ -467,10 +628,15 @@ void UGenesisMenuWidget::BuildEntries()
     }
     case EGenesisMenuScreen::MainMenuConfirm:
         Title = TEXT("Zum Hauptmenü?");
-        Hint = TEXT("Nicht gespeicherter Fortschritt geht verloren.");
+        Hint = bStoryPause ? TEXT("Der Beginn dieses Lebens wird abgebrochen.") : TEXT("Nicht gespeicherter Fortschritt geht verloren.");
         AddButton(TEXT("Ja, zum Hauptmenü"), [this, GI]() {
             if (GI && Flow.Go(TEXT("MAIN_MENU"))) {
-                GI->ReturnToMainMenu();
+                if (bStoryPause) {
+                    GI->AbortStoryStart();
+                }
+                else {
+                    GI->ReturnToMainMenu();
+                }
             }
         });
         AddButton(TEXT("Nein"), [this]() { Back(); });
@@ -484,10 +650,15 @@ void UGenesisMenuWidget::BuildEntries()
 
 void UGenesisMenuWidget::Rebuild()
 {
-    const bool bIntro = Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title;
+    const bool bStory = Screen == EGenesisMenuScreen::StoryStart || Screen == EGenesisMenuScreen::ChapterCard;
+    const bool bIntro = Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title || bStory;
     Center->SetVisibility(bIntro ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
     Panel->SetVisibility(bIntro ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
-    Shade->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, Screen == EGenesisMenuScreen::Boot ? 1.f : Screen == EGenesisMenuScreen::Title ? 0.35f : bInGame ? 0.45f : 0.f));
+    Shade->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, Screen == EGenesisMenuScreen::Boot || bStory ? 1.f : Screen == EGenesisMenuScreen::Title ? 0.35f : bInGame ? 0.45f : 0.f));
+    if (Screen != EGenesisMenuScreen::StoryStart) {
+        Flash->SetVisibility(ESlateVisibility::Collapsed);
+        LightPoint->SetVisibility(ESlateVisibility::Collapsed);
+    }
 
     ButtonBox->ClearChildren();
     Buttons.Reset();
@@ -502,6 +673,30 @@ void UGenesisMenuWidget::Rebuild()
             F.Size = Scaled(BootPage == 0 ? 72 : 34);
             BigTitle->SetFont(F);
         }
+        else if (Screen == EGenesisMenuScreen::StoryStart) {
+            // Placeholders until the C00/C02 masters are produced (IDs only, no script text). C01 is
+            // the real light strike and shows no text.
+            const UGenesisGameInstance* GI = GetGenesisGI();
+            const EGenesisStoryStep Step = GI ? GI->StoryStart.Step : EGenesisStoryStep::NotStarted;
+            const bool bC01 = Step == EGenesisStoryStep::C01;
+            BigTitle->SetText(FText::FromString(bC01 ? TEXT("") : Step == EGenesisStoryStep::C00 ? TEXT("C00") : Step == EGenesisStoryStep::C02Film ? TEXT("C02-A") : TEXT("C02-C bis F")));
+            BigSub->SetText(FText::FromString(bC01 ? TEXT("") : TEXT("Technischer Platzhalter – der Film ist noch nicht produziert.")));
+            Press->SetText(FText::FromString(IsSkipConfirmPending() ? TEXT("Erneut drücken, um den Prolog zu überspringen")
+                : Step == EGenesisStoryStep::C00 ? TEXT("Taste zweimal drücken: überspringen") : TEXT("")));
+            FSlateFontInfo F = BigTitle->GetFont();
+            F.Size = Scaled(34);
+            F.LetterSpacing = 200;
+            BigTitle->SetFont(F);
+        }
+        else if (Screen == EGenesisMenuScreen::ChapterCard) {
+            BigTitle->SetText(FText::FromString(TEXT("KAPITEL I")));
+            BigSub->SetText(FText::FromString(TEXT("DER ANFANG")));
+            Press->SetText(FText::FromString(TEXT("Beliebige Taste drücken")));
+            FSlateFontInfo F = BigTitle->GetFont();
+            F.Size = Scaled(64);
+            F.LetterSpacing = 300;
+            BigTitle->SetFont(F);
+        }
         else {
             // ScriptLock C01 SHOT 01-D: title, line, short silence, then "press any key" (no second title card)
             BigTitle->SetText(FText::FromString(TEXT("GENESIS")));
@@ -513,13 +708,17 @@ void UGenesisMenuWidget::Rebuild()
             BigTitle->SetFont(F);
         }
         FSlateFontInfo S = BigSub->GetFont();
-        S.Size = Scaled(Screen == EGenesisMenuScreen::Title ? 22 : 18);
-        S.LetterSpacing = Screen == EGenesisMenuScreen::Title ? 120 : 0;
+        const bool bCard = Screen == EGenesisMenuScreen::Title || Screen == EGenesisMenuScreen::ChapterCard;
+        S.Size = Scaled(bCard ? 22 : 18);
+        S.LetterSpacing = bCard ? 120 : 0;
         BigSub->SetFont(S);
         FSlateFontInfo PF = Press->GetFont();
         PF.Size = Scaled(17);
         Press->SetFont(PF);
-        Press->SetVisibility(Screen == EGenesisMenuScreen::Title ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+        Press->SetVisibility(bCard || Screen == EGenesisMenuScreen::StoryStart ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+        if (Screen == EGenesisMenuScreen::StoryStart) {
+            Press->SetRenderOpacity(1.f);
+        }
         SetFocus();
         return;
     }
@@ -606,7 +805,10 @@ void UGenesisMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
     if (Screen == EGenesisMenuScreen::Boot && BootPage < int32(UE_ARRAY_COUNT(BootPages)) && ScreenTime > BootPages[BootPage].Seconds) {
         AdvanceIntro();
     }
-    if (Screen == EGenesisMenuScreen::Title) {
+    if (Screen == EGenesisMenuScreen::StoryStart) {
+        StoryStartTick();
+    }
+    if (Screen == EGenesisMenuScreen::Title || Screen == EGenesisMenuScreen::ChapterCard) {
         const float T = ScreenTime - 2.f;          // "Kurze Stille", then the prompt fades in and breathes
         Press->SetRenderOpacity(T <= 0.f ? 0.f : FMath::Min(T, 1.f) * (0.6f + 0.4f * FMath::Cos(T * 2.f)));
     }
@@ -677,7 +879,8 @@ int32 UGenesisMenuWidget::FindEntry(const FString& Label) const
 FReply UGenesisMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
     const FKey Key = InKeyEvent.GetKey();
-    if (Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title) {
+    if (Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title || Screen == EGenesisMenuScreen::StoryStart
+        || Screen == EGenesisMenuScreen::ChapterCard) {
         AdvanceIntro();
         return FReply::Handled();
     }
@@ -704,7 +907,8 @@ FReply UGenesisMenuWidget::NativeOnPreviewKeyDown(const FGeometry& InGeometry, c
 
 FReply UGenesisMenuWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-    if (Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title) {
+    if (Screen == EGenesisMenuScreen::Boot || Screen == EGenesisMenuScreen::Title || Screen == EGenesisMenuScreen::StoryStart
+        || Screen == EGenesisMenuScreen::ChapterCard) {
         AdvanceIntro();
         return FReply::Handled();
     }

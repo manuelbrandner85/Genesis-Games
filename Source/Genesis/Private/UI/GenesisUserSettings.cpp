@@ -24,8 +24,24 @@ void UGenesisUserSettings::SetToDefaults()
     bSubtitleSpeakerNames = D->bSubtitleSpeakerNames;
     TextScale = D->TextScale;
     ReadingSpeed = D->ReadingSpeed;
-    bReduceFlashes = D->bReduceFlashes;
+    bReduceFlashes = DefaultReduceFlashes;          // not the CDO: that one carries the ini value
+    bAutoSwim = D->bAutoSwim;
+    GenesisOptionsVersion = CurrentOptionsVersion;
     bReduceCameraShake = D->bReduceCameraShake;
+}
+
+void UGenesisUserSettings::LoadSettings(bool bForceReload)
+{
+    Super::LoadSettings(bForceReload);
+    UpgradeOptions();
+}
+
+void UGenesisUserSettings::UpgradeOptions()
+{
+    if (GenesisOptionsVersion < CurrentOptionsVersion) {
+        bReduceFlashes = true;           // an old "off" cannot be told apart from the old default: safe side
+        GenesisOptionsVersion = CurrentOptionsVersion;
+    }
 }
 
 void UGenesisUserSettings::ApplyGenesisOptions(const UObject* WorldContext) const

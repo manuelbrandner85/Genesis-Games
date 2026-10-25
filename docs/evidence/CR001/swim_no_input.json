@@ -1,0 +1,11 @@
+{
+  "test": "Genesis.Swim.NoInputPIE",
+  "input": "none",
+  "result": "Own",
+  "arrival_s": 94.6,
+  "guided_from_s": -1.0,
+  "ended_after_s": 97.1,
+  "wall_contacts": 0,
+  "pie_fps_avg": 118.4,
+  "note": "PIE in the editor viewport, game speed 6x after the fps window; not a packaged build"
+}

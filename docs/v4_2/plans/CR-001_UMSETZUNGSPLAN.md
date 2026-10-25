@@ -1,7 +1,7 @@
 # CR-001 – Umsetzungsplan „Neuer Anfang“ (Lichtschlag, Pflicht-Schwimmphase)
 
 **Grundlage:** ScriptLock 1.2 (GD-2026-10-25-01), Antrag [`CR-001`](../change_requests/CR-001_ANFANG_LICHT_SAMENZELLE.md)
-**Status:** **ENTWURF – wartet auf Freigabe.** Freigegeben wird phasenweise; jede Phase endet mit Belegen (Build, Tests, Bilder/Video).
+**Status:** Phase 1 + 2 **freigegeben** (GD-2026-10-25-02) und umgesetzt, siehe „Umsetzung Phase 1 + 2“. Phase 3–5 warten auf Freigabe. Jede Phase endet mit Belegen (Build, Tests, Bilder/Video).
 **Stand 2026-10-25:** Das Dokumentationsregister `docs/v4_2/SCENE_REGISTRY.json` ist an 1.2 gebunden. Geändert sind nur C01/C02 (neuer Inhalt) und der C00-Hash (eine Übergabezeile); C03–C21 haben unveränderte Hashes. Das **Laufzeitregister** (`Content/Genesis/Data/scene_registry.json`) bleibt auf 1.1, bis Phase 1 den C++-Code umstellt – der Code verlangt heute fest `ScriptVersion == 1.1`.
 
 ## Ist-Stand im Code (gelesen, nicht verändert)
@@ -34,6 +34,26 @@
 - **Kein Game Over** (E2): Zeitfenster 60–120 s (E4), danach sanftes Führen zur Eizelle; wer nicht ankommt, sieht über die objektive Kamera eine andere Samenzelle verschmelzen. Hilfe-Option „automatisch schwimmen“.
 - **Kein Wettrennen-Design:** keine Platzierung, kein Timer-UI, keine Siegesmeldung.
 - **Belege:** PIE-Video, Controller- und Tastatur-Test, Test „120 s ohne Eingabe → Szene läuft weiter“, Framerate auf der RTX 5070.
+
+## Umsetzung Phase 1 + 2 (2026-10-25)
+
+| Bereich | Umsetzung | Fundstelle |
+|---|---|---|
+| Skriptversion | `UGenesisCinematicSubsystem::ScriptVersion = 1.2`; Register mit anderer Version wird abgelehnt, Verträge mit 1.1 ebenso; Laufzeitregister an 1.2 gebunden (identisch mit `SCENE_REGISTRY.json`) | `GenesisCinematicSubsystem.cpp`, `Content/Genesis/Data/scene_registry.json` |
+| Zustandsmaschine | neuer Zustand `InGameplaySegment` (Playing ↔ Segment, Segment → Failed); Überspringen des Films landet im Segment, das Segment selbst ist nie überspringbar; nur C02 darf ein Segment haben | `GenesisSceneTypes.h` |
+| Startablauf | `FGenesisStoryStart` im GameInstance: C00 (Überspringen nur nach zweitem Tastendruck, Seelen-Keim auch beim Überspringen) → C01 (Lichtschlag) → neue `LifeID` strikt nach dem Seelen-Keim → C02-A → Schwimmkarte → C02-C…F → Titel (E1). Alle Teile laufen als Szenenverträge (technische Tests, solange die Master fehlen) | `GenesisStoryStart.*`, `GenesisMenuWidget.cpp` |
+| Menüfluss | 16 Knoten: neu `STORY_SWIM` (Spielphase, Pause möglich) und `CHAPTER_CARD`; „Neues Leben“ → Kapitelkarte „KAPITEL I – DER ANFANG“ → Spiel mit Seele und Leben aus dem Startablauf | `MENU_FLOW.json`, `menu_flow.json` |
+| Lichtschlag | `FGenesisLightStrike`: Lichtpunkt → ein Schlag → Weiß → Aufblenden; mit „Lichtblitze verringern“ (jetzt Standard **an**, ältere ini einmalig umgestellt) nur weiches Aufblenden über 1,5 s; warmes Weiß, kein Rot | `GenesisLightStrike.h`, `GenesisUserSettings.*` |
+| Spielstand | Schema 3: `StoryStartStage`, `SoulSeedMinute`, `LifeStartMinute`, `ConceptionMode` (Own/Other), `StoryStartCommits`; Migration 2→3 markiert alte Leben als „Done/Migrated“ | `GenesisWorldTypes.h`, `GenesisSaveStore.cpp` |
+| Schwimmphase (Graubox) | Karte `L_C02_Swim`, `AGenesisSwimGameMode`: Maßstab 1 uu = 1 µm; Eileiter als analytischer Schlauch mit Strömung zum Uterus; Samenzelle mit Geißelschlag, ohne Nachgleiten (niedrige Reynolds-Zahl), Rheotaxis; Eizelle 120 µm mit Cumuluszellen; 40 andere Samenzellen ohne Rangliste; ab 120 s sanfte Führung, ab 165 s objektive Kamera mit fremder Verschmelzung (kein Game Over); Hilfe „Automatisch schwimmen“; Pause mit Einstellungen/Barrierefreiheit, kein Speichern | `Swim/*`, `tools/v4_2/cr001_swim_map.py` |
+| Zeiten (Nachrechnung) | ohne Eingabe ≈ 95 s, automatisch ≈ 71 s, schnellstmöglich ≈ 61 s – alle im Fenster 60–120 s (E4) | Test `Genesis.Swim.Course` |
+
+**Belege (2026-10-25, `docs/evidence/CR001/`):** Editor-Build Win64 Development erfolgreich; Automationslauf **33/33 grün** (`regression_cr001.txt`), darunter neu `Genesis.Cinematic.StoryStartFlow`, `Genesis.Cinematic.SwimSegmentNoSkip`, `Genesis.Save.Schema3Migration`, `Genesis.Accessibility.FlashDefault`, `Genesis.Swim.Course`, `Genesis.Swim.ControlsPIE` (Tastatur + Gamepad-Stick über die Eingabe-Pipeline, Totzone gegen Drift, Pause, „Automatisch schwimmen“) und `Genesis.Swim.NoInputPIE` (ohne jede Eingabe: Ankunft nach 94,6 s, PIE-Bildrate Ø 118 fps im Editor) sowie die angepasste PIE-Route BOOT → C00 → C01 → C02 → Schwimmkarte → C02 → Titel → Menü → Neues Leben → Kapitelkarte → Spiel mit Seele/Leben aus dem Startablauf.
+**Nicht belegt:** Führung ab 120 s und die objektive Kamera (fremde Verschmelzung) laufen nur, wenn man absichtlich falsch steuert – im Test ohne Eingabe kam die Zelle schon nach 94,6 s an; beide Wege sind im Code, aber ohne eigenen PIE-Nachweis. Kein Windows-Build, kein echter Controller-Handtest.
+
+**Technische Entscheidung (änderbar durch dich):** Der Startablauf läuft beim ersten Start (noch kein gültiger Spielstand). Wer schon Spielstände hat, kommt direkt zum Titel; „Neues Leben“ spielt dann C00–C02 und endet mit der Kapitelkarte statt dem Titel.
+
+**Grenzen:** C00/C02 sind Platzhalter-Tafeln (nur IDs), bis die Filme produziert sind (Phase 4). Die Graubox hat keinen Look (Phase 3). Bildrate nur im Editor-PIE gemessen, nicht im Windows-Build.
 
 ## Phase 3 – Look der Mikrowelt (Abnahme durch dich)
 

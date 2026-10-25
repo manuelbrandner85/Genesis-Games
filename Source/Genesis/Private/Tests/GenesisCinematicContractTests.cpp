@@ -55,6 +55,22 @@ bool FGenesisSceneRegistryTest::RunTest(const FString&)
     TestEqual(TEXT("C20 replays C00"), C->FindScene("C20")->ReplayOf, FName("C00"));
     TestFalse(TEXT("C15 conflict open"), C->FindScene("C15")->OpenConflict.IsEmpty());
     TestTrue(TEXT("Canon locked by the director (GD-2026-10-24-01)"), C->FindScene("C00")->IsDirectorApproved());
+    TestEqual(TEXT("Build implements ScriptLock 1.2 (CR-001)"), FString(UGenesisCinematicSubsystem::ScriptVersion), FString(TEXT("1.2")));
+    TestEqual(TEXT("New contracts carry 1.2"), FGenesisSceneContract().ScriptVersion, FString(TEXT("1.2")));
+
+    // A registry still bound to 1.1 is refused: script and runtime must not drift apart.
+    FString Text;
+    FFileHelper::LoadFileToString(Text, *UGenesisCinematicSubsystem::DefaultRegistryPath());
+    const FString Old = FPaths::ProjectSavedDir() / TEXT("Automation/Genesis/registry_11.json");
+    FFileHelper::SaveStringToFile(Text.Replace(TEXT("\"script_version\": \"1.2\""), TEXT("\"script_version\": \"1.1\"")), *Old);
+    UGenesisCinematicSubsystem* Stale = NewObject<UGenesisCinematicSubsystem>(NewObject<UGameInstance>(GetTransientPackage()));
+    FString Error;
+    TestFalse(TEXT("Registry bound to 1.1 is refused"), Stale->LoadRegistry(Old, Error));
+    TestTrue(TEXT("Error names the version"), Error.Contains(TEXT("1.1")));
+    FGenesisSceneContract OldContract = TechContract("C03");
+    OldContract.ScriptVersion = TEXT("1.1");
+    TArray<FString> Errors;
+    TestFalse(TEXT("Contract with ScriptVersion 1.1 is refused"), C->Bind(OldContract, Errors));
     return true;
 }
 
@@ -62,14 +78,17 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisCinematicTransitionsTest, "Genesis.Cine
 bool FGenesisCinematicTransitionsTest::RunTest(const FString&)
 {
     using E = EGenesisCinematicState;
-    const E All[] = { E::Eligible, E::BindingValidated, E::Ready, E::Playing, E::AwaitingInteraction, E::CommitPending, E::Committed, E::HandedBack, E::Failed };
+    const E All[] = { E::Eligible, E::BindingValidated, E::Ready, E::Playing, E::InGameplaySegment, E::AwaitingInteraction, E::CommitPending, E::Committed, E::HandedBack, E::Failed };
     int32 Allowed = 0;
     for (E From : All) {
         for (E To : All) {
             Allowed += UGenesisCinematicSubsystem::IsAllowedTransition(From, To) ? 1 : 0;
         }
     }
-    TestEqual(TEXT("Exactly the 10 transitions of the contract"), Allowed, 10);
+    TestEqual(TEXT("Exactly the 13 transitions of the contract (10 + gameplay segment, CR-001)"), Allowed, 13);
+    TestTrue(TEXT("Playing -> InGameplaySegment"), UGenesisCinematicSubsystem::IsAllowedTransition(E::Playing, E::InGameplaySegment));
+    TestTrue(TEXT("InGameplaySegment -> Playing"), UGenesisCinematicSubsystem::IsAllowedTransition(E::InGameplaySegment, E::Playing));
+    TestFalse(TEXT("No InGameplaySegment -> CommitPending (segment never skipped)"), UGenesisCinematicSubsystem::IsAllowedTransition(E::InGameplaySegment, E::CommitPending));
     TestFalse(TEXT("No Playing -> Committed (commit is never bypassed)"), UGenesisCinematicSubsystem::IsAllowedTransition(E::Playing, E::Committed));
     TestFalse(TEXT("No Playing -> HandedBack"), UGenesisCinematicSubsystem::IsAllowedTransition(E::Playing, E::HandedBack));
     TestFalse(TEXT("No AwaitingInteraction -> Committed"), UGenesisCinematicSubsystem::IsAllowedTransition(E::AwaitingInteraction, E::Committed));
@@ -227,15 +246,28 @@ bool FGenesisMenuFlowTest::RunTest(const FString&)
     FGenesisMenuFlow Flow;
     FString Error;
     TestTrue(TEXT("Menu flow loads"), Flow.LoadFromFile(FGenesisMenuFlow::DefaultPath(), Error));
-    TestEqual(TEXT("14 nodes"), Flow.Nodes.Num(), 14);
+    TestEqual(TEXT("16 nodes (CR-001: + STORY_SWIM, CHAPTER_CARD)"), Flow.Nodes.Num(), 16);
     for (const FString& E : Flow.Validate()) {
         AddError(TEXT("Menu graph: ") + E);
     }
     TestEqual(TEXT("Starts at BOOT"), Flow.Current, FName("BOOT"));
     TestFalse(TEXT("No jump BOOT -> IN_GAME"), Flow.Go("IN_GAME"));
-    TestTrue(TEXT("BOOT -> TITLE_CARD"), Flow.Go("TITLE_CARD"));
+    // First start: story start, mandatory swim (pausable), C02 end, then title and menu (E1).
+    TestTrue(TEXT("BOOT -> STORY_START"), Flow.Go("STORY_START"));
+    TestFalse(TEXT("No title before C02"), Flow.CanGo("MAIN_MENU"));
+    TestTrue(TEXT("-> STORY_SWIM"), Flow.Go("STORY_SWIM"));
+    TestFalse(TEXT("The swim cannot be skipped to the title"), Flow.CanGo("TITLE_CARD"));
+    TestTrue(TEXT("Swim -> pause"), Flow.Go("PAUSE_MENU"));
+    TestTrue(TEXT("Pause -> accessibility (auto swim)"), Flow.Go("ACCESSIBILITY"));
+    TestTrue(TEXT("Accessibility back to the pause"), Flow.Go("PAUSE_MENU"));
+    TestTrue(TEXT("Pause -> back into the swim"), Flow.Go("STORY_SWIM"));
+    TestTrue(TEXT("Swim -> C02 end"), Flow.Go("STORY_START"));
+    TestTrue(TEXT("C02 -> TITLE_CARD"), Flow.Go("TITLE_CARD"));
     TestTrue(TEXT("-> MAIN_MENU"), Flow.Go("MAIN_MENU"));
     TestTrue(TEXT("-> NEW_GAME"), Flow.Go("NEW_GAME"));
+    TestFalse(TEXT("New life never skips the chapter card"), Flow.CanGo("IN_GAME"));
+    TestTrue(TEXT("New life without pending story life -> STORY_START"), Flow.CanGo("STORY_START"));
+    TestTrue(TEXT("-> CHAPTER_CARD"), Flow.Go("CHAPTER_CARD"));
     TestTrue(TEXT("-> IN_GAME"), Flow.Go("IN_GAME"));
     TestTrue(TEXT("-> PAUSE_MENU"), Flow.Go("PAUSE_MENU"));
     TestTrue(TEXT("-> SETTINGS"), Flow.Go("SETTINGS"));

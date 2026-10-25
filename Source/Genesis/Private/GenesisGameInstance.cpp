@@ -1,11 +1,13 @@
 #include "GenesisGameInstance.h"
 #include "Save/GenesisSaveStore.h"
+#include "Cinematic/GenesisCinematicSubsystem.h"
 #include "UI/GenesisUserSettings.h"
 #include "HAL/FileManager.h"
 #include "Kismet/GameplayStatics.h"
 
 const TCHAR* UGenesisGameInstance::GameplayMap = TEXT("/Game/Genesis/Flussdorf/Maps/L_Flussdorf_G6");
 const TCHAR* UGenesisGameInstance::MenuMap = TEXT("/Game/Genesis/UI/Maps/L_MainMenu");
+const TCHAR* UGenesisGameInstance::SwimMap = TEXT("/Game/Genesis/Cinematics/C02/Maps/L_C02_Swim");
 
 void UGenesisGameInstance::Init()
 {
@@ -80,4 +82,58 @@ void UGenesisGameInstance::ReturnToMainMenu()
     bBootSequenceShown = true;           // back from the game: straight to the main menu
     UGameplayStatics::SetGamePaused(this, false);
     UGameplayStatics::OpenLevel(this, FName(MenuMap));
+}
+
+bool UGenesisGameInstance::BeginStoryStart(bool bForNewLife, const FString& Slot)
+{
+    UGenesisCinematicSubsystem* Cine = GetSubsystem<UGenesisCinematicSubsystem>();
+    bStoryStartForNewLife = bForNewLife;
+    StoryStartSlot = Slot;
+    return Cine && StoryStart.Start(*Cine);
+}
+
+void UGenesisGameInstance::EnterSwim()
+{
+    UGameplayStatics::OpenLevel(this, FName(SwimMap), true, TEXT("game=/Script/Genesis.GenesisSwimGameMode"));
+}
+
+bool UGenesisGameInstance::FinishSwim(FName ConceptionMode)
+{
+    UGenesisCinematicSubsystem* Cine = GetSubsystem<UGenesisCinematicSubsystem>();
+    if (!Cine || !StoryStart.FinishSwim(*Cine, ConceptionMode)) {
+        return false;
+    }
+    bBootSequenceShown = true;
+    UGameplayStatics::SetGamePaused(this, false);
+    UGameplayStatics::OpenLevel(this, FName(MenuMap));
+    return true;
+}
+
+void UGenesisGameInstance::AbortStoryStart()
+{
+    StoryStart.Reset();
+    bStoryStartForNewLife = false;
+    StoryStartSlot.Reset();
+    ReturnToMainMenu();
+}
+
+bool UGenesisGameInstance::TakeStoryLife(FGenesisWorldState& State)
+{
+    if (!HasCompletedStoryLife()) {
+        return false;
+    }
+    const FGenesisWorldState& L = StoryStart.Life;
+    State.SoulID = L.SoulID;
+    State.LifeID = L.LifeID;
+    State.WorldID = L.WorldID;
+    State.WorldSeed = L.WorldSeed;
+    State.LifeNumber = L.LifeNumber;
+    State.StoryStartStage = L.StoryStartStage;
+    State.SoulSeedMinute = L.SoulSeedMinute;
+    State.LifeStartMinute = L.LifeStartMinute;
+    State.ConceptionMode = L.ConceptionMode;
+    State.StoryStartCommits = L.StoryStartCommits;
+    StoryStart.Reset();                  // one story start, one life
+    bStoryStartForNewLife = false;
+    return true;
 }

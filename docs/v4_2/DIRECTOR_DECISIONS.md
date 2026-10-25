@@ -63,3 +63,13 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Canon-Import (Weg) | Auf Anweisung des Game Directors („nur neue Dateien, nur mit Hash aus einer freigegebenen Regieentscheidung, nie überschreiben“) ist `canon_import.py` der einzige Weg für Claude in den Canon-Ordner; der Schutzhook lässt nur dessen schlichte Form durch. Testmatrix 20/20 + Nicht-Überschreiben geprüft |
 
 **Was die Freigabe NICHT bewirkt:** keine Asset-, Code- oder Produktionsfreigabe. Die technischen Folgen (MENU_FLOW, Szenenverträge C01/C02, Zustandsmaschine, Spielstand-Schema, Automationstests, neue Registerbindung an 1.2) brauchen eine eigene Freigabe. Bis dahin bindet das Register weiter an 1.1.
+
+## GD-2026-10-25-02 – Freigabe Umsetzung CR-001 Phase 1 und 2
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-25 |
+| Vorlage | [`plans/CR-001_UMSETZUNGSPLAN.md`](plans/CR-001_UMSETZUNGSPLAN.md) (Commit 56849ea) |
+| Antwort des Game Directors | „Freigabe für Phase 1 (Startablauf, Lichtschalter-Standard, Spielstand Schema 3, Tests) und Phase 2 (Graubox-Schwimmphase) aus dem CR-001-Umsetzungsplan.“ |
+| Umfang | Code und Daten: Skriptversion 1.2 in Laufzeit und Verträgen, Startablauf C00 → C01 → C02 (Schwimmphase) → Titel, „Lichtblitze verringern“ standardmäßig an, Spielstand Schema 3 mit Migration, Tests; spielbarer Graubox-Prototyp der Schwimmphase |
+| Nicht enthalten | Phase 3–5 (Look der Mikrowelt, Filmteile C01/C02, Integration/Abnahme) – je eigene Freigabe. Keine Kunst- oder Kanonentscheidung. |

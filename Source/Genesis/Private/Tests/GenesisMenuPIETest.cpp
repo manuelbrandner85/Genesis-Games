@@ -2,6 +2,8 @@
 #if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
 #include "GenesisGameInstance.h"
 #include "Player/GenesisPlayerController.h"
+#include "Swim/GenesisSwimGameMode.h"
+#include "EngineUtils.h"
 #include "Save/GenesisSaveStore.h"
 #include "UI/GenesisMenuGameMode.h"
 #include "UI/GenesisMenuWidget.h"
@@ -30,8 +32,9 @@ namespace
         App.ProcessKeyUpEvent(Event);
     }
 
-    /** Walks the whole menu route in Play-in-Editor: boot -> title -> main menu -> settings ->
-     *  new game (slot 1) -> in game -> pause/save -> main menu -> continue -> in game with the save. */
+    /** Walks the whole route in Play-in-Editor: boot -> story start (C00 skip with confirmation, C01,
+     *  C02-A) -> swim map -> C02 end -> title -> main menu -> settings -> new game (slot 1) -> chapter
+     *  card -> in game with the story's soul and life -> pause/save -> main menu -> continue. */
     class FGenesisMenuDrive : public IAutomationLatentCommand
     {
     public:
@@ -56,26 +59,60 @@ namespace
                 if (!M) return Fail(TEXT("no main menu widget"));
                 Test->TestEqual(TEXT("Starts with the boot sequence"), M->GetFlowNode(), FName("BOOT"));
                 for (int32 I = 0; I < 6 && M->GetScreen() == EGenesisMenuScreen::Boot; ++I) M->AdvanceIntro();
-                Test->TestEqual(TEXT("C00/C01 not approved: no prologue, title card next"), M->GetFlowNode(), FName("TITLE_CARD"));
+                // CR-001: first start (no save) -> story start C00 -> C01 -> C02 with the swim.
+                Test->TestEqual(TEXT("No save: story start after the boot pages"), M->GetFlowNode(), FName("STORY_START"));
+                Test->TestEqual(TEXT("C00 first"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C00));
+                SoulID = GI->StoryStart.Life.SoulID;
+                Press(EKeys::Gamepad_FaceButton_Bottom);
+                Test->TestTrue(TEXT("One press only asks"), M->IsSkipConfirmPending());
+                Test->TestEqual(TEXT("Still C00"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C00));
+                Press(EKeys::Gamepad_FaceButton_Bottom);
+                Test->TestEqual(TEXT("Second press skips C00"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C01));
+                Test->TestEqual(TEXT("Light strike starts dark"), M->GetFlashLevel(), 0.f);
+                Press(EKeys::Enter);
+                Test->TestEqual(TEXT("C01 skipped: C02 film"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C02Film));
+                LifeID = GI->StoryStart.Life.LifeID;
+                Test->TestFalse(TEXT("Life exists before C02"), LifeID.IsEmpty());
+                Press(EKeys::Enter);
+                Test->TestEqual(TEXT("Skipping C02-A leads into the swim"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C02Swim));
+                return NextWorld();
+            }
+            case 1: {
+                AGenesisSwimPlayerController* SwimPC = Cast<AGenesisSwimPlayerController>(PC);
+                if (!SwimPC || !SwimPC->GetPawn()) return ++Frames > 6000 ? Fail(TEXT("the swim map did not open")) : false;
+                AGenesisSwimDirector* Director = nullptr;
+                for (TActorIterator<AGenesisSwimDirector> It(World); It; ++It) Director = *It;
+                if (!Director) return Fail(TEXT("no swim director"));
+                FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("CR001/route_swim.png"), false, false);
+                Director->ForceFinish(TEXT("Own"));            // the swim itself is covered by Genesis.Swim.*
+                return NextWorld();
+            }
+            case 2: {
+                if (!MenuPC || !M) return ++Frames > 6000 ? Fail(TEXT("did not return to the menu map after the swim")) : false;
+                Test->TestEqual(TEXT("C02 continues after the swim"), M->GetFlowNode(), FName("STORY_START"));
+                Test->TestEqual(TEXT("C02 end part"), int32(GI->StoryStart.Step), int32(EGenesisStoryStep::C02End));
+                Press(EKeys::Gamepad_FaceButton_Bottom);
+                Test->TestEqual(TEXT("Title after C02 (E1)"), M->GetFlowNode(), FName("TITLE_CARD"));
                 Press(EKeys::Gamepad_FaceButton_Bottom);        // "press any button"
                 Test->TestEqual(TEXT("Any button opens the main menu"), M->GetScreen(), EGenesisMenuScreen::Main);
+                Test->TestTrue(TEXT("Story start complete, life pending"), GI->HasCompletedStoryLife());
                 const TArray<FString> Labels = M->GetEntryLabels();
                 Test->TestEqual(TEXT("Main menu without save: 6 entries"), Labels.Num(), 6);
                 Test->TestEqual(TEXT("No 'Continue' without a save"), M->FindEntry(TEXT("Fortsetzen")), int32(INDEX_NONE));
                 return Next(0.3);
             }
-            case 1: {
+            case 3: {
                 Test->TestEqual(TEXT("Focus visible on the first entry"), M->GetFocusedEntry(), 0);
                 Press(EKeys::Down);
                 Press(EKeys::Gamepad_DPad_Down);
                 return Next(0.2);
             }
-            case 2: {
+            case 4: {
                 Test->TestEqual(TEXT("Keyboard + d-pad move the focus two entries"), M->GetFocusedEntry(), 2);
                 Press(EKeys::Enter);                         // focused "Einstellungen"
                 return Next(0.2);
             }
-            case 3: {
+            case 5: {
                 Test->TestEqual(TEXT("Enter opens the settings"), M->GetScreen(), EGenesisMenuScreen::Settings);
                 UGenesisUserSettings* U = UGenesisUserSettings::Get();
                 const float Before = U->CameraSensitivity;
@@ -113,20 +150,29 @@ namespace
                 FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir() / TEXT("CM2/menu_main.png"), true, false);
                 M->ActivateEntry(M->FindEntry(TEXT("Neues Leben")));
                 Test->TestEqual(TEXT("New game screen"), M->GetScreen(), EGenesisMenuScreen::NewGame);
-                M->ActivateEntry(0);                          // empty slot 1: starts at once
+                M->ActivateEntry(0);                          // empty slot 1: chapter card, then the game
+                Test->TestEqual(TEXT("Chapter card before the game"), M->GetFlowNode(), FName("CHAPTER_CARD"));
+                return Next(0.8);
+            }
+            case 6: {
+                M->AdvanceIntro();
                 return Next(4.0);
             }
-            case 4: {
+            case 7: {
                 if (!GamePC) return Fail(TEXT("new game did not open the game map"));
                 Test->TestEqual(TEXT("Active slot"), GI->ActiveSlot, FString(TEXT("Slot1")));
                 Test->TestTrue(TEXT("New game wrote its start save"), IFileManager::Get().FileExists(*FGenesisSaveStore::SlotPath(TEXT("Slot1"))));
                 const UGenesisWorldStateSubsystem* WS = World->GetSubsystem<UGenesisWorldStateSubsystem>();
                 Test->TestFalse(TEXT("New game has a soul identity"), WS->GetState().SoulID.IsEmpty());
-                SoulID = WS->GetState().SoulID;
+                Test->TestEqual(TEXT("The game plays the soul of the story start"), WS->GetState().SoulID, SoulID);
+                Test->TestEqual(TEXT("... and the life that began before C02"), WS->GetState().LifeID, LifeID);
+                Test->TestEqual(TEXT("Story start passed"), WS->GetState().StoryStartStage, FName("Done"));
+                Test->TestEqual(TEXT("Own cell fused"), WS->GetState().ConceptionMode, FName("Own"));
+                Test->TestFalse(TEXT("Story life consumed"), GI->HasCompletedStoryLife());
                 GamePC->TogglePauseMenu();
                 return Next(0.0);
             }
-            case 5: {
+            case 8: {
                 if (!M) return Fail(TEXT("pause menu did not open"));
                 Test->TestTrue(TEXT("Game paused"), UGameplayStatics::IsGamePaused(World));
                 Test->TestEqual(TEXT("Pause node"), M->GetFlowNode(), FName("PAUSE_MENU"));
@@ -146,14 +192,14 @@ namespace
                 P->ActivateEntry(0);
                 return Next(3.0);
             }
-            case 6: {
+            case 9: {
                 if (!MenuPC || !M) return Fail(TEXT("did not return to the main menu"));
                 Test->TestEqual(TEXT("Back from the game: straight to the main menu"), M->GetScreen(), EGenesisMenuScreen::Main);
                 Test->TestEqual(TEXT("Continue is offered now"), M->FindEntry(TEXT("Fortsetzen")), 0);
                 M->ActivateEntry(0);
                 return Next(4.0);
             }
-            case 7: {
+            case 10: {
                 if (!GamePC) return Fail(TEXT("continue did not open the game"));
                 const UGenesisWorldStateSubsystem* WS = World->GetSubsystem<UGenesisWorldStateSubsystem>();
                 Test->TestEqual(TEXT("Continue loaded the saved soul"), WS->GetState().SoulID, SoulID);
@@ -166,6 +212,14 @@ namespace
         }
 
     private:
+        /** After a map change the new world's clock starts at 0: wait for the new world, not a time. */
+        bool NextWorld()
+        {
+            ++Step;
+            Wait = 0.0;
+            Frames = 0;
+            return false;
+        }
         bool Next(double Seconds)
         {
             ++Step;
@@ -183,6 +237,7 @@ namespace
         int32 Frames = 0;
         double Wait = 0.0;
         FString SoulID;
+        FString LifeID;
     };
 
     class FGenesisMenuCleanup : public IAutomationLatentCommand

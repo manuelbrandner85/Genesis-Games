@@ -123,6 +123,13 @@ void FGenesisSaveStore::Migrate(FGenesisWorldState& State, const FString& Payloa
         State.LifeNumber = 1;
         State.SchemaVersion = 2;
     }
+    if (State.SchemaVersion < 3) {
+        State.StoryStartStage = TEXT("Done");
+        State.ConceptionMode = TEXT("Migrated");
+        State.SoulSeedMinute = 0;
+        State.LifeStartMinute = 1;
+        State.SchemaVersion = 3;
+    }
 }
 
 bool FGenesisSaveStore::Load(const FString& Path, FGenesisWorldState& OutState, FString& OutError, bool* bOutUsedBackup)

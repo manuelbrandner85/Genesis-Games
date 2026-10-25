@@ -8,7 +8,7 @@
       "actions": [
         "check_save_integrity",
         "startup_warning_accessibility",
-        "show_prolog_according_to_canon"
+        "story_start_if_no_valid_save"
       ],
       "edges": [
         "STORY_START",
@@ -19,12 +19,31 @@
     {
       "id": "STORY_START",
       "actions": [
-        "play_approved_C00_C01_or_valid_skip"
+        "C00_prologue_skip_needs_second_confirmation",
+        "C01_light_strike_respects_reduce_flashes",
+        "C02A_film",
+        "C02CF_film_after_swim"
       ],
       "edges": [
-        "TITLE_CARD"
+        "STORY_SWIM",
+        "TITLE_CARD",
+        "CHAPTER_CARD"
       ],
       "mode": "cinematic"
+    },
+    {
+      "id": "STORY_SWIM",
+      "actions": [
+        "C02B_mandatory_swim_not_skippable",
+        "pause",
+        "no_game_over",
+        "auto_swim_option"
+      ],
+      "edges": [
+        "STORY_START",
+        "PAUSE_MENU"
+      ],
+      "mode": "gameplay"
     },
     {
       "id": "TITLE_CARD",
@@ -75,13 +94,26 @@
       "id": "NEW_GAME",
       "actions": [
         "confirm_overwrite_only_if_needed",
-        "select_new_slot"
+        "select_new_slot",
+        "story_start_if_no_life_pending"
       ],
       "edges": [
-        "IN_GAME",
+        "CHAPTER_CARD",
+        "STORY_START",
         "MAIN_MENU"
       ],
       "mode": "ui"
+    },
+    {
+      "id": "CHAPTER_CARD",
+      "actions": [
+        "show_chapter_I",
+        "press_any_button"
+      ],
+      "edges": [
+        "IN_GAME"
+      ],
+      "mode": "presentation"
     },
     {
       "id": "LOAD_GAME",
@@ -118,10 +150,12 @@
         "high_contrast",
         "photosensitivity",
         "camera_motion",
-        "trigger_skip"
+        "trigger_skip",
+        "auto_swim"
       ],
       "edges": [
-        "MAIN_MENU"
+        "MAIN_MENU",
+        "PAUSE_MENU"
       ],
       "mode": "ui"
     },
@@ -169,7 +203,9 @@
       ],
       "edges": [
         "IN_GAME",
+        "STORY_SWIM",
         "SETTINGS",
+        "ACCESSIBILITY",
         "LOAD_GAME",
         "MAIN_MENU"
       ],
@@ -191,5 +227,6 @@
     "Keyboard/controller focus must be visible",
     "No dead UI action claims",
     "No hidden time limit on story choices"
-  ]
+  ],
+  "cr001_note": "CR-001 (GD-2026-10-25-01, ScriptLock 1.2): BOOT -> STORY_START (C00, C01, C02-A) -> STORY_SWIM (C02-B) -> STORY_START (C02-C..F) -> TITLE_CARD -> MAIN_MENU (E1). New life: NEW_GAME -> CHAPTER_CARD -> IN_GAME with the life of the story start, or NEW_GAME -> STORY_START -> ... -> CHAPTER_CARD when none is pending (returning player). PAUSE_MENU <-> STORY_SWIM and ACCESSIBILITY (auto swim, E2)."
 }

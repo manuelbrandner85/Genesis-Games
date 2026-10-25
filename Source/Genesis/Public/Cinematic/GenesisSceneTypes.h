@@ -3,7 +3,7 @@
 #include "GenesisSceneTypes.generated.h"
 
 /**
- * V4.2 SceneContract data (docs/v4_2: SCENE_MATRIX_C00_C21.json, ScriptLock 1.1 IV.B).
+ * V4.2 SceneContract data (docs/v4_2: SCENE_MATRIX_C00_C21.json, ScriptLock 1.2 IV.B, CR-001).
  * A cinematic is never "just played": it runs through a contract that names the soul, life and world
  * it belongs to, and it changes the world only through one idempotent commit.
  */
@@ -14,6 +14,7 @@ enum class EGenesisCinematicState : uint8
     BindingValidated,
     Ready,
     Playing,
+    InGameplaySegment,      // CR-001: playable part inside a scene (C02-B swim): never skippable, pausable
     AwaitingInteraction,    // interactive scenes: the shot ends, the player decides (never auto-decided)
     CommitPending,
     Committed,
@@ -70,7 +71,7 @@ struct GENESIS_API FGenesisSceneContract
 {
     GENERATED_BODY()
     UPROPERTY() FName SceneID;
-    UPROPERTY() FString ScriptVersion = TEXT("1.1");
+    UPROPERTY() FString ScriptVersion = TEXT("1.2");
     UPROPERTY() FString SoulID;
     UPROPERTY() FString LifeID;
     UPROPERTY() FString WorldID;
@@ -91,6 +92,11 @@ struct GENESIS_API FGenesisSceneContract
     /** Technical test (non-canonical stand-in content): runs the full state machine but never
      *  writes the world ledger. Required while the director's script approval is missing. */
     UPROPERTY() bool bTechnicalTest = false;
+    /** Playable segment inside the scene (film -> play -> film), e.g. C02B_SWIM. Skipping the film
+     *  before it lands in the segment; the segment itself cannot be skipped and must end first. */
+    UPROPERTY() FName GameplaySegmentID;
+    UPROPERTY() bool bGameplaySegmentDone = false;
+    bool HasPendingSegment() const { return !GameplaySegmentID.IsNone() && !bGameplaySegmentDone; }
 
     /** Ledger key of the commit: once per scene, life and variant. */
     FName CommitKey() const { return FName(*FString::Printf(TEXT("CIN_%s_%s_%s"), *SceneID.ToString(), *LifeID, *VariantID.ToString())); }

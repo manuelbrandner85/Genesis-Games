@@ -30,7 +30,12 @@ void AGenesisMenuPlayerController::BeginPlay()
     }
     Menu->AddToViewport();
     const UGenesisGameInstance* GI = Cast<UGenesisGameInstance>(GetGameInstance());
-    Menu->StartMainMenu(GI && GI->bBootSequenceShown);
+    if (GI && GI->StoryStart.Step == EGenesisStoryStep::C02End) {
+        Menu->ResumeStoryStart();          // back from the C02-B swim: C02 continues, then the title
+    }
+    else {
+        Menu->StartMainMenu(GI && GI->bBootSequenceShown);
+    }
     FInputModeUIOnly Mode;
     Mode.SetWidgetToFocus(Menu->TakeWidget());
     SetInputMode(Mode);

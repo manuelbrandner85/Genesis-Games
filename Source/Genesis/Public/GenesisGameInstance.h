@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Cinematic/GenesisStoryStart.h"
 #include "GenesisGameInstance.generated.h"
 
 /** What the load screen shows about a save slot (read from the verified save file). */
@@ -38,6 +39,7 @@ public:
 
     static const TCHAR* GameplayMap;
     static const TCHAR* MenuMap;
+    static const TCHAR* SwimMap;
 
     FString ActiveSlot = TEXT("Dev");
     bool bLoadSlotOnStart = false;
@@ -47,4 +49,22 @@ public:
     void StartNewGame(const FString& Slot);
     void LoadSlotAndPlay(const FString& Slot);
     void ReturnToMainMenu();
+
+    // --- Story start (CR-001): C00 -> C01 -> C02 with the swim map -> title / chapter card ----------
+    FGenesisStoryStart StoryStart;
+    /** Started from "Neues Leben" (returning player): ends with the chapter card into the game
+     *  instead of the title card; StoryStartSlot is the chosen save slot. */
+    bool bStoryStartForNewLife = false;
+    FString StoryStartSlot;
+    bool BeginStoryStart(bool bForNewLife, const FString& Slot = FString());
+    /** C02-B: opens the swim map (the C02 contract is InGameplaySegment now). */
+    void EnterSwim();
+    /** End of the swim (Own/Other): C02 continues in the menu map, then title or chapter card. */
+    bool FinishSwim(FName ConceptionMode);
+    /** Leaves the story start from the pause menu: the coming life is dropped, back to the main menu. */
+    void AbortStoryStart();
+    bool HasCompletedStoryLife() const { return StoryStart.Step == EGenesisStoryStep::Done; }
+    /** New game: the life built in the story start becomes the start state (same soul and life
+     *  as in C00-C02). Consumed once. Returns false if there is none (e.g. editor start). */
+    bool TakeStoryLife(FGenesisWorldState& State);
 };

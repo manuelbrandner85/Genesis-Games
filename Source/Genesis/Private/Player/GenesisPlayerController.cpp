@@ -120,6 +120,10 @@ void AGenesisPlayerController::RunStartAction()
     }
     else if (GI->bNewGamePendingSave) {
         GI->bNewGamePendingSave = false;
+        // CR-001: the life that began in the story start (C00-C02) is the one that is played.
+        if (UGenesisWorldStateSubsystem* WS = GetWorld()->GetSubsystem<UGenesisWorldStateSubsystem>()) {
+            GI->TakeStoryLife(WS->GetMutableState());
+        }
         SaveGame();                       // the confirmed new game replaces the slot right away
     }
 }

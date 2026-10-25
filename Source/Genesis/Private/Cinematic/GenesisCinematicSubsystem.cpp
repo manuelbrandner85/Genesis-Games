@@ -22,6 +22,8 @@ FString UGenesisCinematicSubsystem::DefaultRegistryPath()
     return FPaths::ProjectContentDir() / TEXT("Genesis/Data/scene_registry.json");
 }
 
+const TCHAR* UGenesisCinematicSubsystem::ScriptVersion = TEXT("1.2");
+
 bool UGenesisCinematicSubsystem::LoadRegistry(const FString& Path, FString& OutError)
 {
     Registry.Reset();
@@ -33,6 +35,10 @@ bool UGenesisCinematicSubsystem::LoadRegistry(const FString& Path, FString& OutE
     }
     if (!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Text), Root) || !Root.IsValid()) {
         OutError = TEXT("not json");
+        return false;
+    }
+    if (Root->GetStringField(TEXT("script_version")) != ScriptVersion) {
+        OutError = FString::Printf(TEXT("registry is bound to ScriptLock %s, this build expects %s"), *Root->GetStringField(TEXT("script_version")), ScriptVersion);
         return false;
     }
     const TArray<TSharedPtr<FJsonValue>>* Scenes = nullptr;
@@ -64,7 +70,8 @@ bool UGenesisCinematicSubsystem::IsAllowedTransition(ECineState From, ECineState
     case ECineState::Eligible:            return To == ECineState::BindingValidated || To == ECineState::Failed;
     case ECineState::BindingValidated:    return To == ECineState::Ready || To == ECineState::Failed;
     case ECineState::Ready:               return To == ECineState::Playing;
-    case ECineState::Playing:             return To == ECineState::AwaitingInteraction || To == ECineState::CommitPending;
+    case ECineState::Playing:             return To == ECineState::InGameplaySegment || To == ECineState::AwaitingInteraction || To == ECineState::CommitPending;
+    case ECineState::InGameplaySegment:   return To == ECineState::Playing || To == ECineState::Failed;
     case ECineState::AwaitingInteraction: return To == ECineState::CommitPending;
     case ECineState::CommitPending:       return To == ECineState::Committed;
     case ECineState::Committed:           return To == ECineState::HandedBack;
@@ -89,8 +96,11 @@ TArray<FString> UGenesisCinematicSubsystem::ValidateContract(const FGenesisScene
         Errors.Add(FString::Printf(TEXT("%s is not in the scene registry"), *C.SceneID.ToString()));
         return Errors;
     }
-    if (C.ScriptVersion != TEXT("1.1")) {
-        Errors.Add(TEXT("ScriptVersion must be 1.1"));
+    if (C.ScriptVersion != ScriptVersion) {
+        Errors.Add(FString::Printf(TEXT("ScriptVersion must be %s"), ScriptVersion));
+    }
+    if (!C.GameplaySegmentID.IsNone() && C.SceneID != TEXT("C02")) {
+        Errors.Add(FString::Printf(TEXT("%s has no playable segment in ScriptLock %s"), *C.SceneID.ToString(), ScriptVersion));
     }
     if (C.SoulID.IsEmpty() || C.LifeID.IsEmpty() || C.WorldID.IsEmpty()) {
         Errors.Add(TEXT("SoulID, LifeID and WorldID are required"));
@@ -144,8 +154,25 @@ bool UGenesisCinematicSubsystem::Play(FGenesisSceneContract& Contract) const
 
 bool UGenesisCinematicSubsystem::FinishPlayback(FGenesisSceneContract& Contract) const
 {
+    if (Contract.HasPendingSegment()) {
+        return false;                    // the film cannot end before its playable segment was played
+    }
     const FGenesisSceneRegistryEntry* Entry = FindScene(Contract.SceneID);
     return Move(Contract, Entry && Entry->bInteractive ? ECineState::AwaitingInteraction : ECineState::CommitPending);
+}
+
+bool UGenesisCinematicSubsystem::BeginSegment(FGenesisSceneContract& Contract) const
+{
+    return Contract.HasPendingSegment() && Move(Contract, ECineState::InGameplaySegment);
+}
+
+bool UGenesisCinematicSubsystem::EndSegment(FGenesisSceneContract& Contract) const
+{
+    if (!Move(Contract, ECineState::Playing)) {
+        return false;
+    }
+    Contract.bGameplaySegmentDone = true;
+    return true;
 }
 
 bool UGenesisCinematicSubsystem::Skip(FGenesisSceneContract& Contract, bool bHasSeenBefore) const
@@ -153,6 +180,9 @@ bool UGenesisCinematicSubsystem::Skip(FGenesisSceneContract& Contract, bool bHas
     if (Contract.CinematicState != ECineState::Playing || Contract.SkipPolicy == EGenesisSkipPolicy::Never
         || (Contract.SkipPolicy == EGenesisSkipPolicy::AfterFirstView && !bHasSeenBefore)) {
         return false;
+    }
+    if (Contract.HasPendingSegment()) {
+        return BeginSegment(Contract);   // skipping the film never skips the playable segment
     }
     return FinishPlayback(Contract);     // interactive: still waits for the decision
 }

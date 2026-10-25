@@ -16,6 +16,8 @@ enum class EGenesisMenuScreen : uint8
 {
     None, Boot, Title, Main, NewGame, NewGameConfirm, Load, Settings, Accessibility, Credits, QuitConfirm,
     Pause, MainMenuConfirm,
+    StoryStart,         // CR-001: C00 / C01 light strike / C02 film parts (placeholders until the masters exist)
+    ChapterCard,        // "Neues Leben": chapter card, then the game
 };
 
 /**
@@ -32,8 +34,10 @@ class GENESIS_API UGenesisMenuWidget : public UUserWidget
 public:
     /** Main menu map: boot sequence (warnings) -> title card -> main menu; returning from the game skips to the main menu. */
     void StartMainMenu(bool bSkipBoot);
-    /** In the game: opens as pause menu. */
-    void StartPauseMenu();
+    /** In the game: opens as pause menu. bStoryStart: pause of the C02-B swim (no save/load). */
+    void StartPauseMenu(bool bStoryStart = false);
+    /** Back from the swim map: C02 continues (C02-C..F), then title card or chapter card. */
+    void ResumeStoryStart();
 
     DECLARE_DELEGATE(FOnResume);
     FOnResume OnResume;
@@ -48,6 +52,11 @@ public:
     bool AdjustEntry(int32 Index, int32 Direction);
     void Back();
     void AdvanceIntro();
+    /** Story start film part: a key press skips (C00 asks for a second press first). */
+    void StoryKey();
+    bool IsSkipConfirmPending() const { return ConfirmSkipUntil > ScreenTime; }
+    /** Current white level of the light-strike overlay (C01), for tests and capture. */
+    float GetFlashLevel() const;
     int32 GetFocusedEntry() const;
     const FString& GetInfoText() const { return InfoText; }
     const FString& GetLastFlowError() const { return LastFlowError; }
@@ -78,6 +87,11 @@ private:
     void SettingsChanged(bool bEngineSettings);
     void FocusEntry(int32 Index);
     void HandleChoice(int32 Index);
+    void ChooseNewGameSlot(const FString& SaveSlotName);
+    void StoryStartTick();
+    void FinishStoryPart(bool bSkipped);
+    float StoryPartSeconds() const;
+    class UGenesisGameInstance* GetGenesisGI() const;
     void Resume();
     FString SlotLabel(const FString& SaveSlotName, bool bForNewGame) const;
     UTextBlock* MakeText(const FString& Name, int32 Size, const FLinearColor& Color = FLinearColor::White);
@@ -87,6 +101,9 @@ private:
     EGenesisMenuScreen Screen = EGenesisMenuScreen::None;
     EGenesisMenuScreen ReturnScreen = EGenesisMenuScreen::Main;   // Main or Pause
     bool bInGame = false;
+    bool bStoryPause = false;
+    bool bSwimRequested = false;
+    float ConfirmSkipUntil = -1.f;
     FString PendingSlot;
     FString InfoText;
     FString LastFlowError;
@@ -99,6 +116,8 @@ private:
     UCanvasPanel* Root = nullptr;
     UBorder* Shade = nullptr;
     UBorder* Panel = nullptr;
+    UBorder* Flash = nullptr;          // C01 light strike: full-screen warm white
+    UBorder* LightPoint = nullptr;     // C01: the point of light before the strike
     UVerticalBox* Center = nullptr;
     UTextBlock* BigTitle = nullptr;
     UTextBlock* BigSub = nullptr;
