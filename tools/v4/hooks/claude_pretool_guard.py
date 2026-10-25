@@ -6,8 +6,10 @@ import sys,json,re
 PROTECTED=('canon_sources/','canon_sources\\','original_md_unveraendert/','original_md_unveraendert\\')
 # 2026-10-25 (Fund H-02, freigegeben): normaler 'git push' ist erlaubt (Nutzerregel: fertige Commits pushen);
 # gesperrt bleiben Force-Push, Mirror-/Loesch-Push, reset --hard, clean -f, rm -rf, Repo-Loeschen.
-PATTERNS=[r'git\s+push\b[^\n]*\s(?:-f|--force(?:-with-lease)?|--force-if-includes|--mirror|--delete|-d|--prune)\b',
- r'git\s+push\b[^\n]*\s\+\S',r'git\s+push\b[^\n]*\s:\S',r'git\s+reset\s+--hard',r'git\s+clean\s+-[^\s]*f',
+# 2026-10-25 (GAMEFORGE-Nachtest): Git-Optionen zwischen 'git' und Befehl (-C <Pfad>, -c k=v, --git-dir=...) umgingen die Sperre.
+GIT=r"""git(?:\s+(?:-C\s+(?:"[^"]*"|'[^']*'|\S+)|-c\s+\S+|--[\w-]+(?:=\S+)?))*\s+"""
+PATTERNS=[GIT+r'push\b[^\n]*\s(?:-f|--force(?:-with-lease)?|--force-if-includes|--mirror|--delete|-d|--prune)\b',
+ GIT+r'push\b[^\n]*\s\+\S',GIT+r'push\b[^\n]*\s:\S',GIT+r'reset\s+--hard',GIT+r'clean\s+-[^\s]*f',
  r'\brm\s+-[a-zA-Z]*r[a-zA-Z]*f\b',r'\brm\s+-[a-zA-Z]*f[a-zA-Z]*r\b',
  r'\bremove-item\b[^\n]*-recurse',r'\brmdir\s+/s',r'\bformat\s+[a-z]:',
  r'\bgh\s+repo\s+delete\b']
