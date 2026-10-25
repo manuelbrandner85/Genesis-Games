@@ -208,7 +208,9 @@ man = next(a for a in eas.get_all_level_actors() if a.get_actor_label() == "MH_C
 mbody = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
 m_hand, m_mid = mbody.get_socket_transform("hand_l", W).translation, mbody.get_socket_transform("middle_01_l", W).translation
 m_idx, m_pky = mbody.get_socket_transform("index_01_l", W).translation, mbody.get_socket_transform("pinky_01_l", W).translation
-m_palm = (m_hand + m_mid) * 0.5 + V(0, 0, 3.0)           # her palm joint: his back of hand (+1.5) + her palm (+1.5)
+# her palm joint above his palm centre: his back of hand (+1.5) + her palm (+1.5) + clearance for the skinned skin
+# surfaces (Regie 2026-10-25: at +3.0 "die Hand ... in der Hand des Mannes" - her fingers sank into his hand)
+m_palm = (m_hand + m_mid) * 0.5 + V(0, 0, 4.2)
 
 
 def arm_ik(side, wrist_w, pole, d_t, p_t):
@@ -261,7 +263,7 @@ def arm_ik(side, wrist_w, pole, d_t, p_t):
 
 def curl(side, base_deg):
     """fingers wrap around: with the palm facing down, each joint bends so that its tip moves down"""
-    for f, scale in (("index", 1.0), ("middle", 1.05), ("ring", 1.1), ("pinky", 1.15), ("thumb", 0.5)):
+    for f, scale in (("index", 1.0), ("middle", 1.05), ("ring", 1.1), ("pinky", 1.15)):
         for k, part in enumerate(("01", "02", "03")):
             b = f"{f}_{part}_{side}"
             if b not in cur or not children[b]:
@@ -271,16 +273,31 @@ def curl(side, base_deg):
             bend(b, across, base_deg[k] * scale, lambda tip=tip: -p(tip).z)
 
 
+def thumb_alongside(side):
+    """Regie 2026-10-25 ("Daumen sehr kurz, anatomisch falsch"): curled with the fingers, the thumb pointed down under
+    the hand and read stubby. A resting thumb lies stretched beside the hand: a little abducted from the index finger
+    (in the palm plane) and lifted so its tip stays on top instead of digging in."""
+    t1, t3, ix = f"thumb_01_{side}", f"thumb_03_{side}", f"index_01_{side}"
+    if t1 not in cur or t3 not in cur:
+        return
+    palm_n = norm((p(f"middle_01_{side}") - p(f"hand_{side}")).cross(p(ix) - p(f"pinky_01_{side}")))
+    bend(t1, palm_n, 14, lambda: (p(t3) - p(ix)).length())          # away from the index finger
+    across = p(ix) - p(f"pinky_01_{side}")
+    bend(t1, across, 8, lambda: p(t3).z)                            # tip up, not into his hand / her thigh
+
+
 # her right hand onto the back of his hand: wrist behind his palm centre (toward her, +X), fingers across his hand
-d_r = norm(to_cs(m_palm + V(-1.0, 0.25, -0.1)) - to_cs(m_palm))
+d_r = norm(to_cs(m_palm + V(-1.0, 0.25, 0.0)) - to_cs(m_palm))
 wrist_r = to_cs(m_palm) - d_r * 6.0                       # first test: wrist 1-2 cm too high, the hand hovered
 E_r = arm_ik("r", wrist_r, V(-1.0, 0.0, -0.6), d_r, qinv(yaw_q).rotate_vector(V(0, 0, -1)))
-curl("r", (9, 12, 7))                                    # fingers lie over his fingers (a strong curl read as a claw)
+curl("r", (6, 9, 5))                                     # fingers lie over his fingers (a strong curl read as a claw)
+thumb_alongside("r")
 # left hand on her left thigh, fingers toward the knee
 th_l, kn_l = p("thigh_l"), p("calf_l")
-wrist_l = th_l + (kn_l - th_l) * 0.45 + V(0, 0, 9.0)
+wrist_l = th_l + (kn_l - th_l) * 0.45 + V(0, 0, 12.0)      # on the thigh (at +9 the hand sank into it)
 E_l = arm_ik("l", wrist_l, V(1.0, -0.3, -0.5), norm(kn_l - th_l) + V(-0.15, 0, 0), V(0, 0, -1))
-curl("l", (12, 14, 8))
+curl("l", (6, 8, 5))
+thumb_alongside("l")
 
 # ------------------------------------------------------------------ neck and head bowed toward his hand
 bend("neck_01", X, 10, lambda: p("head").y)

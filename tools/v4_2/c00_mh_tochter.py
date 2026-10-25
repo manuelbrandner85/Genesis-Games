@@ -96,10 +96,11 @@ mh.commit_eyes_settings(ch, ey)
 
 # Body: 166 cm, average build
 bcs = mh.get_body_constraints(ch, False)
-for c in bcs:
-    if str(c.name) == "Height":
-        c.target_measurement = 166.0
-        c.is_active = True
+_i = [str(x.name) for x in bcs].index("Height")
+_c = bcs[_i]                                # iterating yields struct copies (the 166 cm never arrived): write back by index
+_c.set_editor_property("is_active", True)
+_c.set_editor_property("target_measurement", 166.0)
+bcs[_i] = _c
 mh.set_body_constraints(ch, bcs)
 mh.commit_body_state(ch)
 
