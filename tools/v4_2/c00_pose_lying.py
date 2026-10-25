@@ -15,7 +15,9 @@ import unreal
 DST, NAME = "/Game/Genesis/Characters/C00/Posen", "A_C00_Mann_Liegen"
 PARENT = {"upperarm_l": "clavicle_l", "lowerarm_l": "upperarm_l", "upperarm_r": "clavicle_r", "lowerarm_r": "upperarm_r",
           "neck_01": "spine_05", "neck_02": "neck_01", "head": "neck_02", "foot_l": "calf_l", "foot_r": "calf_r",
-          "hand_l": "lowerarm_l", "hand_r": "lowerarm_r", "thigh_r": "pelvis"}
+          "hand_l": "lowerarm_l", "hand_r": "lowerarm_r", "thigh_r": "pelvis", "thigh_l": "pelvis",
+          "lowerarm_twist_01_l": "lowerarm_l", "lowerarm_twist_02_l": "lowerarm_l",
+          "lowerarm_twist_01_r": "lowerarm_r", "lowerarm_twist_02_r": "lowerarm_r"}
 eal = unreal.EditorAssetLibrary
 mh = unreal.get_editor_subsystem(unreal.MetaHumanCharacterEditorSubsystem)
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -37,7 +39,8 @@ if _os_b.environ.get("GENESIS_POSE_BUILT"):
 BONES = ("pelvis", "spine_03", "spine_05", "neck_01", "neck_02", "head", "clavicle_l", "clavicle_r", "upperarm_l", "upperarm_r",
          "lowerarm_l", "lowerarm_r", "hand_l", "hand_r", "middle_03_l", "middle_03_r", "thigh_l", "thigh_r",
          "calf_l", "calf_r", "foot_l", "foot_r", "ball_l", "ball_r", "middle_01_l", "middle_01_r",
-         "index_01_l", "index_01_r", "pinky_01_l", "pinky_01_r")
+         "index_01_l", "index_01_r", "pinky_01_l", "pinky_01_r",
+         "lowerarm_twist_01_l", "lowerarm_twist_02_l", "lowerarm_twist_01_r", "lowerarm_twist_02_r")
 cs = {b: body.get_socket_transform(b, CS) for b in BONES}
 a_pose = {b: list(cs[b].translation.to_tuple()) for b in BONES}            # for the duvet proxy (Blender)
 eas.destroy_actor(probe)
@@ -117,8 +120,8 @@ def bend_chain(chain, degrees, probe, want_more):
 
 # ------------------------------------------------------------------ arms resting ON the duvet (Regie 2026-10-25:
 # "Haende auf die Decke wie bei einem Sterbenden, anatomisch korrekt"). Two-bone IK on the man's own limb lengths:
-# upper arms beside the chest, elbows resting on the duvet, hands flat (palm down): the left on the belly, the right
-# beside the body at the hip. The duvet surface comes from the Blender
+# upper arms beside the chest, elbows resting on the duvet, hands flat (palm down): the right on the belly, the left
+# (window side) beside the body at the hip. The duvet surface comes from the Blender
 # cloth simulation (C00_BEDROOM_LYING.json "duvet_height_local", local cm; y = up when lying).
 import json as _json
 import os as _os
@@ -167,6 +170,24 @@ def quat_from_to(a, b):
     return q
 
 
+def spread_twist(chain, twist_bones, elbow, wrist, q):
+    """apply the share of q's twist about the forearm axis to each twist joint (fraction = distance from the elbow)"""
+    fore = norm(wrist - elbow)
+    proj = fore * V3(q.x, q.y, q.z).dot(fore)
+    tw = unreal.Quat(proj.x, proj.y, proj.z, q.w)
+    tw.normalize()
+    ang = 2.0 * math.acos(max(-1.0, min(1.0, tw.w)))
+    s = math.sin(ang / 2)
+    axis = V3(tw.x / s, tw.y / s, tw.z / s) if s > 1e-6 else fore
+    L = max((wrist - elbow).length(), 1e-3)
+    for b in twist_bones:
+        if b not in chain:
+            continue
+        f = max(0.0, min(1.0, (chain[b].translation - elbow).dot(fore) / L))
+        a = ang * f / 2
+        chain[b] = spin(chain[b], chain[b].translation, unreal.Quat(axis.x * math.sin(a), axis.y * math.sin(a), axis.z * math.sin(a), math.cos(a)))
+
+
 def arm_ik(side, target):
     sx = 1 if side == "l" else -1
     up, lo, ha = f"upperarm_{side}", f"lowerarm_{side}", f"hand_{side}"
@@ -201,13 +222,16 @@ def arm_ik(side, target):
     if nA.dot(nT) < 0:
         nT = nT * -1.0
     q1 = frame_quat(E - S, nT) * qinv(frame_quat(E0 - S, nA))
-    chain = {b: spin(cs[b], S, q1) for b in (up, lo, ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}")}
+    TW = [f"lowerarm_twist_01_{side}", f"lowerarm_twist_02_{side}"]
+    chain = {b: spin(cs[b], S, q1) for b in (up, lo, ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}", *TW)}
     E1 = chain[lo].translation
     f1 = chain[ha].translation - E1
     q2 = quat_from_to(f1, W - E1)                          # hinge about nT (both lie in the bending plane)
     for b in (ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}"):
         chain[b] = spin(chain[b], E1, q2)
     chain[lo] = spin(chain[lo], E1, q2)
+    for b in TW:
+        chain[b] = spin(chain[b], E1, q2)
     Wc = chain[ha].translation
     dir_c = chain[f"middle_01_{side}"].translation - Wc
     across = chain[f"index_01_{side}"].translation - chain[f"pinky_01_{side}"].translation
@@ -222,27 +246,26 @@ def arm_ik(side, target):
     dir_t = norm(flat - V3(0, 0.18, 0))                    # fingers relaxed slightly down onto the duvet
     palm_t = V3(0, -1, 0)
     q3 = frame_quat(dir_t, palm_t) * qinv(frame_quat(dir_c, palm_c))
-    # swing-twist about the forearm: the twist turns the forearm (no candy-wrap at the wrist), the swing the hand
-    proj = fore * V3(q3.x, q3.y, q3.z).dot(fore)
-    tw = unreal.Quat(proj.x, proj.y, proj.z, q3.w)
-    tw.normalize()
-    sw = q3 * qinv(tw)
-    chain[lo] = spin(chain[lo], E1, tw)
-    for b in (ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}"):
-        chain[b] = spin(chain[b], E1, tw)
-    chain[ha] = spin(chain[ha], chain[ha].translation, sw)
+    # Regie 2026-10-25 ("beide Arme sehr verdreht und unnatuerlich"): turning the whole forearm bone about its axis for
+    # the ~90 deg pronation (A-pose palm medial -> palm down) wrung the elbow skin and the sleeve like a sweet wrapper.
+    # The elbow hinge stays put; the pronation lives in the hand, spread over the forearm twist joints in proportion to
+    # their distance from the elbow (as radius and ulna share it).
+    chain[ha] = spin(chain[ha], Wc, q3)
+    spread_twist(chain, TW, E1, Wc, q3)
     print("C00_POSE_IK", side, "pole", pole_deg, "elbow", [round(v, 1) for v in E.to_tuple()],
           "duvet@elbow", round(duvet_y(E.x, E.z), 1), "wrist", [round(v, 1) for v in W.to_tuple()])
-    return {up: chain[up], lo: chain[lo], ha: chain[ha]}
+    return {b: chain[b] for b in (up, lo, ha, *TW)}
 
 
 if HMAP:
-    # Regie 2026-10-25: the left hand stays on the belly; the right arm lies beside the body, the hand on the duvet at
-    # the hip (with both hands on the belly the right upper arm lay in front of the chest and its sleeve cut through
-    # the shirt's torso panel)
+    # Regie 2026-10-25: one hand on the belly; the arm on the window side lies beside the body, the hand on the duvet at
+    # the hip, where the daughter holds it (00-B). Lying face up with the head at the headboard (north), the man's LEFT
+    # side faces the window (east) - the Blender side of the pipeline had mirrored this until 2026-10-25 and called it
+    # "right". (With both hands on the belly the upper arm lay in front of the chest and its sleeve cut through the
+    # shirt's torso panel.)
     # the wrist sits over the highest duvet point under the whole hand (wrist to fingertips ~18 cm toward the feet,
     # +-4 cm across): beside the hip the duvet rises over the pelvis and a wrist-only height let the fingers sink in
-    for side, hx, hz in (("l", 10.5, 105.0), ("r", -23.0, 88.0)):
+    for side, hx, hz in (("r", -10.5, 105.0), ("l", 23.0, 88.0)):
         top = max(duvet_y(hx + dx, hz - dz) for dx in (-4.0, 0.0, 4.0) for dz in (0.0, 6.0, 12.0, 18.0))
         new.update(arm_ik(side, V3(hx, top + 3.0, hz)))
 
@@ -261,9 +284,11 @@ for side in ("l", "r"):
     q = about_x(best[1])
     new[f] = spin(cs[f], cs[f].translation, q)
     joints[side]["ball"] = list((cs[f].translation + q.rotate_vector(ball.translation - cs[f].translation)).to_tuple())
-# Regie 2026-10-25: one foot looks out of the duvet - lying relaxed, the right leg falls ~25 deg outward
+# Regie 2026-10-25: one foot looks out of the duvet - lying relaxed, the window-side (left) leg falls ~25 deg outward
 # (external rotation about the thigh axis); the duvet corner over it is turned back (build_c00_bedroom_occupied.py)
-_th, _ca, _ba = cs["thigh_r"].translation, cs["calf_r"].translation, cs["ball_r"].translation
+OUT = "l"
+_sx = 1 if OUT == "l" else -1
+_th, _ca, _ba = cs[f"thigh_{OUT}"].translation, cs[f"calf_{OUT}"].translation, cs[f"ball_{OUT}"].translation
 _ax = (_ca - _th)
 _ax = _ax * (1.0 / _ax.length())
 
@@ -273,10 +298,11 @@ def _about(axis, deg):
     return unreal.Quat(axis.x * math.sin(a), axis.y * math.sin(a), axis.z * math.sin(a), math.cos(a))
 
 
-_q = min((_about(_ax, sg * 25.0) for sg in (1, -1)), key=lambda q: (_th + q.rotate_vector(_ba - _th)).x)  # toes outward (-x)
-new["thigh_r"] = spin(cs["thigh_r"], _th, _q)
-joints["r"]["ball_out"] = list((_th + _q.rotate_vector(_ba - _th)).to_tuple())
-joints["r"]["foot_out"] = list((_th + _q.rotate_vector(cs["foot_r"].translation - _th)).to_tuple())
+_q = min((_about(_ax, sg * 25.0) for sg in (1, -1)), key=lambda q: -_sx * (_th + q.rotate_vector(_ba - _th)).x)  # toes outward
+new[f"thigh_{OUT}"] = spin(cs[f"thigh_{OUT}"], _th, _q)
+joints[OUT]["ball_out"] = list((_th + _q.rotate_vector(_ba - _th)).to_tuple())
+joints[OUT]["foot_out"] = list((_th + _q.rotate_vector(cs[f"foot_{OUT}"].translation - _th)).to_tuple())
+joints["out_side"] = OUT
 joints["head"] = list(neck["head"].translation.to_tuple())
 print("C00_POSE head", [round(v, 1) for v in neck["head"].translation.to_tuple()], "ball_l", [round(v, 1) for v in joints["l"]["ball"]])
 
@@ -291,7 +317,7 @@ ctrl.open_bracket("C00 lying pose", True)
 ctrl.remove_all_bone_tracks(True)
 ctrl.set_frame_rate(unreal.FrameRate(30, 1), True)
 ctrl.set_number_of_frames(unreal.FrameNumber(1), True)
-for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r") + (("hand_l", "hand_r") if HMAP else ()) + ("thigh_r",):
+for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r") + (("hand_l", "hand_r") if HMAP else ()) + (f"thigh_{OUT}",)         + (("lowerarm_twist_01_l", "lowerarm_twist_02_l", "lowerarm_twist_01_r", "lowerarm_twist_02_r") if HMAP else ()):
     par = PARENT[bone]
     local = MATH.make_relative_transform(new[bone], new.get(par, cs[par]))
     ctrl.add_bone_curve(bone, True)

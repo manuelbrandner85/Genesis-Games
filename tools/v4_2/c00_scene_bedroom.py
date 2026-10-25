@@ -358,7 +358,8 @@ ppv = eas.spawn_actor_from_class(unreal.PostProcessVolume, V(0, 0, 0))
 ppv.set_editor_property("unbound", True)
 st = ppv.settings
 for prop, val in (("auto_exposure_method", unreal.AutoExposureMethod.AEM_MANUAL), ("auto_exposure_apply_physical_camera_exposure", True),
-                  ("camera_iso", 400.0), ("camera_shutter_speed", 50.0), ("depth_of_field_fstop", 2.0),
+                  ("camera_iso", 1600.0 if SHOT == "00b" else 400.0),   # 00-B at f/4: two stops more ISO, same exposure
+                  ("camera_shutter_speed", 50.0), ("depth_of_field_fstop", 4.0 if SHOT == "00b" else 2.0),
                   ("film_grain_intensity", 0.15), ("vignette_intensity", 0.35),
                   # camera white balance 5000 K (3700 K made the dusk-lit room moon-blue; 6500 K turned skin orange), as a photographer would set it:
                   # the room stays warm, but skin is no longer orange and the blue-grey shirt no longer reads brown
@@ -408,6 +409,28 @@ if shirt_skm:
 for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
     cloth.set_enable_simulation(False)
 
+# ------------------------------------------------------------------ the daughter at the bedside (technical test 00-B)
+# Regie 2026-10-25: she sits on the chair at the window side at the height of his hip, leans forward and holds his
+# (window-side, left) hand - pose and placement from tools/v4_2/c00_pose_tochter.py (docs/v4_2/C00_TOCHTER_SITZ.json)
+_sitz = ROOT + "docs/v4_2/C00_TOCHTER_SITZ.json"
+# (not in the "bett" close-up of the man: that camera stands where her chair is - she would fill the frame with her back)
+if os.environ.get("GENESIS_SZ_TOCHTER", "1") == "1" and SHOT != "bett" and BUILT and os.path.exists(_sitz):
+    with open(_sitz, encoding="utf8") as f:
+        sitz = json.load(f)
+    tochter = eas.spawn_actor_from_class(eal.load_blueprint_class(
+        "/Game/Genesis/Characters/C00/Built/Tochter/MHC_C00_Tochter/BP_MHC_C00_Tochter"), V(*sitz["location"]), R(0, 0, sitz["yaw"]))
+    tochter.set_actor_label("MH_C00_Tochter")
+    t_comps = {c.get_name(): c for c in tochter.get_components_by_class(unreal.SkeletalMeshComponent)}
+    for cname, asset in (("Body", "A_C00_Tochter_Sitzen_Built"), ("Face", "A_C00_Tochter_Gesicht_00B_Built")):
+        c = t_comps[cname]
+        c.set_update_animation_in_editor(True)
+        c.override_animation_data(eal.load_asset(f"/Game/Genesis/Characters/C00/Posen/{asset}"), False, True, 0.0, 0.0)
+    for cname, c in t_comps.items():                     # outfit pieces follow the posed body
+        if cname not in ("Body", "Face"):
+            c.set_leader_pose_component(t_comps["Body"])
+    for cloth in tochter.get_components_by_class(unreal.ChaosClothComponent):
+        cloth.set_enable_simulation(False)
+
 # ------------------------------------------------------------------ camera + render
 head = ue(lying["head_world"])
 if SHOT == "tuer":                                       # from the window corner toward the door / west wall
@@ -418,13 +441,20 @@ elif SHOT == "wand":                                       # from the foot end: 
     cam_loc, target, focal = ue((0.55, -1.30, 1.40)), ue((-0.20, 1.40, 1.20)), 22.0
 elif SHOT == "raum":
     cam_loc, target, focal = ue((-1.55, -1.45, 1.25)), ue((0.30, 0.95, 0.70)), 24.0
+elif SHOT == "00b":                                      # test 00-B: 85 mm on the held hands, near bed-edge height
+    # from the foot end, ~90 cm before the hands: her forearm comes in from behind them (+x, +y), not in front
+    cam_loc, target, focal = ue((0.25, -0.85, 1.00)), ue((0.34, 0.36, 0.76)), 85.0
+elif SHOT == "arme":                                     # QA: both of his arms from above (elbows, sleeves, wrists)
+    cam_loc, target, focal = ue((-0.40, 0.30, 1.60)), ue((0.15, 0.62, 0.62)), 30.0   # wall side: she cannot block it
+elif SHOT == "tochter":                                  # test: the daughter at the bedside, from the foot end (wall side)
+    cam_loc, target, focal = ue((-0.35, -0.95, 1.40)), ue((0.72, 0.45, 0.95)), 24.0
 else:                                                    # bed-edge height, window side, looking at his face
     cam_loc, target, focal = ue((1.30, 0.15, 1.30)), head + V(0, 22, -8), 35.0
 cam = eas.spawn_actor_from_class(unreal.CineCameraActor, cam_loc, unreal.MathLibrary.find_look_at_rotation(cam_loc, target))
 cam.set_actor_label("SZ_Cam_" + SHOT)
 cc = cam.get_cine_camera_component()
 cc.set_editor_property("current_focal_length", focal)
-cc.set_editor_property("current_aperture", 2.0)
+cc.set_editor_property("current_aperture", 4.0 if SHOT == "00b" else 2.0)   # 00-B: both hands sharp at 85 mm
 cc.set_editor_property("constrain_aspect_ratio", False)
 fs = cc.focus_settings
 fs.focus_method = unreal.CameraFocusMethod.MANUAL
@@ -435,15 +465,23 @@ out = ROOT + f"docs/evidence/V42/C00_Schlafzimmer_UE_{SHOT}.png"
 # Regie 2026-10-25 ("Haare fuer die Nahaufnahme"): a still has no temporal history, so 0.1 mm hair strands alias into
 # grain and the hairline reads as a cut-out patch. More visibility samples per pixel for the strands, and the shot is
 # taken at 2x (3200 x 1800) and filtered down to 1600 x 900 by tools/v4_2/c00_render_bedroom_shots.py (supersampling).
-for cv in ("r.HairStrands.Visibility.MSAA.SamplePerPixel 8", "r.HairStrands.DeepShadow.Resolution 4096"):
+# (8 samples + 4096 deep shadows with two MetaHumans exhausted the 12 GB card - "Video memory has been exhausted" - and
+# the engine then dropped the grooms: both figures rendered bald. 4 samples x 2x supersampling = 16 per output pixel)
+# The texture pool is capped as well: streaming filled the card and the grooms were dropped at random (bald figures).
+for cv in ("r.HairStrands.Visibility.MSAA.SamplePerPixel 4", "r.HairStrands.DeepShadow.Resolution 2048",
+           "r.Streaming.PoolSize 3000",
+           # always the full strands LOD: at medium distance (shot "raum") the grooms switched to their card LODs,
+           # which these built figures render as blocky red geometry or not at all (bald figures, red bounce light)
+           "r.HairStrands.ForceLOD 0"):
     unreal.SystemLibrary.execute_console_command(None, cv)
 SS = int(os.environ.get("GENESIS_SZ_SS", "2"))
 shot_png = out if SS == 1 else ROOT + f"Saved/Shots/C00_Schlafzimmer_UE_{SHOT}_{SS}x.png"
 eas.select_nothing()                                     # no selection outline / gizmo in the shot
 unreal.EditorLevelLibrary.editor_set_game_view(True)      # hide editor billboards (light icons)
-# the viewport looks through the shot camera first and the still is taken 6 s later: hair LODs, virtual textures and
+# the viewport looks through the shot camera first and the still is taken 15 s later (the freshly spawned figures'
+# grooms bind to the skin over several seconds; at 6 s they were missing at random): hair LODs, virtual textures and
 # Lumen settle for this distance (taken at once, the strands came from a distant LOD and the stubble was missing)
 unreal.EditorLevelLibrary.set_level_viewport_camera_info(cam_loc, unreal.MathLibrary.find_look_at_rotation(cam_loc, target))
-unreal.AutomationLibrary.take_high_res_screenshot(1600 * SS, 900 * SS, shot_png, cam, False, False, unreal.ComparisonTolerance.LOW, "", 6.0)
+unreal.AutomationLibrary.take_high_res_screenshot(1600 * SS, 900 * SS, shot_png, cam, False, False, unreal.ComparisonTolerance.LOW, "", 15.0)
 print("C00_SZ_SHOT", shot_png)
 print("C00_SZ_SCENE", {"shot": SHOT, "man": [round(v) for v in ue(lying["P0"]).to_tuple()], "rot": str(rot), "png": out})

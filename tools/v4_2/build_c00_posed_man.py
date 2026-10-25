@@ -24,7 +24,7 @@ if body.find_armature() is None:
     m.object = arm
 
 S = Matrix(((1, 0, 0), (0, -1, 0), (0, 0, 1)))
-ORDER = ["thigh_r", "foot_l", "foot_r", "neck_01", "neck_02", "head",
+ORDER = ["thigh_l", "thigh_r", "foot_l", "foot_r", "neck_01", "neck_02", "head",
          "upperarm_l", "lowerarm_l", "hand_l", "upperarm_r", "lowerarm_r", "hand_r"]
 
 
@@ -56,7 +56,9 @@ if col is None:
     bpy.data.scenes["C00_Schlafzimmer"].collection.children.link(col)
 for o in list(col.objects):
     bpy.data.objects.remove(o, do_unlink=True)
-deps = sc.view_layers[0].depsgraph if hasattr(sc.view_layers[0], "depsgraph") else bpy.context.evaluated_depsgraph_get()
+with bpy.context.temp_override(scene=sc, view_layer=sc.view_layers[0]):   # the shirt scene, also without a window
+    deps = bpy.context.evaluated_depsgraph_get()
+    deps.update()
 out = {}
 for src, name in ((body, "SZ_PosedBody"), (shirt, "SZ_PosedShirt")):
     me = bpy.data.meshes.new_from_object(src.evaluated_get(deps), preserve_all_data_layers=False, depsgraph=deps)

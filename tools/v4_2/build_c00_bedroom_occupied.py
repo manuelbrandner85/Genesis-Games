@@ -30,7 +30,10 @@ THETA = 0.0                                             # Regie 2026-10-25: lies
 FEET_Y = BY0 - 0.10 - 2.0 + 0.10                       # 10 cm from the foot end: relaxed toes stay under the duvet
 
 # local character (m) -> Blender world
-R0 = Matrix(((-1, 0, 0), (0, 0, 1), (0, 1, 0)))      # columns: images of local X, Y, Z
+# columns: images of local X (character's left), Y (face), Z (crown). Lying face up with the head at the headboard
+# (+y), the character's left points to +x (the window). Until 2026-10-25 this column was -x: a mirror of what Unreal
+# shows (a rotation cannot mirror), so duvet dents and the turned-back corner sat on the wrong body side.
+R0 = Matrix(((1, 0, 0), (0, 0, 1), (0, 1, 0)))
 RT = Matrix.Rotation(THETA, 3, "X")                   # raise the head end (+Y) by THETA
 R = RT @ R0
 MAN_X = BX + 0.33                                     # on the window-side pillow, not on the seam
@@ -176,16 +179,17 @@ if POSED and len(POSED.objects):
     _M = Matrix.Translation(P0) @ (R @ _S).to_4x4()
     for src in POSED.objects:
         me = src.data.copy()
-        me.transform(_M)
-        me.flip_normals()                                # R @ S mirrors - keep the normals pointing outward
+        me.transform(_M)                                 # R @ S is a proper rotation (both mirror): normals stay outward
         o = bpy.data.objects.new("SZ_Proxy_" + src.name, me)
         col.objects.link(o)
         proxy_parts.append(o)
-    # the thin toes of the left foot pierced the duvet (Regie 2026-10-25): a margin capsule from heel to toe tip
-    _jl = JOINTS["l"]
-    _ank, _ball = Vector(A["foot_l"]), Vector(_jl["ball"])
+    # the thin toes of the foot under the duvet pierced it (Regie 2026-10-25): a margin capsule from heel to toe tip;
+    # that is the wall-side foot - the other one looks out under the turned-back corner (POSE "out_side")
+    _in = "r" if JOINTS.get("out_side", "r") == "l" else "l"
+    _jl = JOINTS[_in]
+    _ank, _ball = Vector(A[f"foot_{_in}"]), Vector(_jl["ball"])
     _toe = _ball + (_ball - _ank).normalized() * 8
-    capsule("SZ_Proxy_FootMargin_l", to_world(_ank.x, _ank.y - 5, _ank.z), to_world(*_toe), 0.075)
+    capsule("SZ_Proxy_FootMargin", to_world(_ank.x, _ank.y - 5, _ank.z), to_world(*_toe), 0.075)
 else:
     for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
         capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
@@ -340,8 +344,9 @@ for j in range(ny + 1):
         dz = amp * mask * (wx * side + (1 - wx) * foot)
         dz += 0.004 * (1 - mask) * math.sin(TAU * (p.x * 0.6 + p.y * 0.8) / 0.30 + 1.5 * lowfreq(p.y, p.x))
         p.z = max(floor_z[j][i], p.z + dz)
-# Regie 2026-10-25: the right foot looks out - the duvet corner over it is pushed back diagonally
-_fr = to_world(*JOINTS["r"].get("foot_out", A["foot_r"]))
+# Regie 2026-10-25: the window-side foot (POSE "out_side") looks out - the duvet corner over it is pushed back diagonally
+_out = JOINTS.get("out_side", "r")
+_fr = to_world(*JOINTS[_out].get("foot_out", A[f"foot_{_out}"]))
 # fold line: a diagonal across the foot-end corner on the window side, from the foot end of the duvet (FA) to the
 # bed side (FB); the triangle beyond it (containing the right foot) is turned back onto the duvet
 FA = Vector((MAN_X - 0.10, FOOT - 0.02))                   # turned-back triangle: the whole right foot is free,

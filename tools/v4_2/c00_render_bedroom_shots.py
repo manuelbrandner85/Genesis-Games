@@ -28,7 +28,23 @@ $dst.Save($args[1], [System.Drawing.Imaging.ImageFormat]::Png)
 '''
 
 
+RESTORE = r'''Add-Type @"
+using System; using System.Runtime.InteropServices;
+public class GenW { [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h); }
+"@
+Get-CimInstance Win32_Process -Filter "Name='UnrealEditor.exe'" | Where-Object { $_.CommandLine -like '*\Genesis.uproject*' } |
+  ForEach-Object { $h = (Get-Process -Id $_.ProcessId).MainWindowHandle; [GenW]::ShowWindow($h, 9) | Out-Null; [GenW]::SetForegroundWindow($h) | Out-Null }
+'''
+
+
+def restore_editor():
+    """a minimised (or fully hidden) editor viewport does not render: the high-res still is then never written"""
+    subprocess.run(["powershell", "-NoProfile", "-Command", RESTORE], capture_output=True)
+
+
 def render(shot, reimport=False):
+    restore_editor()
     big = os.path.join(ROOT, "Saved", "Shots", f"C00_Schlafzimmer_UE_{shot}_2x.png")
     out = os.path.join(ROOT, "docs", "evidence", "V42", f"C00_Schlafzimmer_UE_{shot}.png")
     os.makedirs(os.path.dirname(big), exist_ok=True)
@@ -55,17 +71,22 @@ def render(shot, reimport=False):
             break
         time.sleep(2)
     else:
-        raise SystemExit(f"shot {shot}: no screenshot {big}")
+        return False                                       # the editor skipped the still (busy/occluded): retried
     with tempfile.NamedTemporaryFile("w", suffix=".ps1", delete=False, encoding="utf8") as f:
         f.write(PS)
         ps = f.name
     subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ps, big, out], check=True)
     os.remove(ps)
     print("C00_SHOT", shot, out)
+    return True
 
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     shots = args or ["bett", "wand", "weit", "raum", "tuer"]
     for i, s in enumerate(shots):
-        render(s, reimport="--reimport" in sys.argv and i == 0)
+        for attempt in range(3):
+            if render(s, reimport="--reimport" in sys.argv and i == 0 and attempt == 0):
+                break
+        else:
+            raise SystemExit(f"shot {s}: no screenshot after 3 attempts")
