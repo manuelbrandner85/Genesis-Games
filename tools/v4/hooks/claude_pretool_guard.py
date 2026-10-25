@@ -4,7 +4,10 @@ Reads JSON from stdin; exit code 2 blocks. Never prints input payload or secrets
 from __future__ import annotations
 import sys,json,re
 PROTECTED=('canon_sources/','canon_sources\\','original_md_unveraendert/','original_md_unveraendert\\')
-PATTERNS=[r'git\s+push\b',r'git\s+reset\s+--hard',r'git\s+clean\s+-[^\s]*f',
+# 2026-10-25 (Fund H-02, freigegeben): normaler 'git push' ist erlaubt (Nutzerregel: fertige Commits pushen);
+# gesperrt bleiben Force-Push, Mirror-/Loesch-Push, reset --hard, clean -f, rm -rf, Repo-Loeschen.
+PATTERNS=[r'git\s+push\b[^\n]*\s(?:-f|--force(?:-with-lease)?|--force-if-includes|--mirror|--delete|-d|--prune)\b',
+ r'git\s+push\b[^\n]*\s\+\S',r'git\s+push\b[^\n]*\s:\S',r'git\s+reset\s+--hard',r'git\s+clean\s+-[^\s]*f',
  r'\brm\s+-[a-zA-Z]*r[a-zA-Z]*f\b',r'\brm\s+-[a-zA-Z]*f[a-zA-Z]*r\b',
  r'\bremove-item\b[^\n]*-recurse',r'\brmdir\s+/s',r'\bformat\s+[a-z]:',
  r'\bgh\s+repo\s+delete\b']
