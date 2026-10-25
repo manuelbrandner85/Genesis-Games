@@ -31,6 +31,7 @@ for name, (root, tip, density) in SPEC.items():
         r.set_editor_property("geometry_settings", geo)
         r.set_editor_property("shadow_settings", sh)
         r.set_editor_property("advanced_settings", adv)
+    g.modify()
     g.set_editor_property("hair_groups_rendering", groups)
-    eal.save_loaded_asset(g)
+    eal.save_loaded_asset(g, False)                       # struct edits do not mark the package dirty: save regardless
     print("C00_HAIR", name, len(groups))

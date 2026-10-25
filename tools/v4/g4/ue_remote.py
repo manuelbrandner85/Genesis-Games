@@ -32,7 +32,16 @@ def main():
     ap.add_argument("--wait", type=float, default=30.0, help="seconds to wait for the editor to appear")
     ap.add_argument("--project", default="Genesis")
     a = ap.parse_args()
-    session = rex.RemoteExecution()
+    # own free command port: with a second Claude session/editor sending remote commands at the same time, both clients
+    # listened on the default 127.0.0.1:6776 and the editor's call-back went to the wrong one ("Remote party failed to
+    # attempt the command socket connection")
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    cfg = rex.RemoteExecutionConfig()
+    cfg.command_endpoint = ("127.0.0.1", port)
+    session = rex.RemoteExecution(cfg)
     session.start()
     try:
         node = find_node(session, a.project, a.wait)
