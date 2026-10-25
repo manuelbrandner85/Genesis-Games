@@ -50,3 +50,6 @@ Content/Meshes/
 Content/Plants/
 Content/textures/
 Content/Genesis/Characters/C00/Built/
+
+# Drehbuch-Aenderungsentwuerfe (CR-*) mit Szenentext: nur lokal, wie canon_sources
+canon_proposals/
