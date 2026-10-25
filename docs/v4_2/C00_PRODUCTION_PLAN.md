@@ -21,9 +21,24 @@ Kanon gesperrt durch [GD-2026-10-24-01](DIRECTOR_DECISIONS.md). Das vollständig
 
 1. Abnahme der Shotliste und der Figuren-DNA (Entwürfe im lokalen Paket, Referenzbilder in `ArtSource/Reference/C00/`)
 2. Stimmen: echte deutsche Sprecher:innen (Voraussetzung für die Abnahme) – Besetzung
-3. Freigabe MetaHuman (Plugin/Inhalte) für fotorealistische Menschen und Gesichtsanimation
+3. ~~Freigabe MetaHuman~~ – erledigt: GD-2026-10-24-03 (Plugins), FA-METAHUMAN-CLOUD-001 (4K-Texturen, Auto-Rig)
 4. Quelle `Docs/33_Der_Vorfilm.md` (Vorfilm-Migration) bereitstellen
 
-## Nicht behauptet
+## Stand 2026-10-25 (belegt, keine Abnahme)
 
-Es gibt noch keine C00-Figuren, kein Set, keine Aufnahme und kein Rendering. Die Szene steht auf `NOT_IMPLEMENTED`.
+Was es jetzt gibt, jeweils mit Werkzeug und Beleg. Fab-, Epic- und MetaHuman-Inhalte bleiben lokal (gitignored); im Repo liegen nur Skripte und Belegbilder.
+
+| Baustein | Stand | Werkzeug | Beleg |
+|---|---|---|---|
+| SET_C00_SCHLAFZIMMER_2026 | in Unreal aufgebaut: Neubau-Zimmer, Regen, Bett mit Daunendecke (Drapierung mit Falten), Kissen, Stoffmaterial, Nachttisch, Fotos, Stuhl an der Fensterseite | Blender → `tools/v4_2/build_c00_bedroom*.py`, `place_c00_chair.py`, `export_c00_bedroom.py`; Unreal → `c00_scene_bedroom.py` | `docs/evidence/V42/C00_Schlafzimmer_UE_{weit,wand,raum,tuer}.png` |
+| CHR_C00_MANN | gebauter, animierbarer MetaHuman: Liegepose (`c00_pose_lying.py`), Sterbe-Mimik über das Gesichts-Rig (`c00_face_dying_rig.py`), eigenes Schlafshirt, Haare für Nahaufnahmen | Unreal, MetaHuman | `…_UE_bett.png`, `…_UE_arme.png` |
+| CHR_C00_TOCHTER | gebauter MetaHuman, 166 cm (`c00_tochter_height.py`), Sitzpose am Bett (`c00_pose_tochter.py`) | Unreal, MetaHuman | `…_UE_tochter.png` |
+| 00-B (Hand in der Hand) | **technischer Test**: 85 mm, ihre Hand auf seiner (Hand an der Fensterseite = anatomisch seine linke) | `c00_scene_bedroom.py` Shot `00b` | `…_UE_00b.png` |
+
+**Nicht behauptet:**
+- Keine Sequenz (Sequencer).
+- Kein Movie-Render-Queue-Master und keine Bewegung (alle Bilder sind Standbilder einer Einzelpose).
+- Kein Ton, keine Stimmen, keine Untertitel, keine Musik.
+- Keine Abnahme der Shotliste.
+
+Die Szene steht deshalb weiter auf `NOT_IMPLEMENTED`; Set und Figuren sind technisch geprüft, aber nicht abgenommen.
