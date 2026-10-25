@@ -63,7 +63,8 @@ def main(argv):
     if not sec:
         return fail(f"Regieentscheidung {gd} nicht in DIRECTOR_DECISIONS.md")
     answer = re.search(r"^\|\s*Antwort des Game Directors\s*\|\s*„?\"?(.*?)\|", sec, re.M)
-    if not answer or not answer.group(1).strip().lstrip("„\"").startswith("JA"):
+    # "JA zu ..." as well as a plain "Ja ..." (the director's own spelling); the word must stand alone ("Jahr" is no yes)
+    if not answer or not re.match(r"ja\b", answer.group(1).strip().lstrip("„\""), re.I):
         return fail(f"{gd} enthaelt keine Freigabe mit „JA“")
     if sha not in sec:
         return fail(f"SHA-256 {sha} der Quelle steht nicht in {gd} (Datei weicht von der freigegebenen Fassung ab)")

@@ -101,3 +101,17 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Vorlage | `CHR_C02_SPERMIUM/swimming_phase_v3` (Gesamtbild), `single_dic_v2` (Kopfdetail), Commit 957072a |
 | Antwort des Game Directors | „Ja“ (auf: „Passen diese Samenzellen …, sodass ich mit den Blender-Modellen weitermachen kann?“) |
 | Folge | Bildsprache C02 vollständig abgenommen; Phase 3 Schritt 2: eigene Blender-Modelle nach Maßblatt (keine Fremdassets) |
+
+## GD-2026-10-26-02 – Freigabe CR-002, CR-003 und Schwangerschaftskonzept
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-26 |
+| Frage von Claude Code | „Gibst du alle drei mit meinen Vorschlägen frei, oder willst du bei einem davon etwas ändern?“ (CR-002 F1–F5, Schwangerschaftskonzept P1–P6, CR-003 G1–G4) |
+| Antwort des Game Directors | „Ja alle“ |
+| Vorher bestätigt | Reihenfolge Prolog → Lichtschlag → Samenzelle → Schwangerschaft, Bibliothek erst nach dem ersten Tod („Ja alles richtig …“) |
+| Inhalt | **CR-002:** kompletter Samenweg Scheide → Gebärmutterhals → Gebärmutter → Isthmus → Ampulle, ca. 8–12 min, Pflicht beim ersten Mal, danach abkürzbar, kein Game Over, Geschlechtsakt nicht gezeigt (F1–F5). **CR-003:** Seelenaustritt als Lichtschimmer → Lichtpunkt bleibt bis zum Lichtschlag, Seelenmotiv bei Tod und Verschmelzung, Regentropfen-Match-Cut, Enthüllung bleibt C20, Prolog ca. 1:55 (G1–G4). **Schwangerschaftskonzept:** zehn Stufen, ca. 2–3 h, alles spielbar und abkürzbar, Interaktionen nur stadiengerecht, feste Familie im ersten Leben (Figuren legt der Game Director fest), keine zufällige Fehlgeburt im ersten Leben, C17 wählbarer Modus (P1–P6) |
+| Neue Fassung | ScriptLock **1.3**, gebaut aus 1.2 (`79c1b1b6…1928`) mit `canon_proposals/CR-002_003/build_scriptlock_13.py`, SHA-256 `2a6de42b11e11d58ee006b6cb47d8256a7b460b34ba316eb10e88d2a646c7046`; Unterschied nur C00-Länge/00-D2/00-E/Klangregie/Übergabe, C01-Ort/01-A/01-B, C02-Länge/Ort/02-A/02-B/02-C, Übergangstabelle, Status-/Versionszeilen und Änderungsprotokoll |
+| Folge | ScriptLock **1.3** (CR-002 + CR-003) wird vorbereitet und über den geprüften Canon-Import abgelegt; das Schwangerschaftskonzept ist Spielgestaltung innerhalb des Kanons (keine Drehbuchänderung) |
+
+**Was die Freigabe NICHT bewirkt:** keine Code-, Asset- oder Produktionsfreigabe für die neuen Inhalte (Umsetzungsplan folgt zur eigenen Freigabe); keine Festlegung der Familie (P4).
