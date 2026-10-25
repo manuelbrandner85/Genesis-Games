@@ -1,0 +1,33 @@
+{
+  "asset": "CHR_C02_SPERMIUM",
+  "view": "group",
+  "file": "group_v3.png",
+  "status": "GENERATED_PREVIEW",
+  "prompt": "five separate human sperm cells swimming apart from each other in clear fluid, each cell has exactly one small smooth oval head, a short thicker midpiece and exactly one single unbranched long thin tail, tails never touching or crossing, dark-field phase contrast microscopy, photorealistic scientific micro-cinematography, as filmed through a high-end research microscope camera, physically accurate biology and scale, soft natural optical depth of field, subtle out-of-focus particles, no illustration, no cartoon, no glow effects, no text, no labels",
+  "seed": 37,
+  "size": [
+    1536,
+    1024
+  ],
+  "steps": 4,
+  "cfg": 1.0,
+  "sampler": "euler",
+  "models": {
+    "unet": {
+      "file": "flux-2-klein-4b.safetensors",
+      "sha256": "ec3d4e733a771f61c052fb4856c48b336c55eaf2c65487c2a1faeb9bbda7a343"
+    },
+    "text_encoder": {
+      "file": "qwen_3_4b.safetensors",
+      "sha256": "6c671498573ac2f7a5501502ccce8d2b08ea6ca2f661c458e708f36b36edfc5a"
+    },
+    "vae": {
+      "file": "flux2-vae.safetensors",
+      "sha256": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+    }
+  },
+  "license": "FLUX.2 klein 4B Apache-2.0; not an approved game asset",
+  "generator": "ComfyUI local 127.0.0.1",
+  "seconds": 10.2,
+  "comfy_started_now": false
+}

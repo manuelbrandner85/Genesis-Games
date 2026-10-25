@@ -73,3 +73,12 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Antwort des Game Directors | „Freigabe für Phase 1 (Startablauf, Lichtschalter-Standard, Spielstand Schema 3, Tests) und Phase 2 (Graubox-Schwimmphase) aus dem CR-001-Umsetzungsplan.“ |
 | Umfang | Code und Daten: Skriptversion 1.2 in Laufzeit und Verträgen, Startablauf C00 → C01 → C02 (Schwimmphase) → Titel, „Lichtblitze verringern“ standardmäßig an, Spielstand Schema 3 mit Migration, Tests; spielbarer Graubox-Prototyp der Schwimmphase |
 | Nicht enthalten | Phase 3–5 (Look der Mikrowelt, Filmteile C01/C02, Integration/Abnahme) – je eigene Freigabe. Keine Kunst- oder Kanonentscheidung. |
+
+## GD-2026-10-25-03 – Freigabe CR-001 Phase 3 (Look der Mikrowelt), zuerst Referenzbilder
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-25 |
+| Antwort des Game Directors | „Freigabe für Phase 3 (Look der Mikrowelt) aus dem CR-001-Umsetzungsplan: zuerst Referenzbilder zur Abnahme.“ |
+| Umfang jetzt | Referenzbilder lokal (ComfyUI + FLUX.2 klein 4B, Apache-2.0, bereits installiert): Eileiter-Schleimhaut, Cumulus-Oozyten-Komplex, Zona pellucida mit Samenzelle, Samenzellen, Zygote mit Vorkernen, 2-Zell-Stadium → Abnahme der Bildsprache durch den Game Director |
+| Danach (Phase 3, Schritt 2–4) | Blender-Assets, Unreal-Materialien/Niagara, Reality Check – erst nach Abnahme der Referenzen |
