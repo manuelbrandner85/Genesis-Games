@@ -156,7 +156,7 @@ BACK_Y = -BACK * 100                                   # back of the torso in lo
 for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
     capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
 # the own skinned shirt (SKM_C00_Mann_Shirt) follows the pose, but its loose front still stands ~19 cm off the back
-capsule("SZ_Proxy_ShirtFront", to_world(0, 19.5 - 12, A["pelvis"][2] + 6), to_world(0, 19.5 - 12, A["spine_05"][2] - 10), 0.12)   # front at local y 19.5
+capsule("SZ_Proxy_ShirtFront", to_world(0, 15.5 - 12, A["pelvis"][2] + 6), to_world(0, 15.5 - 12, A["spine_05"][2] - 10), 0.12)   # front at local y 15.5 (shirt laid onto the body)
 # pelvis front: the base body's shorts stand ~2 cm proud of the torso capsules
 capsule("SZ_Proxy_Pelvis", to_world(-7, BACK_Y + 15, A["pelvis"][2] - 9), to_world(7, BACK_Y + 15, A["pelvis"][2] - 9), 0.11)
 for s, side in ((1, "l"), (-1, "r")):
@@ -166,7 +166,7 @@ for s, side in ((1, "l"), (-1, "r")):
     capsule(f"SZ_Proxy_Thigh{s}", to_world(*th), to_world(*ca), 0.082)
     capsule(f"SZ_Proxy_Calf{s}", to_world(*A[f"calf_{side}"]), to_world(*A[f"foot_{side}"]), 0.065)
     # feet in the relaxed plantar flexion of A_C00_Mann_Liegen: heel behind the ankle, toes past the posed ball
-    ank, ball = Vector(A[f"foot_{side}"]), Vector(j["ball"])
+    ank, ball = Vector(j.get("foot_out", A[f"foot_{side}"])), Vector(j.get("ball_out", j["ball"]))   # right leg turned out
     toe = ball + (ball - ank).normalized() * 7
     capsule(f"SZ_Proxy_Foot{s}", to_world(ank.x, ank.y - 6, ank.z), to_world(*toe), 0.062)
     # Regie 2026-10-25: the arms lie ON the duvet (hands resting on it) - no arm proxies; the pose is fitted to the
@@ -236,11 +236,24 @@ for _ in range(60):                                       # constrained smoothin
             if nb:
                 nxt[j][i].z = max(floor_z[j][i], grid[j][i].z * 0.5 + sum(nb) / len(nb) * 0.5)
     grid = nxt
+# Regie 2026-10-25: the right foot looks out - the duvet corner over it is pushed back diagonally
+_fr = to_world(*JOINTS["r"].get("foot_out", A["foot_r"]))
+XR = P0.x + 0.05
+
+
+def corner_open(x, y):
+    return x > XR and y < _fr.y + 0.06 + 0.30 * (x - XR)
+
+
 bm = bmesh.new()
 bv = [[bm.verts.new(grid[j][i]) for i in range(nx + 1)] for j in range(ny + 1)]
 for j in range(ny):
     for i in range(nx):
+        c = (grid[j][i] + grid[j + 1][i + 1]) * 0.5
+        if corner_open(c.x, c.y):
+            continue
         bm.faces.new((bv[j][i], bv[j][i + 1], bv[j + 1][i + 1], bv[j + 1][i]))
+bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
 me = bpy.data.meshes.new("SZ_DuvetCloth")
 bm.to_mesh(me)
 bm.free()

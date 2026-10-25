@@ -15,7 +15,7 @@ import unreal
 DST, NAME = "/Game/Genesis/Characters/C00/Posen", "A_C00_Mann_Liegen"
 PARENT = {"upperarm_l": "clavicle_l", "lowerarm_l": "upperarm_l", "upperarm_r": "clavicle_r", "lowerarm_r": "upperarm_r",
           "neck_01": "spine_05", "neck_02": "neck_01", "head": "neck_02", "foot_l": "calf_l", "foot_r": "calf_r",
-          "hand_l": "lowerarm_l", "hand_r": "lowerarm_r"}
+          "hand_l": "lowerarm_l", "hand_r": "lowerarm_r", "thigh_r": "pelvis"}
 eal = unreal.EditorAssetLibrary
 mh = unreal.get_editor_subsystem(unreal.MetaHumanCharacterEditorSubsystem)
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -247,19 +247,37 @@ for side in ("l", "r"):
     q = about_x(best[1])
     new[f] = spin(cs[f], cs[f].translation, q)
     joints[side]["ball"] = list((cs[f].translation + q.rotate_vector(ball.translation - cs[f].translation)).to_tuple())
+# Regie 2026-10-25: one foot looks out of the duvet - lying relaxed, the right leg falls ~25 deg outward
+# (external rotation about the thigh axis); the duvet corner over it is turned back (build_c00_bedroom_occupied.py)
+_th, _ca, _ba = cs["thigh_r"].translation, cs["calf_r"].translation, cs["ball_r"].translation
+_ax = (_ca - _th)
+_ax = _ax * (1.0 / _ax.length())
+
+
+def _about(axis, deg):
+    a = math.radians(deg) / 2
+    return unreal.Quat(axis.x * math.sin(a), axis.y * math.sin(a), axis.z * math.sin(a), math.cos(a))
+
+
+_q = min((_about(_ax, sg * 25.0) for sg in (1, -1)), key=lambda q: (_th + q.rotate_vector(_ba - _th)).x)  # toes outward (-x)
+new["thigh_r"] = spin(cs["thigh_r"], _th, _q)
+joints["r"]["ball_out"] = list((_th + _q.rotate_vector(_ba - _th)).to_tuple())
+joints["r"]["foot_out"] = list((_th + _q.rotate_vector(cs["foot_r"].translation - _th)).to_tuple())
 joints["head"] = list(neck["head"].translation.to_tuple())
 print("C00_POSE head", [round(v, 1) for v in neck["head"].translation.to_tuple()], "ball_l", [round(v, 1) for v in joints["l"]["ball"]])
 
-if eal.does_asset_exist(f"{DST}/{NAME}"):
-    eal.delete_asset(f"{DST}/{NAME}")
-fac = unreal.AnimSequenceFactory()
-fac.set_editor_property("target_skeleton", skel)
-anim = unreal.AssetToolsHelpers.get_asset_tools().create_asset(NAME, DST, unreal.AnimSequence, fac)
+if eal.does_asset_exist(f"{DST}/{NAME}"):                 # in use by open scenes: rewrite in place, do not delete
+    anim = eal.load_asset(f"{DST}/{NAME}")
+else:
+    fac = unreal.AnimSequenceFactory()
+    fac.set_editor_property("target_skeleton", skel)
+    anim = unreal.AssetToolsHelpers.get_asset_tools().create_asset(NAME, DST, unreal.AnimSequence, fac)
 ctrl = anim.controller
 ctrl.open_bracket("C00 lying pose", True)
+ctrl.remove_all_bone_tracks(True)
 ctrl.set_frame_rate(unreal.FrameRate(30, 1), True)
 ctrl.set_number_of_frames(unreal.FrameNumber(1), True)
-for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r") + (("hand_l", "hand_r") if HMAP else ()):
+for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r") + (("hand_l", "hand_r") if HMAP else ()) + ("thigh_r",):
     par = PARENT[bone]
     local = MATH.make_relative_transform(new[bone], new.get(par, cs[par]))
     ctrl.add_bone_curve(bone, True)

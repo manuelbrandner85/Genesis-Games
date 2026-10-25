@@ -45,14 +45,34 @@ sub = shirt.modifiers.new("Subdiv", "SUBSURF")
 sub.levels = sub.render_levels = 2
 sw = shirt.modifiers.new("Clear", "SHRINKWRAP")              # only vertices inside the body move out
 sw.wrap_method, sw.wrap_mode, sw.target, sw.offset = "NEAREST_SURFACEPOINT", "OUTSIDE", body, 0.005
+with bpy.context.temp_override(object=shirt, active_object=shirt, selected_objects=[shirt], scene=sc):
+    for name in ("Subdiv", "Clear"):
+        bpy.ops.object.modifier_apply(modifier=name)
+# Regie 2026-10-25 ("Decke steht zu hoch"): lying, the loose fabric falls onto the body. Every vertex further than
+# 2 cm from the body is pulled in to 2 cm plus a quarter of the excess (keeps soft folds, kills the standing front).
+from mathutils.bvhtree import BVHTree
+_deps = bpy.context.evaluated_depsgraph_get()
+_bm = body.evaluated_get(_deps).to_mesh()
+_mw = body.matrix_world
+_bvh = BVHTree.FromPolygons([_mw @ v.co for v in _bm.vertices], [tuple(p.vertices) for p in _bm.polygons])
+body.evaluated_get(_deps).to_mesh_clear()
+_inv = shirt.matrix_world.inverted()
+pulled = 0
+for v in shirt.data.vertices:
+    w = shirt.matrix_world @ v.co
+    loc, nrm, _, dist = _bvh.find_nearest(w)
+    if loc is not None and dist > 0.02:
+        d_new = 0.02 + (dist - 0.02) * 0.25
+        v.co = _inv @ (loc + (w - loc).normalized() * d_new)
+        pulled += 1
+shirt.data.update()
 dt = shirt.modifiers.new("Weights", "DATA_TRANSFER")
 dt.object, dt.use_vert_data, dt.data_types_verts = body, True, {"VGROUP_WEIGHTS"}
 dt.vert_mapping = "POLYINTERP_NEAREST"
 dt.layers_vgroup_select_src, dt.layers_vgroup_select_dst = "ALL", "NAME"
 with bpy.context.temp_override(object=shirt, active_object=shirt, selected_objects=[shirt], scene=sc):
     bpy.ops.object.datalayout_transfer(modifier="Weights")
-    for name in ("Subdiv", "Clear", "Weights"):
-        bpy.ops.object.modifier_apply(modifier=name)
+    bpy.ops.object.modifier_apply(modifier="Weights")
 for p in shirt.data.polygons:
     p.use_smooth = True
 shirt.parent = arm
@@ -77,5 +97,5 @@ with bpy.context.temp_override(selected_objects=[arm, shirt], active_object=arm,
                              apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS", use_armature_deform_only=False,
                              bake_anim=False, mesh_smooth_type="FACE", axis_forward="-Z", axis_up="Y", primary_bone_axis="Y",
                              secondary_bone_axis="X", armature_nodetype="NULL")
-result = {"verts": len(shirt.data.vertices), "groups": len(shirt.vertex_groups), "fbx": OUT,
+result = {"pulled": pulled, "verts": len(shirt.data.vertices), "groups": len(shirt.vertex_groups), "fbx": OUT,
           "root_bone": arm.data.bones[0].name, "armature_obj": arm.name}
