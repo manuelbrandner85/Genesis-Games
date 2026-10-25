@@ -343,7 +343,7 @@ st = cl.settings
 st.vertex_group_mass = "Pin"
 st.quality, st.mass, st.air_damping = 10, 1.2, 4.0          # heavy down duvet
 st.tension_stiffness = st.compression_stiffness = 8.0
-st.shear_stiffness, st.bending_stiffness = 3.0, 0.35        # a little stiffer: bridges between the legs (stiff+self collision crumpled)
+st.shear_stiffness, st.bending_stiffness = 4.0, 2.5         # Regie: loose over the legs - a filled duvet bridges between them
 st.use_internal_springs = False
 cl.collision_settings.use_self_collision = False
 cl.collision_settings.collision_quality = 5
@@ -360,7 +360,7 @@ sc.frame_set(1)
 # meets the shorts' waistband. A relaxed duvet does not form knots: smooth the result (keeps the large folds),
 # then push it back outside the body so smoothing never sinks it in.
 sm0 = duv.modifiers.new("Relax", "SMOOTH")
-sm0.factor, sm0.iterations = 0.8, 25
+sm0.factor, sm0.iterations = 0.8, 40
 with bpy.context.temp_override(object=duv, active_object=duv, selected_objects=[duv], scene=sc):
     bpy.ops.object.modifier_apply(modifier="Relax")
 for v in duv.data.vertices:
@@ -368,7 +368,24 @@ for v in duv.data.vertices:
     if loc is not None and ((v.co - loc).dot(nrm) < 0 or dist < THICK * 0.6):
         v.co = loc + nrm * THICK * 0.6
 duv.data.update()
+# Regie 2026-10-25 ("harte Kante an der Brust"): a duvet is sewn flat at its seams - the filling thickness runs
+# from 0 at every border to full ~12 cm inside (vertex group drives the Solidify thickness)
+import bmesh as _bm2
+_b = _bm2.new()
+_b.from_mesh(duv.data)
+_edge = [v.co.copy() for v in _b.verts if v.is_boundary]
+_b.free()
+from mathutils.kdtree import KDTree
+_kd = KDTree(len(_edge))
+for k, c in enumerate(_edge):
+    _kd.insert(c, k)
+_kd.balance()
+seam = duv.vertex_groups.new(name="Filling")
+for v in duv.data.vertices:
+    d = _kd.find(v.co)[2]
+    seam.add([v.index], 0.15 + 0.85 * min(1.0, d / 0.12) ** 0.6, "REPLACE")
 so = duv.modifiers.new("Puff", "SOLIDIFY")
+so.vertex_group, so.thickness_vertex_group = "Filling", 0.15
 so.thickness, so.offset, so.use_even_offset = 0.045, -1.0, False   # even offset shot spikes out of sharp folds
 so.thickness_clamp, so.use_quality_normals = 1.0, True
 sm = duv.modifiers.new("Smooth", "SUBSURF")
