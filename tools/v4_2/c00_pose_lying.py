@@ -117,8 +117,8 @@ def bend_chain(chain, degrees, probe, want_more):
 
 # ------------------------------------------------------------------ arms resting ON the duvet (Regie 2026-10-25:
 # "Haende auf die Decke wie bei einem Sterbenden, anatomisch korrekt"). Two-bone IK on the man's own limb lengths:
-# upper arms beside the chest, elbows bent and resting on the duvet, hands flat (palm down) on the belly - the
-# right hand a little lower than the left so the fingers do not cross. The duvet surface comes from the Blender
+# upper arms beside the chest, elbows resting on the duvet, hands flat (palm down): the left on the belly, the right
+# beside the body at the hip. The duvet surface comes from the Blender
 # cloth simulation (C00_BEDROOM_LYING.json "duvet_height_local", local cm; y = up when lying).
 import json as _json
 import os as _os
@@ -237,8 +237,14 @@ def arm_ik(side, target):
 
 
 if HMAP:
-    for side, hx, hz in (("l", 10.5, 105.0), ("r", -10.5, 95.0)):
-        new.update(arm_ik(side, V3(hx, duvet_y(hx, hz) + 3.0, hz)))
+    # Regie 2026-10-25: the left hand stays on the belly; the right arm lies beside the body, the hand on the duvet at
+    # the hip (with both hands on the belly the right upper arm lay in front of the chest and its sleeve cut through
+    # the shirt's torso panel)
+    # the wrist sits over the highest duvet point under the whole hand (wrist to fingertips ~18 cm toward the feet,
+    # +-4 cm across): beside the hip the duvet rises over the pelvis and a wrist-only height let the fingers sink in
+    for side, hx, hz in (("l", 10.5, 105.0), ("r", -23.0, 88.0)):
+        top = max(duvet_y(hx + dx, hz - dz) for dx in (-4.0, 0.0, 4.0) for dz in (0.0, 6.0, 12.0, 18.0))
+        new.update(arm_ik(side, V3(hx, top + 3.0, hz)))
 
 # Regie 2026-10-25: anatomically flat on the mattress, head raised on the pillow: neck flexed ~36 deg; the head joint
 # itself adds 14 (probe = crown point: with the head joint as probe its own sign was a tie and it had tipped back),

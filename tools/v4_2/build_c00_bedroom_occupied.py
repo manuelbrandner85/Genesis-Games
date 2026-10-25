@@ -505,6 +505,7 @@ for v in duv.data.vertices:
             continue
         under = c.z - math.sqrt(max(0.0, r * r - min(d, r) ** 2)) - 0.003
         target = under if d <= r else under + (w.z - under) * smoothstep(0.0, 1.0, (d - r) / FALL)
+        target = max(target, w.z - 0.025)                 # down filling compresses ~2.5 cm, never through to the body
         if target < w.z:
             v.co.z -= (w.z - target)
 duv.data.update()
