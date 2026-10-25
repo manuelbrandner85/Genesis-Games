@@ -441,6 +441,9 @@ SS = int(os.environ.get("GENESIS_SZ_SS", "2"))
 shot_png = out if SS == 1 else ROOT + f"Saved/Shots/C00_Schlafzimmer_UE_{SHOT}_{SS}x.png"
 eas.select_nothing()                                     # no selection outline / gizmo in the shot
 unreal.EditorLevelLibrary.editor_set_game_view(True)      # hide editor billboards (light icons)
-unreal.AutomationLibrary.take_high_res_screenshot(1600 * SS, 900 * SS, shot_png, cam, False, False, unreal.ComparisonTolerance.LOW, "", 1.0)
+# the viewport looks through the shot camera first and the still is taken 6 s later: hair LODs, virtual textures and
+# Lumen settle for this distance (taken at once, the strands came from a distant LOD and the stubble was missing)
+unreal.EditorLevelLibrary.set_level_viewport_camera_info(cam_loc, unreal.MathLibrary.find_look_at_rotation(cam_loc, target))
+unreal.AutomationLibrary.take_high_res_screenshot(1600 * SS, 900 * SS, shot_png, cam, False, False, unreal.ComparisonTolerance.LOW, "", 6.0)
 print("C00_SZ_SHOT", shot_png)
 print("C00_SZ_SCENE", {"shot": SHOT, "man": [round(v) for v in ue(lying["P0"]).to_tuple()], "rot": str(rot), "png": out})
