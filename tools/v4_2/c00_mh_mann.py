@@ -134,7 +134,8 @@ if mi:
     eal.save_loaded_asset(mi)
 inst.set_single_slot_selection("Outfits", unreal.MetaHumanPaletteItemKey())
 worn = []
-for name in filter(None, os.environ.get("GENESIS_MANN_OUTFIT", "WI_OA_Shirt_01").split(",")):
+# 2026-10-25: no MetaHuman outfit - he wears the own skinned shirt SKM_C00_Mann_Shirt (follows poses, no masked torso)
+for name in filter(None, os.environ.get("GENESIS_MANN_OUTFIT", "").split(",")):
     wi = eal.load_asset(f"{FAB}/{name}")
     if wi is None:
         raise RuntimeError("Fab wardrobe item missing: " + name)

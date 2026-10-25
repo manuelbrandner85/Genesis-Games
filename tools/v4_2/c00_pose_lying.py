@@ -14,7 +14,8 @@ import unreal
 
 DST, NAME = "/Game/Genesis/Characters/C00/Posen", "A_C00_Mann_Liegen"
 PARENT = {"upperarm_l": "clavicle_l", "lowerarm_l": "upperarm_l", "upperarm_r": "clavicle_r", "lowerarm_r": "upperarm_r",
-          "neck_01": "spine_05", "neck_02": "neck_01", "head": "neck_02", "foot_l": "calf_l", "foot_r": "calf_r"}
+          "neck_01": "spine_05", "neck_02": "neck_01", "head": "neck_02", "foot_l": "calf_l", "foot_r": "calf_r",
+          "hand_l": "lowerarm_l", "hand_r": "lowerarm_r"}
 eal = unreal.EditorAssetLibrary
 mh = unreal.get_editor_subsystem(unreal.MetaHumanCharacterEditorSubsystem)
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -30,7 +31,8 @@ body = next(c for c in probe.get_components_by_class(unreal.SkeletalMeshComponen
 skel = body.get_skeletal_mesh_asset().skeleton
 BONES = ("pelvis", "spine_03", "spine_05", "neck_01", "neck_02", "head", "clavicle_l", "clavicle_r", "upperarm_l", "upperarm_r",
          "lowerarm_l", "lowerarm_r", "hand_l", "hand_r", "middle_03_l", "middle_03_r", "thigh_l", "thigh_r",
-         "calf_l", "calf_r", "foot_l", "foot_r", "ball_l", "ball_r")
+         "calf_l", "calf_r", "foot_l", "foot_r", "ball_l", "ball_r", "middle_01_l", "middle_01_r",
+         "index_01_l", "index_01_r", "pinky_01_l", "pinky_01_r")
 cs = {b: body.get_socket_transform(b, CS) for b in BONES}
 a_pose = {b: list(cs[b].translation.to_tuple()) for b in BONES}            # for the duvet proxy (Blender)
 eas.destroy_actor(probe)
@@ -108,6 +110,131 @@ def bend_chain(chain, degrees, probe, want_more):
     return cur
 
 
+# ------------------------------------------------------------------ arms resting ON the duvet (Regie 2026-10-25:
+# "Haende auf die Decke wie bei einem Sterbenden, anatomisch korrekt"). Two-bone IK on the man's own limb lengths:
+# upper arms beside the chest, elbows bent and resting on the duvet, hands flat (palm down) on the belly - the
+# right hand a little lower than the left so the fingers do not cross. The duvet surface comes from the Blender
+# cloth simulation (C00_BEDROOM_LYING.json "duvet_height_local", local cm; y = up when lying).
+import json as _json
+import os as _os
+_LY = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir()) + "docs/v4_2/C00_BEDROOM_LYING.json"
+HMAP = _json.load(open(_LY, encoding="utf8")).get("duvet_height_local") if _os.path.exists(_LY) else None
+MATTRESS_Y = -7.5                                         # mattress top in local y (body sinks 4.5 cm into it)
+V3 = unreal.Vector
+
+
+def duvet_y(x, z):
+    if not HMAP:
+        return MATTRESS_Y
+    fx, fz = (x - HMAP["x0"]) / HMAP["step"], (z - HMAP["z0"]) / HMAP["step"]
+    i, k = int(math.floor(fx)), int(math.floor(fz))
+    if not (0 <= i < HMAP["nx"] - 1 and 0 <= k < HMAP["nz"] - 1):
+        return MATTRESS_Y
+    g = HMAP["y"]
+    vals = [g[k][i], g[k][i + 1], g[k + 1][i], g[k + 1][i + 1]]
+    vals = [MATTRESS_Y if v is None else v for v in vals]
+    tx, tz = fx - i, fz - k
+    return (vals[0] * (1 - tx) + vals[1] * tx) * (1 - tz) + (vals[2] * (1 - tx) + vals[3] * tx) * tz
+
+
+def norm(v):
+    l = v.length()
+    return v * (1.0 / l) if l > 1e-6 else v
+
+
+def frame_quat(d, n):
+    """Quaternion of the frame with X along d and Z along n (orthogonalised)."""
+    return MATH.make_rot_from_xz(norm(d), norm(n)).quaternion()
+
+
+def qinv(q):
+    return unreal.Quat(-q.x, -q.y, -q.z, q.w)          # unit quaternion inverse
+
+
+def quat_from_to(a, b):
+    a, b = norm(a), norm(b)
+    c = a.cross(b)
+    w = 1.0 + a.dot(b)
+    if w < 1e-6:
+        return unreal.Quat(0, 0, 1, 0)
+    q = unreal.Quat(c.x, c.y, c.z, w)
+    q.normalize()
+    return q
+
+
+def arm_ik(side, target):
+    sx = 1 if side == "l" else -1
+    up, lo, ha = f"upperarm_{side}", f"lowerarm_{side}", f"hand_{side}"
+    S, E0, H0 = cs[up].translation, cs[lo].translation, cs[ha].translation
+    L1, L2 = (E0 - S).length(), (H0 - E0).length()
+    W = target
+    d = min((W - S).length(), L1 + L2 - 0.5)
+    u = norm(W - S)
+    W = S + u * d
+    a1 = (L1 * L1 + d * d - L2 * L2) / (2 * d)
+    h = math.sqrt(max(L1 * L1 - a1 * a1, 0.0))
+    best = None
+    for deg in range(-30, 75, 3):                         # pole: outward, tilted down toward the mattress
+        a = math.radians(deg)
+        P = V3(sx * math.cos(a), -math.sin(a), 0.0)
+        v = norm(P - u * P.dot(u))
+        E = S + u * a1 + v * h
+        pen = 0.0
+        for t in (0.35, 0.65, 1.0):                        # upper arm (r 4.5) and forearm (r 4) above the duvet
+            p = S + (E - S) * t
+            pen += max(0.0, duvet_y(p.x, p.z) + 4.5 - p.y)
+        for t in (0.3, 0.6):
+            p = E + (W - E) * t
+            pen += max(0.0, duvet_y(p.x, p.z) + 4.0 - p.y)
+        rest = abs(E.y - (duvet_y(E.x, E.z) + 4.5))       # the elbow rests on the duvet
+        score = pen * 10 + rest
+        if best is None or score < best[0]:
+            best = (score, E, deg)
+    _, E, pole_deg = best
+    nA = norm((E0 - S).cross(H0 - E0))
+    nT = norm((E - S).cross(W - E))
+    if nA.dot(nT) < 0:
+        nT = nT * -1.0
+    q1 = frame_quat(E - S, nT) * qinv(frame_quat(E0 - S, nA))
+    chain = {b: spin(cs[b], S, q1) for b in (up, lo, ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}")}
+    E1 = chain[lo].translation
+    f1 = chain[ha].translation - E1
+    q2 = quat_from_to(f1, W - E1)                          # hinge about nT (both lie in the bending plane)
+    for b in (ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}"):
+        chain[b] = spin(chain[b], E1, q2)
+    chain[lo] = spin(chain[lo], E1, q2)
+    Wc = chain[ha].translation
+    dir_c = chain[f"middle_01_{side}"].translation - Wc
+    across = chain[f"index_01_{side}"].translation - chain[f"pinky_01_{side}"].translation
+    palm_c = norm(dir_c.cross(across))
+    # A-pose: the palm faces the thigh (medially); keep that sign convention
+    dA = cs[f"middle_01_{side}"].translation - H0
+    pA = norm(dA.cross(cs[f"index_01_{side}"].translation - cs[f"pinky_01_{side}"].translation))
+    if pA.dot(V3(-sx, 0, 0)) < 0:
+        palm_c = palm_c * -1.0
+    fore = norm(Wc - E1)
+    flat = norm(V3(fore.x, 0.0, fore.z))
+    dir_t = norm(flat - V3(0, 0.18, 0))                    # fingers relaxed slightly down onto the duvet
+    palm_t = V3(0, -1, 0)
+    q3 = frame_quat(dir_t, palm_t) * qinv(frame_quat(dir_c, palm_c))
+    # swing-twist about the forearm: the twist turns the forearm (no candy-wrap at the wrist), the swing the hand
+    proj = fore * V3(q3.x, q3.y, q3.z).dot(fore)
+    tw = unreal.Quat(proj.x, proj.y, proj.z, q3.w)
+    tw.normalize()
+    sw = q3 * qinv(tw)
+    chain[lo] = spin(chain[lo], E1, tw)
+    for b in (ha, f"middle_01_{side}", f"index_01_{side}", f"pinky_01_{side}"):
+        chain[b] = spin(chain[b], E1, tw)
+    chain[ha] = spin(chain[ha], chain[ha].translation, sw)
+    print("C00_POSE_IK", side, "pole", pole_deg, "elbow", [round(v, 1) for v in E.to_tuple()],
+          "duvet@elbow", round(duvet_y(E.x, E.z), 1), "wrist", [round(v, 1) for v in W.to_tuple()])
+    return {up: chain[up], lo: chain[lo], ha: chain[ha]}
+
+
+if HMAP:
+    for side, hx, hz in (("l", 10.5, 105.0), ("r", -10.5, 95.0)):
+        new.update(arm_ik(side, V3(hx, duvet_y(hx, hz) + 3.0, hz)))
+
 # Regie 2026-10-25: anatomically flat on the mattress, head raised on the pillow: neck flexed ~30 deg
 # (chin toward the chest, as on a pillow); feet relaxed in plantar flexion (~35 deg) so the toes do not
 # stand straight up under the duvet.
@@ -132,7 +259,7 @@ ctrl = anim.controller
 ctrl.open_bracket("C00 lying pose", True)
 ctrl.set_frame_rate(unreal.FrameRate(30, 1), True)
 ctrl.set_number_of_frames(unreal.FrameNumber(1), True)
-for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r"):
+for bone in ("upperarm_l", "lowerarm_l", "upperarm_r", "lowerarm_r", "neck_01", "neck_02", "head", "foot_l", "foot_r") + (("hand_l", "hand_r") if HMAP else ()):
     par = PARENT[bone]
     local = MATH.make_relative_transform(new[bone], new.get(par, cs[par]))
     ctrl.add_bone_curve(bone, True)

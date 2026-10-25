@@ -107,11 +107,17 @@ for name in PRESETS:
             face = next(c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
             face.set_update_animation_in_editor(True)
             face.override_animation_data(eal.load_asset(os.environ["GENESIS_MH_FACE_POSE"]), False, True, 0.0, 0.0)
-        for cloth in actor.get_components_by_class(unreal.ChaosClothComponent):   # outfits: skin to the posed body
-            cloth.set_enable_simulation(False)
+        # outfits follow the posed body only while the MetaHuman preview actor ticks in the editor (Creator-style);
+        # the cloth simulation then drapes the outfit on the new pose
+        if hasattr(actor, "set_tick_enabled"):
+            actor.set_tick_enabled(True)
+        for cloth in actor.get_components_by_class(unreal.ChaosClothComponent):
+            cloth.set_enable_simulation(os.environ.get("GENESIS_MH_CLOTH_SIM", "1") == "1")
             cloth.set_component_tick_enabled(True)
-            cloth.set_leader_pose_component(body, True)
             cloth.force_next_update_teleport_and_reset()
+    if os.environ.get("GENESIS_MH_HIDE_OUTFIT"):                # the own skinned garment replaces the MetaHuman outfit
+        for cloth in actor.get_components_by_class(unreal.ChaosClothComponent):
+            cloth.set_visibility(False)
     if os.environ.get("GENESIS_MH_GARMENT"):                    # own clothing follows the body (leader pose)
         body = next(c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
         wear = eas.spawn_actor_from_class(unreal.SkeletalMeshActor, actor.get_actor_location(), actor.get_actor_rotation())

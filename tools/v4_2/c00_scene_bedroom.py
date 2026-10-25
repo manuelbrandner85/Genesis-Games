@@ -203,12 +203,16 @@ for p in eal.list_assets(MESHES, recursive=False):
 # "viel wohnlicher, nicht so kalt ... alles muss passen". Positions in Blender metres; the mesh is set down on
 # the given surface height by its bounds; yaw turns pictures to face into the room.
 ARCHVIZ = (
-    ("/Game/Plants/SM_Dracaena_01", (1.40, -1.25), 0.0, 0.0),          # window corner, beside the curtain
-    ("/Game/Plants/SM_SnakePlant_01", (-1.45, 1.05), 0.0, 30.0),        # beside the door, near the headboard wall
+    # Regie 2026-10-25: the plants stand in real pots (36 cm ceramic pot + soil), no loose decorative pillow
+    ("/Game/Meshes/SM_Pot_04", (1.40, -1.25), 0.0, 0.0),
+    ("/Game/Meshes/SM_Soil", (1.40, -1.25), 0.315, 0.0),
+    ("/Game/Plants/SM_Dracaena_01", (1.40, -1.25), 0.30, 0.0),         # window corner, beside the curtain
+    ("/Game/Meshes/SM_Pot_04", (-1.45, 1.05), 0.0, 30.0),
+    ("/Game/Meshes/SM_Soil", (-1.45, 1.05), 0.315, 0.0),
+    ("/Game/Plants/SM_SnakePlant_02", (-1.45, 1.05), 0.30, 30.0),       # beside the door, near the headboard wall
     ("/Game/Meshes/SM_Rug_01", (0.95, 0.10), 0.0, 90.0),                # wool rug along the bed, window side
-    ("/Game/Meshes/SM_Picture_03", (1.785, -1.05), 1.35, -90.0),         # east wall between window and corner
-    ("/Game/Meshes/SM_Picture_04", (-1.785, 0.40), 1.30, 90.0),        # west wall, door side
-    ("/Game/Meshes/SM_Pillow_02", (-0.80, 1.22), 0.60, 180.0),          # decorative pillow on the free side
+    ("/Game/Meshes/SM_Picture_03", (1.785, -1.05), 1.35, -90.0),        # east wall between window and corner
+    ("/Game/Meshes/SM_Picture_04", (-1.785, 0.40), 1.30, 90.0),         # west wall, door side
 )
 for path, (bx, by), surface, yaw in ARCHVIZ:
     mesh = eal.load_asset(path)
@@ -276,6 +280,16 @@ body.override_animation_data(eal.load_asset("/Game/Genesis/Characters/C00/Posen/
 face = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
 face.set_update_animation_in_editor(True)                 # Regie: the features of a dying man (c00_face_dying.py)
 face.override_animation_data(eal.load_asset("/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Gesicht_Sterbend"), False, True, 0.0, 0.0)
+# own skinned shirt (tools/v4_2/c00_shirt_gs_skin.py) follows the posed body - the MetaHuman outfit would not
+shirt_skm = eal.load_asset("/Game/Genesis/Characters/C00/Kleidung/SKM_C00_Mann_Shirt")
+if shirt_skm:
+    wear = eas.spawn_actor_from_class(unreal.SkeletalMeshActor, man.get_actor_location(), man.get_actor_rotation())
+    wear.set_actor_label("MH_C00_Mann_Shirt")
+    wc_ = wear.skeletal_mesh_component
+    wc_.set_skeletal_mesh_asset(shirt_skm)
+    wc_.attach_to_component(body, "", unreal.AttachmentRule.SNAP_TO_TARGET, unreal.AttachmentRule.SNAP_TO_TARGET,
+                            unreal.AttachmentRule.SNAP_TO_TARGET, False)
+    wc_.set_leader_pose_component(body)
 for cloth in man.get_components_by_class(unreal.ChaosClothComponent):
     cloth.set_enable_simulation(False)
 

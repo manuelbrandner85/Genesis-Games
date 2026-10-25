@@ -34,7 +34,7 @@ RT = Matrix.Rotation(THETA, 3, "X")                   # raise the head end (+Y) 
 R = RT @ R0
 MAN_X = BX + 0.33                                     # on the window-side pillow, not on the seam
 BACK = 0.12                                             # back of the torso / buttocks behind the root plane (local -Y)
-SINK = 0.015                                            # how far the body sinks into the mattress
+SINK = 0.045                                            # how far the body sinks into the soft mattress (Regie: no floating)
 P0 = Vector((MAN_X, FEET_Y, MATTRESS_TOP - SINK + BACK))
 
 
@@ -70,7 +70,7 @@ for n in ("SZ_Pillow-0.36", "SZ_Pillow0.36"):
     o = bpy.data.objects.get(n)
     if o:
         bpy.data.objects.remove(o, do_unlink=True)
-head_back = to_world(POSE["joints"]["head"][0], POSE["joints"]["head"][1] - 10.5, POSE["joints"]["head"][2] + 4)
+head_back = to_world(POSE["joints"]["head"][0], POSE["joints"]["head"][1] - 9.0, POSE["joints"]["head"][2] + 4)   # Regie: head rests in the pillow, not above it
 
 
 def pillow(name, cx, cy, dent=None, seed=0):
@@ -148,30 +148,29 @@ def capsule(name, a, b, r):
     return o
 
 
-# proxy from the man's real bones (tools/v4_2/c00_pose_lying.py -> C00_POSE_JOINTS.json, component space cm),
-# radii = body thickness + ~3 cm margin so no hand, toe or sleeve pierces the duvet
+# proxy from the man's real bones (tools/v4_2/c00_pose_lying.py -> C00_POSE_JOINTS.json, component space cm).
+# Regie 2026-10-25 ("Deckenhuegel flacher"): anatomical sizes of a very thin old man + ~1.5 cm margin. Radii checked against a
+# render without the duvet (hips/shorts and hands were the widest parts).
 A = POSE["a_pose"]
-for dx in (7, -7):                                    # torso as two side-by-side capsules: ~44 cm wide, ~28 cm deep
-    capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, A["pelvis"][1], A["pelvis"][2] - 6), to_world(dx, A["spine_05"][1] + 2, A["spine_05"][2] + 6), 0.15)
-# the shirt front hangs loose in the outfit's standing rest shape and stands ~20 cm off the back when lying
-capsule("SZ_Proxy_ShirtFront", to_world(0, 6, A["pelvis"][2] + 4), to_world(0, 6, A["spine_05"][2] - 4), 0.155)
+BACK_Y = -BACK * 100                                   # back of the torso in local cm (lies on the mattress)
+for dx in (6.5, -6.5):                                # torso: two capsules side by side, ~36 cm wide, ~23 cm deep
+    capsule(f"SZ_Proxy_Torso{dx}", to_world(dx, BACK_Y + 13, A["pelvis"][2] - 12), to_world(dx, BACK_Y + 13, A["spine_05"][2] + 6), 0.127)
+# the own skinned shirt (SKM_C00_Mann_Shirt) follows the pose, but its loose front still stands ~19 cm off the back
+capsule("SZ_Proxy_ShirtFront", to_world(0, 19.5 - 12, A["pelvis"][2] + 6), to_world(0, 19.5 - 12, A["spine_05"][2] - 10), 0.12)   # front at local y 19.5
+# pelvis front: the base body's shorts stand ~2 cm proud of the torso capsules
+capsule("SZ_Proxy_Pelvis", to_world(-7, BACK_Y + 15, A["pelvis"][2] - 9), to_world(7, BACK_Y + 15, A["pelvis"][2] - 9), 0.11)
 for s, side in ((1, "l"), (-1, "r")):
     j = JOINTS[side]
-    capsule(f"SZ_Proxy_Thigh{s}", to_world(*A[f"thigh_{side}"]), to_world(*A[f"calf_{side}"]), 0.10)
-    capsule(f"SZ_Proxy_Calf{s}", to_world(*A[f"calf_{side}"]), to_world(*A[f"foot_{side}"]), 0.08)
+    th, ca = Vector(A[f"thigh_{side}"]), Vector(A[f"calf_{side}"])
+    capsule(f"SZ_Proxy_Hip{s}", to_world(*th), to_world(*(th + (ca - th) * 0.45)), 0.10)      # hip, upper thigh, shorts
+    capsule(f"SZ_Proxy_Thigh{s}", to_world(*th), to_world(*ca), 0.082)
+    capsule(f"SZ_Proxy_Calf{s}", to_world(*A[f"calf_{side}"]), to_world(*A[f"foot_{side}"]), 0.065)
     # feet in the relaxed plantar flexion of A_C00_Mann_Liegen: heel behind the ankle, toes past the posed ball
     ank, ball = Vector(A[f"foot_{side}"]), Vector(j["ball"])
-    toe = ball + (ball - ank).normalized() * 8
-    capsule(f"SZ_Proxy_Foot{s}", to_world(ank.x, ank.y - 6, ank.z), to_world(*toe), 0.075)
-    # arms lowered by A_C00_Mann_Liegen; fingers continue the forearm by ~19 cm
-    e, h = Vector(j["elbow"]), Vector(j["hand"])
-    tip = h + (h - e).normalized() * 19
-    capsule(f"SZ_Proxy_UpperArm{s}", to_world(*j["shoulder"]), to_world(*j["elbow"]), 0.08)
-    capsule(f"SZ_Proxy_ForeArm{s}", to_world(*j["elbow"]), to_world(*j["hand"]), 0.07)
-    capsule(f"SZ_Proxy_Hand{s}", to_world(*j["hand"]), to_world(*tip), 0.065)
-    # the outfit sleeves stay in A-pose in the editor preview: shoulder to just past the A-pose elbow
-    ua, la = Vector(A[f"upperarm_{side}"]), Vector(A[f"lowerarm_{side}"])
-    capsule(f"SZ_Proxy_Sleeve{s}", to_world(*ua), to_world(*(la + (Vector(A[f"hand_{side}"]) - la) * 0.55)), 0.12)
+    toe = ball + (ball - ank).normalized() * 7
+    capsule(f"SZ_Proxy_Foot{s}", to_world(ank.x, ank.y - 6, ank.z), to_world(*toe), 0.062)
+    # Regie 2026-10-25: the arms lie ON the duvet (hands resting on it) - no arm proxies; the pose is fitted to the
+    # simulated duvet afterwards (height map below -> tools/v4_2/c00_pose_lying.py)
 for o in proxy_parts:
     o.modifiers.new("Collision", "COLLISION")
     o.collision.thickness_outer = 0.006
@@ -182,7 +181,7 @@ for n in ("SZ_DuvetCloth",):
     o = bpy.data.objects.get(n)
     if o:
         bpy.data.objects.remove(o, do_unlink=True)
-chest_y = to_world(0, 0, 139).y                       # duvet edge at the collarbones
+chest_y = to_world(0, 0, 128).y                       # Regie 2026-10-25: duvet to the chest, shoulders out
 # Draped procedurally (cloth simulation over the narrow proxy exploded): every grid point is dropped onto
 # body proxy + mattress + pillows, the parts beyond the mattress edges hang down, then a constrained
 # smoothing lets the duvet tent between the body and the mattress like a real filled duvet.
@@ -271,7 +270,7 @@ for v in duv.data.vertices:
 # the top edge (folded over at the collarbones) is held in place, otherwise the duvet slides over the head
 pin = duv.vertex_groups.new(name="Pin")
 top_y = max(v.co.y for v in duv.data.vertices)
-pin.add([v.index for v in duv.data.vertices if v.co.y > top_y - 0.05 and abs(v.co.x - MAN_X) < 0.35], 1.0, "REPLACE")
+pin.add([v.index for v in duv.data.vertices if v.co.y > top_y - 0.04 and abs(v.co.x - MAN_X) < 0.30], 1.0, "REPLACE")
 cl = duv.modifiers.new("Cloth", "CLOTH")
 st = cl.settings
 st.vertex_group_mass = "Pin"
@@ -304,5 +303,26 @@ dp2.texture, dp2.strength, dp2.texture_coords = bpy.data.textures["TX_SZ_Crease"
 sc.frame_set(1)
 for o in proxy_parts:
     bpy.data.objects.remove(o, do_unlink=True)
+
+# ------------------------------------------------------------------ duvet height map for the arm pose
+# local character space (cm): x left/right, z along the body; value = local y of the duvet top (up when lying)
+from mathutils.bvhtree import BVHTree as _BVH
+_ev = duv.evaluated_get(bpy.context.evaluated_depsgraph_get())
+_m = _ev.to_mesh()
+_bvh = _BVH.FromPolygons([duv.matrix_world @ v.co for v in _m.vertices], [tuple(p.vertices) for p in _m.polygons])
+_ev.to_mesh_clear()
+hmap = {"x0": -44, "z0": 70, "step": 2, "nx": 45, "nz": 41, "y": []}
+for k in range(hmap["nz"]):
+    row = []
+    for i in range(hmap["nx"]):
+        wpt = to_world(hmap["x0"] + i * hmap["step"], 60, hmap["z0"] + k * hmap["step"])
+        hit = _bvh.ray_cast(wpt, Vector((0, 0, -1)), 2.0)[0]
+        row.append(round((hit.z - P0.z) * 100, 2) if hit else None)
+    hmap["y"].append(row)
+with open(OUT_JSON, encoding="utf8") as f:
+    lying_json = json.load(f)
+lying_json["duvet_height_local"] = hmap
+with open(OUT_JSON, "w", encoding="utf8") as f:
+    json.dump(lying_json, f, indent=1)
 
 result = {"P0": [round(v, 3) for v in P0], "head": [round(v, 3) for v in to_world(*POSE["joints"]["head"])], "chest_y": round(chest_y, 3)}
