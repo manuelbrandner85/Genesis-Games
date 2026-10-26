@@ -33,7 +33,7 @@ Was es jetzt gibt, jeweils mit Werkzeug und Beleg. Fab-, Epic- und MetaHuman-Inh
 | SET_C00_SCHLAFZIMMER_2026 | in Unreal aufgebaut: Neubau-Zimmer, Regen, Bett mit Daunendecke (Drapierung mit Falten), Kissen, Stoffmaterial, Nachttisch, Fotos, Stuhl an der Fensterseite | Blender → `tools/v4_2/build_c00_bedroom*.py`, `place_c00_chair.py`, `export_c00_bedroom.py`; Unreal → `c00_scene_bedroom.py` | `docs/evidence/V42/C00_Schlafzimmer_UE_{weit,wand,raum,tuer}.png` |
 | CHR_C00_MANN | gebauter, animierbarer MetaHuman: Liegepose (`c00_pose_lying.py`), Sterbe-Mimik über das Gesichts-Rig (`c00_face_dying_rig.py`), eigenes Schlafshirt, Haare für Nahaufnahmen | Unreal, MetaHuman | `…_UE_bett.png`, `…_UE_arme.png` |
 | CHR_C00_TOCHTER | gebauter MetaHuman, 166 cm (`c00_tochter_height.py`), Sitzpose am Bett (`c00_pose_tochter.py`) | Unreal, MetaHuman | `…_UE_tochter.png` |
-| 00-B (Hand in der Hand) | **technischer Test**: 85 mm, ihre Hand auf seiner (Hand an der Fensterseite = anatomisch seine linke) | `c00_scene_bedroom.py` Shot `00b` | `…_UE_00b.png` |
+| 00-B (Hand in der Hand) | **technischer Test, MRQ-gerendert (2026-10-26)**: 85 mm, 18 s, 24 fps; seine linke Hand ruht in ihrer (ihre Handfläche darunter, ihr Daumen streicht dreimal über seinen Handrücken), Atem beider Figuren, zwei Lidschläge, 1,5 cm Kameradrift, Fokuszug 10–14 s auf die Bücher (CR-004-Entwurf); 2 s Vorlauf für Haar-/Stoffsimulation wird abgeschnitten | `c00_pose_tochter.py`, `c00_anim_00b.py`, `c00_seq_00b.py` (LS_C00_00B), `c00_render_00b_mrq.py` | `…_UE_00b.png`, `C00_00B_MRQ.mp4`, `C00_00B_MRQ_sheet.png` |
 
 **Nicht behauptet:**
 - Keine Sequenz (Sequencer).

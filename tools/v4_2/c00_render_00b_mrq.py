@@ -6,6 +6,8 @@ the cinematic console variables of the bedroom stills (strands LOD forced, hair 
 The render runs in PIE in the background; the host polls the frame count (tools/v4_2/c00_render_bedroom_shots.py is
 for stills). An MP4 preview is encoded on the host with ffmpeg afterwards.
 """
+import os
+
 import unreal
 
 ROOT = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
@@ -25,10 +27,16 @@ cfg = job.get_configuration()
 out = cfg.find_or_add_setting_by_class(unreal.MoviePipelineOutputSetting)
 out.output_directory = unreal.DirectoryPath(OUT)
 out.output_resolution = unreal.IntPoint(1920, 1080)
-out.file_name_format = "C00_00B.{frame_number}"
+# frames numbered from the start of the 2 s pre-roll (LS_C00_00B starts at -48): the edit drops 0..47 -
+# hair strands only start simulating with the first rendered frame and fall into place within ~1 s
+out.file_name_format = "C00_00B.{frame_number_rel}"
 out.use_custom_frame_rate = True
 out.output_frame_rate = unreal.FrameRate(24, 1)
 out.override_existing_output = True
+_end = os.environ.get("GENESIS_MRQ_END")                 # short check render (frames 0.._end) before the full master
+if _end:
+    out.use_custom_playback_range = True
+    out.custom_start_frame, out.custom_end_frame = -48, int(_end)
 cfg.find_or_add_setting_by_class(unreal.MoviePipelineDeferredPassBase)
 cfg.find_or_add_setting_by_class(unreal.MoviePipelineImageSequenceOutput_PNG)
 aa = cfg.find_or_add_setting_by_class(unreal.MoviePipelineAntiAliasingSetting)

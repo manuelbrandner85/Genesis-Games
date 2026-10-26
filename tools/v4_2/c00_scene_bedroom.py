@@ -591,8 +591,9 @@ elif SHOT == "00b":                                      # test 00-B: 85 mm on t
     # from the foot end, ~90 cm before the hands: her forearm comes in from behind them (+x, +y), not in front
     # aimed between the hands and the old photo on the nightstand, so the focus pull (c00_seq_00b.py) lands in frame
     # re-aimed 2026-10-26 (bed 2.10 m, man 5 cm lower, CR-004 books where the photo stood): between the held hands
-    # (~0.33, 0.40, 0.66) and the book stack (~0.67, 1.27, 0.62)
-    cam_loc, target, focal = ue((0.22, -0.78, 0.98)), ue((0.40, 0.62, 0.68)), 85.0
+    # (~0.33, 0.40, 0.66) and the book stack (~0.67, 1.27, 0.62); tilted down 2026-10-26 (MRQ check): both hands
+    # whole in frame - her palm under his hand, her thumb on its back - and the books still upper right
+    cam_loc, target, focal = ue((0.22, -0.78, 0.98)), ue((0.40, 0.62, 0.645)), 85.0
 elif SHOT == "nacht":                                    # QA: the nightstand close (books, glass, lamp, photo back)
     cam_loc, target, focal = ue((0.30, 0.70, 0.98)), ue((0.78, 1.30, 0.63)), 40.0
 elif SHOT == "stuhl":                                    # QA: chair, knitted throw, rug, radiator

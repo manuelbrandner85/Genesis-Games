@@ -19,6 +19,7 @@ LEVEL = "/Game/Genesis/Sets/C00_Schlafzimmer/L_C00_Schlafzimmer"
 FOLDER, NAME = "/Game/Genesis/Cinematics/C00", "LS_C00_00B"
 POSEN = "/Game/Genesis/Characters/C00/Posen"
 FPS, END = 24, 432
+PRE = 48                                    # 2 s pre-roll (c00_anim_00b.py LEAD): MRQ warms up through it
 # focus target: the book stack on the nightstand (CR-004 draft, books instead of the photograph; build_c00_nightstand.py)
 PHOTO = unreal.Vector(67.0, -127.0, 62.5)
 DISPLAY = unreal.MovieSceneTimeUnit.DISPLAY_RATE
@@ -33,7 +34,7 @@ if eal.does_asset_exist(path):
     eal.delete_asset(path)
 seq = unreal.AssetToolsHelpers.get_asset_tools().create_asset(NAME, FOLDER, unreal.LevelSequence, unreal.LevelSequenceFactoryNew())
 seq.set_display_rate(unreal.FrameRate(FPS, 1))
-seq.set_playback_start(0)
+seq.set_playback_start(-PRE)                            # the pre-roll is rendered and cut off afterwards
 seq.set_playback_end(END)
 
 
@@ -45,7 +46,7 @@ def anim_track(obj, anim_name):
     b = seq.add_possessable(obj)
     tr = b.add_track(unreal.MovieSceneSkeletalAnimationTrack)
     sec = tr.add_section()
-    sec.set_range(0, END)
+    sec.set_range(-PRE, END)                              # the animation's 2 s lead-in plays in the pre-roll
     pr = sec.get_editor_property("params")
     pr.set_editor_property("animation", eal.load_asset(f"{POSEN}/{anim_name}"))
     sec.set_editor_property("params", pr)
@@ -58,26 +59,26 @@ anim_track(mc["Body"], "A_C00_Mann_Liegen_00B_Built")
 anim_track(mc["Face"], "A_C00_Mann_Gesicht_00B_Built")
 if shirt:
     seq.add_possessable(shirt)
-    anim_track(shirt.skeletal_mesh_component, "A_C00_Mann_Liegen_00B_Built")
+    anim_track(shirt.skeletal_mesh_component, "A_C00_Mann_Worn_00B_Built")     # rendered lengths (no RigLogic)
 seq.add_possessable(tochter)
 tc = comps(tochter)
 anim_track(tc["Body"], "A_C00_Tochter_Sitzen_00B_Built")
 anim_track(tc["Face"], "A_C00_Tochter_Gesicht_00B_Anim_Built")
 for n, c in tc.items():                                   # outfit pieces (sweater, jeans, flats) follow her body
     if n not in ("Body", "Face"):
-        anim_track(c, "A_C00_Tochter_Sitzen_00B_Built")
+        anim_track(c, "A_C00_Tochter_Worn_00B_Built")
 
 # camera: cut, drift, focus pull
 cam_b = seq.add_possessable(cam)
 cut = seq.add_track(unreal.MovieSceneCameraCutTrack)
 cs = cut.add_section()
-cs.set_range(0, END)
+cs.set_range(-PRE, END)
 cs.set_camera_binding_id(seq.get_binding_id(cam_b) if hasattr(seq, "get_binding_id") else cam_b.get_binding_id())
 loc, rot = cam.get_actor_location(), cam.get_actor_rotation()
 fwd = rot.get_forward_vector()
 xf = cam_b.add_track(unreal.MovieScene3DTransformTrack)
 xs = xf.add_section()
-xs.set_range(0, END)
+xs.set_range(-PRE, END)
 ch = xs.get_all_channels()                                # Location X Y Z, Rotation X Y Z, Scale X Y Z
 end_loc = loc + fwd * 1.5
 for i, (a, b) in enumerate(((loc.x, end_loc.x), (loc.y, end_loc.y), (loc.z, end_loc.z),
@@ -91,7 +92,7 @@ cc_b = seq.add_possessable(cc)
 ft = cc_b.add_track(unreal.MovieSceneFloatTrack)
 ft.set_property_name_and_path("ManualFocusDistance", "FocusSettings.ManualFocusDistance")
 fs = ft.add_section()
-fs.set_range(0, END)
+fs.set_range(-PRE, END)
 fch = fs.get_all_channels()[0]
 for frame, val in ((0, d_hands), (240, d_hands), (336, d_photo), (END, d_photo)):
     k = fch.add_key(unreal.FrameNumber(frame), val, 0.0, DISPLAY)

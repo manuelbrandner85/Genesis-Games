@@ -19,7 +19,8 @@ import unreal
 
 POSEN = "/Game/Genesis/Characters/C00/Posen"
 FPS, SECONDS = 30, 18.0                      # anim sample rate (must suit the project's 30 fps); the sequence plays at 24
-N = int(FPS * SECONDS)                       # frames; keys = N + 1
+LEAD = 2.0                                   # pre-roll in front of the shot: hair strands and cloth settle before frame 0
+N = int(FPS * (SECONDS + LEAD))              # frames; keys = N + 1 (shot time t = anim time - LEAD)
 eal = unreal.EditorAssetLibrary
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
 AL = unreal.AnimationLibrary
@@ -119,7 +120,7 @@ def probe_skeleton(bp_path):
     return names, parent, ref_local, skel
 
 
-t_of = [i / FPS for i in range(N + 1)]
+t_of = [i / FPS - LEAD for i in range(N + 1)]       # shot time; negative in the pre-roll
 X = V(1, 0, 0)
 
 # ------------------------------------------------------------------ the man: breath in the shoulders and the jaw
@@ -233,4 +234,32 @@ for t in t_of:
     curves_tf.append(c)
 write("A_C00_Tochter_Sitzen_00B_Built", t_skel, frames_tb, [{} for _ in t_of])
 write("A_C00_Tochter_Gesicht_00B_Anim_Built", face_skel, frames_tf, curves_tf)
+
+
+# ------------------------------------------------------------------ worn pieces: his shirt, her sweater/jeans/flats
+# QA 2026-10-26 (MRQ render): the shirt (own SkeletalMeshActor) and her outfit pieces play the body animation in PIE
+# WITHOUT the RigLogic post-process - on template bone lengths, so the sleeve slid back ~4.6 cm (the DNA forearm offset)
+# and showed its opening. Their animation therefore keys the rendered (template + DNA) translations, read from the
+# posed bodies in the level (parent-bone space), on every bone - unkeyed bones would fall back to the template too.
+PB = unreal.RelativeTransformSpace.RTS_PARENT_BONE_SPACE
+_acts = {a.get_actor_label(): a for a in eas.get_all_level_actors()}
+
+
+def worn(label, frames, names, ref_local, skel, out):
+    live_body = next(c for c in _acts[label].get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
+    live = {n: live_body.get_socket_transform(n, PB).translation for n in names}
+    fr = []
+    for f in frames:
+        g = {}
+        for n in names:
+            src = f.get(n) or ref_local[n]
+            g[n] = unreal.Transform(location=live[n], rotation=src.rotation.rotator(), scale=src.scale3d)
+        fr.append(g)
+    write(out, skel, fr, [{} for _ in t_of])
+    print("C00_WORN", out, "forearm", round(live.get("hand_l", V(0, 0, 0)).length(), 1), "vs template",
+          round(ref_local["hand_l"].translation.length(), 1))
+
+
+worn("MH_C00_Mann", frames_mb, m_names, m_ref, m_skel, "A_C00_Mann_Worn_00B_Built")
+worn("MH_C00_Tochter", frames_tb, t_names, t_ref, t_skel, "A_C00_Tochter_Worn_00B_Built")
 print("C00_ANIM_00B", N, "frames", "man tracks", len(frames_mb[0]), "daughter tracks", len(frames_tb[0]))
