@@ -76,10 +76,12 @@ def glass_object_master():
     background (translucency composited after depth of field) and without refraction. Own master for small glass
     objects: composited before DOF (blurs with the scene), refraction by pixel normal offset (bends what is behind it
     along the curved walls), fresnel-driven opacity (rim reads, faces stay clear)."""
-    path = f"{SET}/Materials/M_C00_SetGlassObject"
+    # v2 (QA 2026-10-25, "das Glas sieht sehr unrealistisch aus"): v1 read milky - light base colour plus opacity
+    # made it look frosted. Clear glass is nearly invisible: dark base, low facing opacity, strong grazing reflection
+    path = f"{SET}/Materials/M_C00_SetGlassObject_v2"
     if eal.does_asset_exist(path):
         return eal.load_asset(path)
-    m = at.create_asset("M_C00_SetGlassObject", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    m = at.create_asset("M_C00_SetGlassObject_v2", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
     m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
     m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
     m.set_editor_property("translucency_pass", unreal.MaterialTranslucencyPass.MTP_BEFORE_DOF)
@@ -87,7 +89,7 @@ def glass_object_master():
     E = lambda cls, x, y: mel.create_material_expression(m, cls, x, y)
     col = E(unreal.MaterialExpressionVectorParameter, -600, 0)
     col.set_editor_property("parameter_name", "Color")
-    col.set_editor_property("default_value", unreal.LinearColor(0.92, 0.95, 0.95, 1))
+    col.set_editor_property("default_value", unreal.LinearColor(0.04, 0.045, 0.045, 1))
     mel.connect_material_property(col, "", unreal.MaterialProperty.MP_BASE_COLOR)
     for pn, val, prop, y in (("Roughness", 0.03, unreal.MaterialProperty.MP_ROUGHNESS, 120),
                              ("Specular", 0.5, unreal.MaterialProperty.MP_SPECULAR, 220),
@@ -97,14 +99,14 @@ def glass_object_master():
         e.set_editor_property("default_value", val)
         mel.connect_material_property(e, "", prop)
     fr = E(unreal.MaterialExpressionFresnel, -600, 440)
-    fr.set_editor_property("exponent", 4.0)
+    fr.set_editor_property("exponent", 5.0)
     base = E(unreal.MaterialExpressionScalarParameter, -600, 560)
     base.set_editor_property("parameter_name", "Opacity")
-    base.set_editor_property("default_value", 0.08)
+    base.set_editor_property("default_value", 0.03)
     lp = E(unreal.MaterialExpressionLinearInterpolate, -350, 480)
     mel.connect_material_expressions(base, "", lp, "A")
     one = E(unreal.MaterialExpressionConstant, -600, 660)
-    one.set_editor_property("r", 0.6)
+    one.set_editor_property("r", 0.85)
     mel.connect_material_expressions(one, "", lp, "B")
     mel.connect_material_expressions(fr, "", lp, "Alpha")
     mel.connect_material_property(lp, "", unreal.MaterialProperty.MP_OPACITY)
@@ -198,6 +200,88 @@ def fabric_master():
 
 
 FABRIC = fabric_master()
+
+WOOD_HLSL = r"""
+// v2 (QA 2026-10-25): v1 read as regular corrugated stripes, and the grain ran across the chair legs. Grain direction now
+// follows the surface: lying surfaces along the board axis (Along), standing surfaces (legs, sides) vertical.
+float3 n = normalize(Nrm);
+float3 al = abs(n.z) > 0.7 ? normalize(Along) : float3(0, 0, 1);
+float3 ac = normalize(cross(n, al));
+float3 p = Pos * 0.01;
+float a = dot(p, al);
+float c = dot(p, ac);
+float rowH = Plank.y;
+float row = floor(c / rowH);
+float u = a / Plank.x + frac(row * 0.37);
+float plank = floor(u);
+float h = frac(sin(row * 12.9898 + plank * 78.233) * 43758.5453);
+float h2 = frac(sin(row * 3.17 + plank * 19.41) * 1731.13);
+// soft, irregular growth figure: low-frequency bands warped along the grain, never periodic-looking
+float w1 = sin(a * 1.7 + h * 6.28) * 0.020 + sin(a * 5.3 + h2 * 6.28) * 0.006 + sin(a * 13.0 + c * 40.0) * 0.0015;
+float band = sin((c + w1) * (55.0 + 30.0 * h2) + h * 6.28) * 0.5 + 0.5;
+band = band * band * (3.0 - 2.0 * band);
+float band2 = sin((c + w1 * 1.7) * (140.0 + 60.0 * h) + h2 * 6.28) * 0.5 + 0.5;
+// fine pore streaks along the grain
+float cell = floor(c * 2500.0);
+float pr = frac(sin(cell * 91.7 + floor(a * 30.0) * 13.1) * 43758.5453);
+float pores = step(0.82, pr) * (0.6 + 0.4 * sin(a * 300.0 + cell));
+float t = saturate(0.45 * h + 0.18 * band + 0.10 * band2 + 0.12);
+float3 col = lerp(Dark.rgb, Light.rgb, t) * (1.0 - 0.18 * pores);
+float ju = min(frac(u), 1.0 - frac(u)) * Plank.x;
+float jv = min(frac(c / rowH), 1.0 - frac(c / rowH)) * rowH;
+float joint = 1.0 - saturate(min(ju, jv) / 0.0012);
+col *= lerp(1.0, 0.35, joint * Plank.z);
+return col;
+"""
+
+
+def wood_master():
+    """QA 2026-10-25 ("Lego-Kloetze"): oak in Unreal was a flat colour - the Blender grain does not travel through FBX
+    and the box furniture has no UVs. Procedural oak from the world position (no UVs needed): growth rings warped
+    along the grain, per-plank tone, pores; optional plank layout with darkened joints (floor laminate). Parameters:
+    Along/Across (grain and plank-width directions), Plank (length m, width m, joints 0/1), Dark/Light, Roughness."""
+    path = f"{SET}/Materials/M_C00_SetWood_v2"
+    if eal.does_asset_exist(path):
+        return eal.load_asset(path)
+    m = at.create_asset("M_C00_SetWood_v2", f"{SET}/Materials", unreal.Material, unreal.MaterialFactoryNew())
+    E = lambda cls, x, y: mel.create_material_expression(m, cls, x, y)
+    cus = E(unreal.MaterialExpressionCustom, -400, 0)
+    cus.set_editor_property("code", WOOD_HLSL)
+    cus.set_editor_property("output_type", unreal.CustomMaterialOutputType.CMOT_FLOAT3)
+    names = ["Pos", "Nrm", "Along", "Across", "Plank", "Dark", "Light"]
+    ins = []
+    for n in names:
+        ci = unreal.CustomInput()
+        ci.set_editor_property("input_name", n)
+        ins.append(ci)
+    cus.set_editor_property("inputs", ins)
+    wp = E(unreal.MaterialExpressionWorldPosition, -800, -100)
+    mel.connect_material_expressions(wp, "", cus, "Pos")
+    vn = E(unreal.MaterialExpressionVertexNormalWS, -800, -200)
+    mel.connect_material_expressions(vn, "", cus, "Nrm")
+    for k, (n, dv) in enumerate((("Along", (1, 0, 0)), ("Across", (0, 1, 0)), ("Plank", (100, 100, 0)),
+                                ("Dark", (0.30, 0.19, 0.10)), ("Light", (0.52, 0.37, 0.22)))):
+        e = E(unreal.MaterialExpressionVectorParameter, -800, k * 110)
+        e.set_editor_property("parameter_name", n)
+        e.set_editor_property("default_value", unreal.LinearColor(*dv, 1))
+        mel.connect_material_expressions(e, "", cus, n)
+    mel.connect_material_property(cus, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    r = E(unreal.MaterialExpressionScalarParameter, -400, 300)
+    r.set_editor_property("parameter_name", "Roughness")
+    r.set_editor_property("default_value", 0.45)
+    mel.connect_material_property(r, "", unreal.MaterialProperty.MP_ROUGHNESS)
+    mel.recompile_material(m)
+    eal.save_loaded_asset(m)
+    return m
+
+
+WOOD = wood_master()
+# slot -> (Along, Across, Plank(length, width, joints), Dark, Light, roughness)
+WOOD_LOOK = {
+    "M_SZ_OakLaminate": ((1, 0, 0), (0, 1, 0), (1.38, 0.193, 1), (0.34, 0.23, 0.13), (0.55, 0.40, 0.25), 0.42),
+    "M_SZ_OakVeneer": ((1, 0, 0), (0, 0, 1), (100, 100, 0), (0.30, 0.19, 0.10), (0.50, 0.35, 0.21), 0.45),
+    "M_SZ_FrameWood": ((0, 0, 1), (1, 0, 0), (100, 100, 0), (0.12, 0.07, 0.04), (0.26, 0.16, 0.09), 0.5),
+}
 # slot name -> (master, colour, roughness, metallic, emissive, opacity); colours are the Blender values
 LOOK = {
     "M_SZ_WallWhite": (OPAQUE, (0.80, 0.79, 0.76), 0.9, 0, None, None),
@@ -249,8 +333,8 @@ LOOK = {
     "M_SZ_BookRibbon": (FABRIC, (0.42, 0.06, 0.07), 0.45, 0, None, None),
     "M_SZ_DrinkGlass": (GLASS_OBJ, (0.92, 0.95, 0.95), 0.02, 0, None, 0.06),
     "M_SZ_MedicineBox": (OPAQUE, (0.80, 0.80, 0.78), 0.5, 0, None, None),
-    "M_SZ_RugWool": (OPAQUE, (0.55, 0.47, 0.38), 0.95, 0, None, None),
-    "M_SZ_ThrowWool": (OPAQUE, (0.55, 0.36, 0.08), 0.95, 0, None, None),
+    "M_SZ_RugWool": (FABRIC, (0.55, 0.47, 0.38), 0.95, 0, None, None),
+    "M_SZ_ThrowWool": (FABRIC, (0.55, 0.36, 0.08), 0.95, 0, None, None),     # chunky knit (WEAVE_SCALE 28)
     "M_SZ_Rahmen_Familie": (OPAQUE, (0.42, 0.29, 0.17), 0.5, 0, None, None),
     "M_SZ_Rahmen_Ehefrau": (OPAQUE, (0.42, 0.29, 0.17), 0.5, 0, None, None),
     "M_SZ_Rahmen_Strand": (OPAQUE, (0.20, 0.13, 0.08), 0.5, 0, None, None),
@@ -259,7 +343,7 @@ LOOK = {
 
 # weave repeats per UV unit: set meshes have 1 UV unit = 1 m; the shirt's Fab UVs span ~1.4 m of fabric
 # (first test at 30/m read as coarse knitting: one tile of the weave map holds ~25 threads -> ~0.25 mm linen threads)
-WEAVE_SCALE = {"M_SZ_BookCover0": 600.0, "M_SZ_BookCover2": 600.0, "M_SZ_DuvetSage": 160.0, "M_SZ_PillowLinen": 180.0, "M_SZ_BedLinenWhite": 180.0, "M_C00_ShirtFabric": 260.0}
+WEAVE_SCALE = {"M_SZ_ThrowWool": 70.0, "M_SZ_RugWool": 60.0, "M_SZ_BookCover0": 600.0, "M_SZ_BookCover2": 600.0, "M_SZ_DuvetSage": 160.0, "M_SZ_PillowLinen": 180.0, "M_SZ_BedLinenWhite": 180.0, "M_C00_ShirtFabric": 260.0}
 
 
 def photo_material(key="VaterTochter"):
@@ -295,6 +379,15 @@ def instance(slot):
         return photo_material(slot[len("M_SZ_Foto_"):])
     name = "MI_" + slot[2:]
     path = f"{SET}/Materials/{name}"
+    if slot in WOOD_LOOK:
+        al, ac, pl, dk, lt, rg = WOOD_LOOK[slot]
+        mi = eal.load_asset(f"{SET}/Materials/MI_{slot[2:]}") if eal.does_asset_exist(f"{SET}/Materials/MI_{slot[2:]}") else             at.create_asset(f"MI_{slot[2:]}", f"{SET}/Materials", unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+        mel.set_material_instance_parent(mi, WOOD)
+        for pn, v in (("Along", al), ("Across", ac), ("Plank", pl), ("Dark", dk), ("Light", lt)):
+            mel.set_material_instance_vector_parameter_value(mi, pn, unreal.LinearColor(*v, 1))
+        mel.set_material_instance_scalar_parameter_value(mi, "Roughness", rg)
+        eal.save_loaded_asset(mi)
+        return mi
     parent, rgb, rough, metal, emis, opac = LOOK.get(slot, (OPAQUE, (0.5, 0.5, 0.5), 0.6, 0, None, None))
     mi = eal.load_asset(path) if eal.does_asset_exist(path) else at.create_asset(
         name, f"{SET}/Materials", unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
@@ -308,7 +401,7 @@ def instance(slot):
         mel.set_material_instance_scalar_parameter_value(mi, "Opacity", opac)
     if parent == FABRIC and slot in WEAVE_SCALE:
         mel.set_material_instance_scalar_parameter_value(mi, "WeaveScale", WEAVE_SCALE[slot])
-        mel.set_material_instance_scalar_parameter_value(mi, "WeaveNormalStrength", 0.35)
+        mel.set_material_instance_scalar_parameter_value(mi, "WeaveNormalStrength", 1.0 if slot in ("M_SZ_ThrowWool", "M_SZ_RugWool") else 0.35)
     eal.save_loaded_asset(mi)
     return mi
 
@@ -367,7 +460,8 @@ ARCHVIZ = (
     ("/Game/Meshes/SM_Pot_04", (-1.45, 1.05), 0.0, 30.0),
     ("/Game/Meshes/SM_Soil", (-1.45, 1.05), 0.315, 0.0),
     ("/Game/Plants/SM_SnakePlant_02", (-1.45, 1.05), 0.30, 30.0),       # beside the door, near the headboard wall
-    ("/Game/Meshes/SM_Rug_01", (0.95, 0.10), 0.0, 90.0),                # wool rug along the bed, window side
+    # QA 2026-10-25: the ArchViz rug (SM_Rug_01) read as a game checkerboard - the own wool rug (SZ_Rug, M_C00_SetFabric
+    # with mottled wool and UVs from build_c00_nightstand.py) stays instead
     # (the ArchViz picture frames lost their materials - own framed family photos, build_c00_bedroom_decor.py)
 )
 for path, (bx, by), surface, yaw in ARCHVIZ:
@@ -382,9 +476,6 @@ for path, (bx, by), surface, yaw in ARCHVIZ:
         loc = ue((bx, by, surface)) - off - V(0, 0, c.z)
     a = eas.spawn_actor_from_object(mesh, loc, R(0, 0, yaw))
     a.set_actor_label("AV_" + path.rsplit("/", 1)[-1])
-for a in eas.get_all_level_actors():                                   # the ArchViz rug replaces the plain one
-    if a.get_actor_label() == "UE_SZ_Rug":
-        eas.destroy_actor(a)
 
 # ------------------------------------------------------------------ light
 blender_lamp = (-0.25 + 0.75 + 0.27 + 0.10, 3.20 / 2 - 0.22 + 0.06, 0.88)

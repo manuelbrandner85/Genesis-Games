@@ -184,6 +184,9 @@ framed("Ehefrau", (1.22, D / 2 - 0.004, 1.50), (0, -1, 0), 0.40, 0.40, 0.30, 0.3
 # rebuilt 2026-10-25 with real construction and a collision-checked layout (tools/v4_2/build_c00_nightstand.py)
 _ns = os.path.join(os.path.dirname(__file__), "build_c00_nightstand.py")
 exec(compile(open(_ns, encoding="utf8").read(), _ns, "exec"), {"__file__": _ns, "__name__": "__main__"})
+# furniture details (nightstand top/drawer/knob, chair) - QA 2026-10-25 (tools/v4_2/detail_c00_furniture.py)
+_fd = os.path.join(os.path.dirname(__file__), "detail_c00_furniture.py")
+exec(compile(open(_fd, encoding="utf8").read(), _fd, "exec"), {"__file__": _fd, "__name__": "__main__"})
 
 # ------------------------------------------------------------------ wool rug beside the bed (window side)
 rug = block("SZ_Rug", (0.80, 1.40, 0.012), (0.85, 0.15, 0.006), mat("M_SZ_RugWool", (0.55, 0.47, 0.38), 0.95), bevel=0.004)

@@ -269,7 +269,7 @@ for i in range(len(names)):
         if a[0] < b[1] - 0.002 and b[0] < a[1] - 0.002 and a[2] < b[3] - 0.002 and b[2] < a[3] - 0.002 and \
                 a[4] < b[5] - 0.002 and b[4] < a[5] - 0.002:
             hits.append((names[i], names[j]))
-ns = bbox(bpy.data.objects["SZ_Nightstand"])
+ns = bbox(bpy.data.objects.get("SZ_NightstandTop") or bpy.data.objects["SZ_Nightstand"])   # the top board carries the things
 off = [g for g, b in gb.items() if g != "lamp" and (b[0] < ns[0] or b[1] > ns[1] or b[2] < ns[2] or b[3] > ns[3])]
 result = {"overlaps": hits, "off_nightstand": off, "stack_top": round(z, 3),
           "books_rel": [round(v, 3) for v in (gb["books"][0] - NX, gb["books"][1] - NX, gb["books"][2] - NY, gb["books"][3] - NY)],

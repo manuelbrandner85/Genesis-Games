@@ -19,13 +19,18 @@ if tmp:
 else:
     tmp = bpy.data.collections.new("C00_SZ_Export")
     sc.collection.children.link(tmp)
-deps = bpy.context.evaluated_depsgraph_get()
+# the bedroom scene's own depsgraph, updated: in background runs the active scene can be another one (C00_Shirt) and
+# matrix_world of objects moved by an earlier script was stale - the photo frame was exported at the room origin
+with bpy.context.temp_override(scene=sc, view_layer=sc.view_layers[0]):
+    deps = bpy.context.evaluated_depsgraph_get()
+    deps.update()
 count = 0
 for o in src.all_objects:
     if o.type != "MESH" or o.hide_render:
         continue
-    me = bpy.data.meshes.new_from_object(o.evaluated_get(deps), preserve_all_data_layers=True, depsgraph=deps)
-    me.transform(o.matrix_world)
+    ev = o.evaluated_get(deps)
+    me = bpy.data.meshes.new_from_object(ev, preserve_all_data_layers=True, depsgraph=deps)
+    me.transform(ev.matrix_world)                   # evaluated matrix (the original's can be stale in background runs)
     c = bpy.data.objects.new("UE_" + o.name, me)
     tmp.objects.link(c)
     count += 1
