@@ -11,6 +11,15 @@ class UTextBlock;
 class UVerticalBox;
 class UGenesisChoiceButton;
 
+/** Which game the pause menu interrupts: the world, the C02-B route (no slot yet) or the pregnancy. */
+UENUM()
+enum class EGenesisPauseKind : uint8
+{
+    Game,
+    StoryRoute,
+    Pregnancy,
+};
+
 UENUM()
 enum class EGenesisMenuScreen : uint8
 {
@@ -34,8 +43,9 @@ class GENESIS_API UGenesisMenuWidget : public UUserWidget
 public:
     /** Main menu map: boot sequence (warnings) -> title card -> main menu; returning from the game skips to the main menu. */
     void StartMainMenu(bool bSkipBoot);
-    /** In the game: opens as pause menu. bStoryStart: pause of the C02-B swim (no save/load). */
-    void StartPauseMenu(bool bStoryStart = false);
+    /** In the game: opens as pause menu (C02-B route: no save/load, "Weg abkürzen" after the first time;
+     *  pregnancy: save/load and "Abschnitt abkürzen"). */
+    void StartPauseMenu(EGenesisPauseKind Kind = EGenesisPauseKind::Game);
     /** Back from the swim map: C02 continues (C02-C..F), then title card or chapter card. */
     void ResumeStoryStart();
 
@@ -57,6 +67,8 @@ public:
     bool IsSkipConfirmPending() const { return ConfirmSkipUntil > ScreenTime; }
     /** Current white level of the light-strike overlay (C01), for tests and capture. */
     float GetFlashLevel() const;
+    /** Size of the visible light point (share of screen height), 0 when hidden (CR-003 soul point). */
+    float GetLightPointShare() const { return LightPointShare; }
     int32 GetFocusedEntry() const;
     const FString& GetInfoText() const { return InfoText; }
     const FString& GetLastFlowError() const { return LastFlowError; }
@@ -102,8 +114,11 @@ private:
     EGenesisMenuScreen ReturnScreen = EGenesisMenuScreen::Main;   // Main or Pause
     bool bInGame = false;
     bool bStoryPause = false;
+    EGenesisPauseKind PauseKind = EGenesisPauseKind::Game;
+    FName PlayNode() const;
     bool bSwimRequested = false;
     float ConfirmSkipUntil = -1.f;
+    float LightPointShare = 0.f;
     FString PendingSlot;
     FString InfoText;
     FString LastFlowError;

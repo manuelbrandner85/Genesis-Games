@@ -8,6 +8,7 @@
 const TCHAR* UGenesisGameInstance::GameplayMap = TEXT("/Game/Genesis/Flussdorf/Maps/L_Flussdorf_G6");
 const TCHAR* UGenesisGameInstance::MenuMap = TEXT("/Game/Genesis/UI/Maps/L_MainMenu");
 const TCHAR* UGenesisGameInstance::SwimMap = TEXT("/Game/Genesis/Cinematics/C02/Maps/L_C02_Swim");
+const TCHAR* UGenesisGameInstance::PregnancyMap = TEXT("/Game/Genesis/Pregnancy/Maps/L_Pregnancy");
 
 void UGenesisGameInstance::Init()
 {
@@ -42,6 +43,8 @@ FGenesisSlotInfo UGenesisGameInstance::DescribeSlot(const FString& Slot)
         Info.Minute = int32(Minute % 60);
         Info.MoneyGE = S.PlayerMoneyGE;
         Info.LifeNumber = S.LifeNumber;
+        Info.PregnancyStage = S.PregnancyStage;
+        Info.PregnancyDay = S.PregnancyDay;
         Info.SavedAt = FM.GetTimeStamp(*(Info.bFromBackup ? Path + TEXT(".bak") : Path));
     }
     return Info;
@@ -66,6 +69,13 @@ void UGenesisGameInstance::StartNewGame(const FString& Slot)
     ActiveSlot = Slot;
     bLoadSlotOnStart = false;
     bNewGamePendingSave = true;          // the start save replaces the old slot content right away
+    UGameplayStatics::OpenLevel(this, FName(PregnancyMap), true, TEXT("game=/Script/Genesis.GenesisPregnancyGameMode"));
+}
+
+void UGenesisGameInstance::ContinueAfterBirth()
+{
+    bLoadSlotOnStart = true;             // the birth save carries the life into the world
+    bNewGamePendingSave = false;
     UGameplayStatics::OpenLevel(this, FName(GameplayMap));
 }
 
@@ -74,6 +84,10 @@ void UGenesisGameInstance::LoadSlotAndPlay(const FString& Slot)
     ActiveSlot = Slot;
     bLoadSlotOnStart = true;
     bNewGamePendingSave = false;
+    if (DescribeSlot(Slot).IsUnborn()) {
+        UGameplayStatics::OpenLevel(this, FName(PregnancyMap), true, TEXT("game=/Script/Genesis.GenesisPregnancyGameMode"));
+        return;
+    }
     UGameplayStatics::OpenLevel(this, FName(GameplayMap));
 }
 
@@ -133,6 +147,11 @@ bool UGenesisGameInstance::TakeStoryLife(FGenesisWorldState& State)
     State.LifeStartMinute = L.LifeStartMinute;
     State.ConceptionMode = L.ConceptionMode;
     State.StoryStartCommits = L.StoryStartCommits;
+    State.SpermRouteSections = L.SpermRouteSections;
+    State.bSpermRouteShortened = L.bSpermRouteShortened;
+    State.PregnancyStage = TEXT("S1");                    // the life continues with the pregnancy (C02-E)
+    State.PregnancyDay = 0.f;
+    State.bPregnancyC03Done = false;
     StoryStart.Reset();                  // one story start, one life
     bStoryStartForNewLife = false;
     return true;

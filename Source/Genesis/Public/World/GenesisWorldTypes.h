@@ -36,7 +36,7 @@ USTRUCT()
 struct GENESIS_API FGenesisWorldState
 {
     GENERATED_BODY()
-    static constexpr int32 CurrentSchema = 3;     // 2: soul/life/world identity (V4.2 SceneContracts), 3: story start C00-C02 (CR-001)
+    static constexpr int32 CurrentSchema = 4;     // 2: identity (V4.2), 3: story start C00-C02 (CR-001), 4: sperm route + pregnancy (CR-002, GD-2026-10-26-02)
     UPROPERTY() int32 SchemaVersion = CurrentSchema;
     UPROPERTY() FString SoulID;                     // stays across rebirths
     UPROPERTY() FString LifeID;                     // new for every life
@@ -54,6 +54,12 @@ struct GENESIS_API FGenesisWorldState
      *  seen through the objective camera). The life begins either way. */
     UPROPERTY() FName ConceptionMode;
     UPROPERTY() TArray<FName> StoryStartCommits;
+    // --- Schema 4: route W1-W5 (CR-002) and the playable pregnancy ------------------------------------
+    UPROPERTY() int32 SpermRouteSections = 0;          // sections the life's route went through (5 = W1-W5)
+    UPROPERTY() bool bSpermRouteShortened = false;     // W1-W4 shortened (F3, only after the first time)
+    UPROPERTY() FName PregnancyStage;                  // S1..S10, Born; None = not begun
+    UPROPERTY() float PregnancyDay = 0.f;              // days since fertilisation
+    UPROPERTY() bool bPregnancyC03Done = false;
     UPROPERTY() int64 WorldMinute = 0;
     UPROPERTY() int32 PlayerMoneyGE = 0;
     UPROPERTY() TMap<FName, int32> PlayerItems;

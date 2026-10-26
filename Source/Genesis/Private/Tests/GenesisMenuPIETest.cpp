@@ -3,6 +3,7 @@
 #include "GenesisGameInstance.h"
 #include "Player/GenesisPlayerController.h"
 #include "Swim/GenesisSwimGameMode.h"
+#include "Pregnancy/GenesisPregnancyGameMode.h"
 #include "EngineUtils.h"
 #include "Save/GenesisSaveStore.h"
 #include "UI/GenesisMenuGameMode.h"
@@ -156,13 +157,41 @@ namespace
             }
             case 6: {
                 M->AdvanceIntro();
-                return Next(4.0);
+                return NextWorld();
             }
             case 7: {
+                // C02-E: the new life continues with the pregnancy (GD-2026-10-26-02/-03).
+                AGenesisPregnancyPlayerController* PregPC = Cast<AGenesisPregnancyPlayerController>(PC);
+                AGenesisPregnancyDirector* D = PregPC ? PregPC->GetDirector() : nullptr;
+                if (!D) return ++Frames > 6000 ? Fail(TEXT("new life did not open the pregnancy")) : false;
+                const UGenesisWorldStateSubsystem* PWS = World->GetSubsystem<UGenesisWorldStateSubsystem>();
+                Test->TestEqual(TEXT("Pregnancy begins at S1"), D->GetPregnancy().StageId(), FName("S1"));
+                Test->TestEqual(TEXT("The pregnancy carries the soul of the story start"), PWS->GetState().SoulID, SoulID);
+                Test->TestEqual(TEXT("... and the life that began before C02"), PWS->GetState().LifeID, LifeID);
+                Test->TestTrue(TEXT("New life wrote its start save"), IFileManager::Get().FileExists(*FGenesisSaveStore::SlotPath(TEXT("Slot1"))));
+                Test->TestTrue(TEXT("Main menu: continue would open the pregnancy"), UGenesisGameInstance::DescribeSlot(TEXT("Slot1")).IsUnborn());
+                for (int32 I = 0; I < 8; ++I) D->ShortenStage();         // -> S9: late pregnancy, C03 due
+                return Next(8.0);
+            }
+            case 8: {
+                AGenesisPregnancyPlayerController* PregPC = Cast<AGenesisPregnancyPlayerController>(PC);
+                AGenesisPregnancyDirector* D = PregPC ? PregPC->GetDirector() : nullptr;
+                if (!D) return Fail(TEXT("pregnancy director gone"));
+                Test->TestTrue(TEXT("C03 shown in late pregnancy"), D->GetPregnancy().bC03Done);
+                D->ShortenStage();                                    // -> S10
+                D->ShortenStage();                                    // -> birth, C04, then the world
+                return Next(0.5);
+            }
+            case 9: {
+                if (!GamePC) return ++Frames > 6000 ? Fail(TEXT("the birth did not lead into the world")) : false;
+                return Next(1.0);                             // the world loads the birth save on its first tick
+            }
+            case 10: {
                 if (!GamePC) return Fail(TEXT("new game did not open the game map"));
                 Test->TestEqual(TEXT("Active slot"), GI->ActiveSlot, FString(TEXT("Slot1")));
                 Test->TestTrue(TEXT("New game wrote its start save"), IFileManager::Get().FileExists(*FGenesisSaveStore::SlotPath(TEXT("Slot1"))));
                 const UGenesisWorldStateSubsystem* WS = World->GetSubsystem<UGenesisWorldStateSubsystem>();
+                Test->TestEqual(TEXT("After the birth"), WS->GetState().PregnancyStage, FName("Born"));
                 Test->TestFalse(TEXT("New game has a soul identity"), WS->GetState().SoulID.IsEmpty());
                 Test->TestEqual(TEXT("The game plays the soul of the story start"), WS->GetState().SoulID, SoulID);
                 Test->TestEqual(TEXT("... and the life that began before C02"), WS->GetState().LifeID, LifeID);
@@ -172,7 +201,7 @@ namespace
                 GamePC->TogglePauseMenu();
                 return Next(0.0);
             }
-            case 8: {
+            case 11: {
                 if (!M) return Fail(TEXT("pause menu did not open"));
                 Test->TestTrue(TEXT("Game paused"), UGameplayStatics::IsGamePaused(World));
                 Test->TestEqual(TEXT("Pause node"), M->GetFlowNode(), FName("PAUSE_MENU"));
@@ -192,14 +221,14 @@ namespace
                 P->ActivateEntry(0);
                 return Next(3.0);
             }
-            case 9: {
+            case 12: {
                 if (!MenuPC || !M) return Fail(TEXT("did not return to the main menu"));
                 Test->TestEqual(TEXT("Back from the game: straight to the main menu"), M->GetScreen(), EGenesisMenuScreen::Main);
                 Test->TestEqual(TEXT("Continue is offered now"), M->FindEntry(TEXT("Fortsetzen")), 0);
                 M->ActivateEntry(0);
                 return Next(4.0);
             }
-            case 10: {
+            case 13: {
                 if (!GamePC) return Fail(TEXT("continue did not open the game"));
                 const UGenesisWorldStateSubsystem* WS = World->GetSubsystem<UGenesisWorldStateSubsystem>();
                 Test->TestEqual(TEXT("Continue loaded the saved soul"), WS->GetState().SoulID, SoulID);

@@ -130,6 +130,14 @@ void FGenesisSaveStore::Migrate(FGenesisWorldState& State, const FString& Payloa
         State.LifeStartMinute = 1;
         State.SchemaVersion = 3;
     }
+    if (State.SchemaVersion < 4) {
+        // Lives saved before CR-002 swam only W5 (CR-001) and are already born (they play after the birth).
+        State.SpermRouteSections = State.ConceptionMode.IsNone() ? 0 : 1;
+        State.PregnancyStage = TEXT("Born");
+        State.PregnancyDay = 266.f;
+        State.bPregnancyC03Done = true;
+        State.SchemaVersion = 4;
+    }
 }
 
 bool FGenesisSaveStore::Load(const FString& Path, FGenesisWorldState& OutState, FString& OutError, bool* bOutUsedBackup)

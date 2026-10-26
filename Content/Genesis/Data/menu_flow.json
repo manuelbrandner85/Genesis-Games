@@ -34,7 +34,8 @@
     {
       "id": "STORY_SWIM",
       "actions": [
-        "C02B_mandatory_swim_not_skippable",
+        "C02B_route_W1_to_W5_mandatory_first_time",
+        "shorten_W1_W4_after_first_time",
         "pause",
         "no_game_over",
         "auto_swim_option"
@@ -86,7 +87,8 @@
       ],
       "edges": [
         "IN_GAME",
-        "MAIN_MENU"
+        "MAIN_MENU",
+        "PREGNANCY"
       ],
       "mode": "ui"
     },
@@ -111,7 +113,7 @@
         "press_any_button"
       ],
       "edges": [
-        "IN_GAME"
+        "PREGNANCY"
       ],
       "mode": "presentation"
     },
@@ -124,7 +126,8 @@
       "edges": [
         "IN_GAME",
         "MAIN_MENU",
-        "PAUSE_MENU"
+        "PAUSE_MENU",
+        "PREGNANCY"
       ],
       "mode": "ui"
     },
@@ -183,6 +186,23 @@
       "mode": "ui"
     },
     {
+      "id": "PREGNANCY",
+      "actions": [
+        "ten_stages_week_clock",
+        "stage_appropriate_actions",
+        "time_lapse",
+        "shorten_stage",
+        "save_between_stages",
+        "C03_late_pregnancy",
+        "C04_birth"
+      ],
+      "edges": [
+        "PAUSE_MENU",
+        "IN_GAME"
+      ],
+      "mode": "gameplay"
+    },
+    {
       "id": "IN_GAME",
       "actions": [
         "free_gameplay",
@@ -206,6 +226,7 @@
       "edges": [
         "IN_GAME",
         "STORY_SWIM",
+        "PREGNANCY",
         "SETTINGS",
         "ACCESSIBILITY",
         "LOAD_GAME",
@@ -231,5 +252,6 @@
     "No hidden time limit on story choices"
   ],
   "runtime_note": "Runtime copy of docs/v4_2/MENU_FLOW.json. Added: SETTINGS->PAUSE_MENU and LOAD_GAME->PAUSE_MENU (back from screens opened in the pause menu returns there, not to the main menu).",
-  "cr001_note": "CR-001 (GD-2026-10-25-01, ScriptLock 1.2): BOOT -> STORY_START (C00, C01, C02-A) -> STORY_SWIM (C02-B) -> STORY_START (C02-C..F) -> TITLE_CARD -> MAIN_MENU (E1). New life: NEW_GAME -> CHAPTER_CARD -> IN_GAME with the life of the story start, or NEW_GAME -> STORY_START -> ... -> CHAPTER_CARD when none is pending (returning player). PAUSE_MENU <-> STORY_SWIM and ACCESSIBILITY (auto swim, E2)."
+  "cr001_note": "CR-001 (GD-2026-10-25-01, ScriptLock 1.2): BOOT -> STORY_START (C00, C01, C02-A) -> STORY_SWIM (C02-B) -> STORY_START (C02-C..F) -> TITLE_CARD -> MAIN_MENU (E1). New life: NEW_GAME -> CHAPTER_CARD -> IN_GAME with the life of the story start, or NEW_GAME -> STORY_START -> ... -> CHAPTER_CARD when none is pending (returning player). PAUSE_MENU <-> STORY_SWIM and ACCESSIBILITY (auto swim, E2).",
+  "cr002_note": "ScriptLock 1.3 / GD-2026-10-26-02/-03: CHAPTER_CARD -> PREGNANCY (S1..S10, C03, C04) -> IN_GAME after the birth; CONTINUE/LOAD_GAME open PREGNANCY while the saved life is unborn; STORY_SWIM is the route W1-W5."
 }

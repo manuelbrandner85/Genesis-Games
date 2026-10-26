@@ -5,6 +5,9 @@
 #include "Cinematic/GenesisLightStrike.h"
 #include "GenesisGameInstance.h"
 #include "Player/GenesisPlayerController.h"
+#include "Pregnancy/GenesisPregnancyGameMode.h"
+#include "Swim/GenesisSwimGameMode.h"
+#include "EngineUtils.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/ButtonSlot.h"
@@ -179,12 +182,19 @@ void UGenesisMenuWidget::StartMainMenu(bool bSkipBoot)
     }
 }
 
-void UGenesisMenuWidget::StartPauseMenu(bool bStoryStart)
+FName UGenesisMenuWidget::PlayNode() const
+{
+    return PauseKind == EGenesisPauseKind::StoryRoute ? FName(TEXT("STORY_SWIM"))
+        : PauseKind == EGenesisPauseKind::Pregnancy ? FName(TEXT("PREGNANCY")) : FName(TEXT("IN_GAME"));
+}
+
+void UGenesisMenuWidget::StartPauseMenu(EGenesisPauseKind Kind)
 {
     bInGame = true;
-    bStoryPause = bStoryStart;
+    PauseKind = Kind;
+    bStoryPause = Kind == EGenesisPauseKind::StoryRoute;
     ReturnScreen = EGenesisMenuScreen::Pause;
-    Flow.Current = bStoryStart ? TEXT("STORY_SWIM") : TEXT("IN_GAME");
+    Flow.Current = PlayNode();
     ShowScreen(EGenesisMenuScreen::Pause);
 }
 
@@ -274,10 +284,15 @@ void UGenesisMenuWidget::StoryStartTick()
     const bool bC01 = GI->StoryStart.Step == EGenesisStoryStep::C01;
     Flash->SetVisibility(bC01 && Level > 0.f ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
     Flash->SetRenderOpacity(Level);
-    const bool bPoint = bC01 && ScreenTime < FGenesisLightStrike::PointSeconds + 0.3f;
+    // CR-003: the soul point forms at the end of C00 and stays into C01, where the strike grows out of it.
+    const bool bC00 = GI->StoryStart.Step == EGenesisStoryStep::C00;
+    const float Before = StoryPartSeconds() - ScreenTime;
+    const float PointShare = bC01 ? FGenesisLightStrike::PointSize(ScreenTime) : bC00 ? FGenesisLightStrike::SoulPoint(Before) : 0.f;
+    const bool bPoint = (bC01 && ScreenTime < FGenesisLightStrike::PointSeconds + 0.3f) || (bC00 && PointShare > 0.f);
+    LightPointShare = bPoint ? PointShare : 0.f;
     LightPoint->SetVisibility(bPoint ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
     if (bPoint) {
-        const float Size = FMath::Max(2.f, FGenesisLightStrike::PointSize(ScreenTime) * 1080.f);
+        const float Size = FMath::Max(2.f, PointShare * 1080.f);
         if (UCanvasPanelSlot* S = Cast<UCanvasPanelSlot>(LightPoint->Slot)) {
             S->SetSize(FVector2D(Size, Size));
         }
@@ -353,7 +368,7 @@ void UGenesisMenuWidget::AdvanceIntro()
     }
     else if (Screen == EGenesisMenuScreen::ChapterCard && ScreenTime > 0.5f) {
         UGenesisGameInstance* GI = GetGenesisGI();
-        if (GI && Flow.Go(TEXT("IN_GAME"))) {
+        if (GI && Flow.Go(TEXT("PREGNANCY"))) {       // C02-E: the life continues with the pregnancy
             GI->StoryStart.Complete();
             GI->StartNewGame(PendingSlot.IsEmpty() ? GI->StoryStartSlot : PendingSlot);
         }
@@ -388,7 +403,7 @@ void UGenesisMenuWidget::Back()
 
 void UGenesisMenuWidget::Resume()
 {
-    if (Flow.Go(bStoryPause ? TEXT("STORY_SWIM") : TEXT("IN_GAME"))) {
+    if (Flow.Go(PlayNode())) {
         OnResume.ExecuteIfBound();
     }
 }
@@ -481,7 +496,8 @@ void UGenesisMenuWidget::BuildEntries()
                 if (!Flow.Go(TEXT("CONTINUE"))) {
                     return;
                 }
-                if (UGenesisGameInstance::DescribeSlot(Recent).bValid && GI && Flow.Go(TEXT("IN_GAME"))) {
+                const FGenesisSlotInfo I = UGenesisGameInstance::DescribeSlot(Recent);
+                if (I.bValid && GI && Flow.Go(I.IsUnborn() ? TEXT("PREGNANCY") : TEXT("IN_GAME"))) {
                     GI->LoadSlotAndPlay(Recent);
                 }
                 else {
@@ -528,7 +544,8 @@ void UGenesisMenuWidget::BuildEntries()
         for (const FString& SaveSlotName : UGenesisGameInstance::PlayerSlots()) {
             const FGenesisSlotInfo I = UGenesisGameInstance::DescribeSlot(SaveSlotName);
             AddButton(SlotLabel(SaveSlotName, false), [this, GI, SaveSlotName]() {
-                if (GI && UGenesisGameInstance::DescribeSlot(SaveSlotName).bValid && Flow.Go(TEXT("IN_GAME"))) {
+                const FGenesisSlotInfo Info = UGenesisGameInstance::DescribeSlot(SaveSlotName);
+                if (GI && Info.bValid && Flow.Go(Info.IsUnborn() ? TEXT("PREGNANCY") : TEXT("IN_GAME"))) {
                     GI->LoadSlotAndPlay(SaveSlotName);
                 }
             }, I.bValid);
@@ -603,23 +620,48 @@ void UGenesisMenuWidget::BuildEntries()
         Title = TEXT("Pause");
         AddButton(TEXT("Fortsetzen"), [this]() { Resume(); });
         if (bStoryPause) {
-            // C02-B swim: no slot yet, so no saving or loading; the swim cannot be skipped.
-            Hint = TEXT("Die Schwimmphase lässt sich nicht überspringen. Unter „Barrierefreiheit“ kann „Automatisch schwimmen“ die Richtung übernehmen.");
+            // C02-B route: no slot yet, so no saving or loading. W1-W4 can be shortened only after the
+            // route was experienced once (CR-002 F3); W5 always stays playable.
+            AGenesisSwimDirector* Route = nullptr;
+            for (TActorIterator<AGenesisSwimDirector> It(GetWorld()); It; ++It) {
+                Route = *It;
+            }
+            Hint = TEXT("Der Weg lässt sich beim ersten Mal nicht überspringen. Unter „Barrierefreiheit“ kann „Automatisch schwimmen“ die Richtung übernehmen.");
+            if (Route && Route->CanShorten()) {
+                Hint = TEXT("Du kennst den Weg schon: Die Abschnitte bis in den Eileiter lassen sich abkürzen; die Annäherung an die Eizelle bleibt spielbar.");
+                AddButton(TEXT("Weg abkürzen"), [this, Route]() {
+                    Route->Shorten();
+                    Resume();
+                });
+            }
             AddButton(TEXT("Einstellungen"), [this]() { ShowScreen(EGenesisMenuScreen::Settings); });
             AddButton(TEXT("Barrierefreiheit"), [this]() { ShowScreen(EGenesisMenuScreen::Accessibility); });
             AddButton(TEXT("Hauptmenü"), [this]() { Screen = EGenesisMenuScreen::MainMenuConfirm; LastFocused = 1; Rebuild(); });
             break;
         }
-        AddButton(TEXT("Speichern"), [this, GI]() {
+        AGenesisPregnancyDirector* Preg = nullptr;
+        if (PauseKind == EGenesisPauseKind::Pregnancy) {
+            for (TActorIterator<AGenesisPregnancyDirector> It(GetWorld()); It; ++It) {
+                Preg = *It;
+            }
+        }
+        AddButton(TEXT("Speichern"), [this, GI, Preg]() {
             AGenesisPlayerController* PC = Cast<AGenesisPlayerController>(GetOwningPlayer());
             FString Err;
-            const bool bOk = PC && PC->SaveGame(&Err);
+            const bool bOk = Preg ? Preg->SaveNow(&Err) : PC && PC->SaveGame(&Err);
             InfoText = bOk ? FString::Printf(TEXT("Gespeichert in %s."), *SlotLabel(GI ? GI->ActiveSlot : FString(), false)) : TEXT("Speichern fehlgeschlagen: ") + Err;
             Rebuild();
         }, GI && GI->ActiveSlot != TEXT("Dev"));
         AddButton(TEXT("Laden"), [this]() { ShowScreen(EGenesisMenuScreen::Load); });
         AddButton(TEXT("Einstellungen"), [this]() { ShowScreen(EGenesisMenuScreen::Settings); });
         AddButton(TEXT("Barrierefreiheit"), [this]() { ShowScreen(EGenesisMenuScreen::Accessibility); });
+        if (Preg) {
+            // P2: every stage can be shortened; development and world time are carried forward.
+            AddButton(TEXT("Abschnitt abkürzen"), [this, Preg]() {
+                Preg->ShortenStage();
+                Resume();
+            }, !Preg->GetPregnancyConst().bBorn);
+        }
         AddButton(TEXT("Hauptmenü"), [this]() { Screen = EGenesisMenuScreen::MainMenuConfirm; LastFocused = 1; Rebuild(); });
         if (GI && GI->ActiveSlot == TEXT("Dev")) {
             Hint = TEXT("Direkt im Editor gestartet: Speichern im Menü nur bei Start über das Hauptmenü (F5 speichert in den Entwickler-Platz).");

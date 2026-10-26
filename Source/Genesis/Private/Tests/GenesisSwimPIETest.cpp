@@ -248,6 +248,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisSwimNoInputPIETest, "Genesis.Swim.NoInp
 bool FGenesisSwimNoInputPIETest::RunTest(const FString&)
 {
     UGenesisUserSettings::Get()->bAutoSwim = false;
+    AGenesisSwimDirector::StandaloneStartSection = EGenesisRouteSection::Ampulla;      // W5 on its own
     AutomationOpenMap(UGenesisGameInstance::SwimMap);
     ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
     ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(2.f));
@@ -261,6 +262,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FGenesisSwimControlsPIETest, "Genesis.Swim.Cont
 bool FGenesisSwimControlsPIETest::RunTest(const FString&)
 {
     UGenesisUserSettings::Get()->bAutoSwim = false;
+    AGenesisSwimDirector::StandaloneStartSection = EGenesisRouteSection::Ampulla;
     AutomationOpenMap(UGenesisGameInstance::SwimMap);
     ADD_LATENT_AUTOMATION_COMMAND(FStartPIECommand(false));
     ADD_LATENT_AUTOMATION_COMMAND(FWaitLatentCommand(2.f));

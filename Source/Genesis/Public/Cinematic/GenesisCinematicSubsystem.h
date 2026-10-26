@@ -21,7 +21,7 @@ public:
     virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
     static FString DefaultRegistryPath();
-    /** ScriptLock version this build implements (CR-001: 1.2). Registry and contracts must match. */
+    /** ScriptLock version this build implements (CR-002/CR-003: 1.3). Registry and contracts must match. */
     static const TCHAR* ScriptVersion;
     bool LoadRegistry(const FString& Path, FString& OutError);
     const FGenesisSceneRegistryEntry* FindScene(FName SceneID) const { return Registry.Find(SceneID); }

@@ -115,3 +115,13 @@ Nur Beschlüsse, die der Game Director selbst im Chat getroffen hat. Claude Code
 | Folge | ScriptLock **1.3** (CR-002 + CR-003) wird vorbereitet und über den geprüften Canon-Import abgelegt; das Schwangerschaftskonzept ist Spielgestaltung innerhalb des Kanons (keine Drehbuchänderung) |
 
 **Was die Freigabe NICHT bewirkt:** keine Code-, Asset- oder Produktionsfreigabe für die neuen Inhalte (Umsetzungsplan folgt zur eigenen Freigabe); keine Festlegung der Familie (P4).
+
+## GD-2026-10-26-03 – Freigabe Umsetzung Phase A und B (CR-002/CR-003, Schwangerschaft)
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-26 |
+| Frage von Claude Code | „Gibst du Phase A und B (Technik als Graubox) jetzt frei?“ (`plans/CR-002_003_SCHWANGERSCHAFT_UMSETZUNGSPLAN.md`, Commit 1cf5940) |
+| Antwort des Game Directors | „Ja gebe frei“ |
+| Umfang | Phase A: ScriptVersion 1.3 in Code und Laufzeitregister, Samenweg W1–W5 als Graubox, Steuerungswechsel statt Game Over, Abkürzen erst nach dem ersten Mal, Spielstand Schema 4, Prolog-Lichtpunkt bis in den Lichtschlag, Tests. Phase B: spielbare Schwangerschaft als Graubox (zehn Stufen, Wochenuhr, stadiengerechte Aktionen, Abkürzen/Speichern je Stufe, C03/C04-Anschluss), Tests |
+| Nicht enthalten | Phase C (Familie – Entscheidung des Game Directors), Phase D (Look/Produktion) |

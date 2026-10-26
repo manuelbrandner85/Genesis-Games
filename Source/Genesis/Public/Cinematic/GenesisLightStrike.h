@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 
 /**
- * CR-001 C01-A light strike (ScriptLock 1.2): point of light -> one bright strike -> white -> the
+ * CR-001 C01-A light strike (ScriptLock 1.2/1.3): point of light -> one bright strike -> white -> the
  * picture opens into the tissue of C02. Returns the white overlay level 0..1 over time.
  * Photosensitivity rules: at most one pulse, never red, and with "Lichtblitze verringern" (default
  * on) no strike at all, only a soft fade to white over 1.5 s.
@@ -41,10 +41,22 @@ struct GENESIS_API FGenesisLightStrike
         return 1.f - A * A * (3.f - 2.f * A);
     }
 
-    /** Radius (share of the screen height) of the light point before the strike. */
+    /** CR-003: the soul leaves as a shimmer that condenses into a light point at the end of C00; the
+     *  point stays (it no longer goes out) and is the same point that opens C01. Share of screen height. */
+    static constexpr float SoulPointSize = 0.012f;
+    static constexpr float SoulPointSeconds = 2.5f;          // last seconds of C00 in which the point forms
+
+    /** C00: size of the forming soul point, T = seconds before the end of C00 counted down to 0. */
+    static float SoulPoint(float SecondsBeforeEnd)
+    {
+        const float A = FMath::Clamp(1.f - SecondsBeforeEnd / SoulPointSeconds, 0.f, 1.f);
+        return SoulPointSize * A * A * (3.f - 2.f * A);
+    }
+
+    /** C01: radius of the light point before the strike, starting at the soul point from C00. */
     static float PointSize(float T)
     {
-        return FMath::Clamp(T / PointSeconds, 0.f, 1.f) * 0.05f;
+        return FMath::Lerp(SoulPointSize, 0.05f, FMath::Clamp(T / PointSeconds, 0.f, 1.f));
     }
 
     /** Warm white (no saturated red: ScriptLock 1.2 / photosensitivity). */

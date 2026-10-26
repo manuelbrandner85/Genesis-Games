@@ -3,7 +3,7 @@
 #include "GenesisSceneTypes.generated.h"
 
 /**
- * V4.2 SceneContract data (docs/v4_2: SCENE_MATRIX_C00_C21.json, ScriptLock 1.2 IV.B, CR-001).
+ * V4.2 SceneContract data (docs/v4_2: SCENE_MATRIX_C00_C21.json, ScriptLock 1.3 IV.B, CR-001..003).
  * A cinematic is never "just played": it runs through a contract that names the soul, life and world
  * it belongs to, and it changes the world only through one idempotent commit.
  */
@@ -71,7 +71,7 @@ struct GENESIS_API FGenesisSceneContract
 {
     GENERATED_BODY()
     UPROPERTY() FName SceneID;
-    UPROPERTY() FString ScriptVersion = TEXT("1.2");
+    UPROPERTY() FString ScriptVersion = TEXT("1.3");
     UPROPERTY() FString SoulID;
     UPROPERTY() FString LifeID;
     UPROPERTY() FString WorldID;

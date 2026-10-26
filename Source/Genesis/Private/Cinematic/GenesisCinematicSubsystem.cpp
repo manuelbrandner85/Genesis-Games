@@ -22,7 +22,7 @@ FString UGenesisCinematicSubsystem::DefaultRegistryPath()
     return FPaths::ProjectContentDir() / TEXT("Genesis/Data/scene_registry.json");
 }
 
-const TCHAR* UGenesisCinematicSubsystem::ScriptVersion = TEXT("1.2");
+const TCHAR* UGenesisCinematicSubsystem::ScriptVersion = TEXT("1.3");
 
 bool UGenesisCinematicSubsystem::LoadRegistry(const FString& Path, FString& OutError)
 {

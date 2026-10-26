@@ -55,14 +55,14 @@ bool FGenesisSceneRegistryTest::RunTest(const FString&)
     TestEqual(TEXT("C20 replays C00"), C->FindScene("C20")->ReplayOf, FName("C00"));
     TestFalse(TEXT("C15 conflict open"), C->FindScene("C15")->OpenConflict.IsEmpty());
     TestTrue(TEXT("Canon locked by the director (GD-2026-10-24-01)"), C->FindScene("C00")->IsDirectorApproved());
-    TestEqual(TEXT("Build implements ScriptLock 1.2 (CR-001)"), FString(UGenesisCinematicSubsystem::ScriptVersion), FString(TEXT("1.2")));
-    TestEqual(TEXT("New contracts carry 1.2"), FGenesisSceneContract().ScriptVersion, FString(TEXT("1.2")));
+    TestEqual(TEXT("Build implements ScriptLock 1.3 (CR-002/CR-003)"), FString(UGenesisCinematicSubsystem::ScriptVersion), FString(TEXT("1.3")));
+    TestEqual(TEXT("New contracts carry 1.3"), FGenesisSceneContract().ScriptVersion, FString(TEXT("1.3")));
 
     // A registry still bound to 1.1 is refused: script and runtime must not drift apart.
     FString Text;
     FFileHelper::LoadFileToString(Text, *UGenesisCinematicSubsystem::DefaultRegistryPath());
     const FString Old = FPaths::ProjectSavedDir() / TEXT("Automation/Genesis/registry_11.json");
-    FFileHelper::SaveStringToFile(Text.Replace(TEXT("\"script_version\": \"1.2\""), TEXT("\"script_version\": \"1.1\"")), *Old);
+    FFileHelper::SaveStringToFile(Text.Replace(TEXT("\"script_version\": \"1.3\""), TEXT("\"script_version\": \"1.1\"")), *Old);
     UGenesisCinematicSubsystem* Stale = NewObject<UGenesisCinematicSubsystem>(NewObject<UGameInstance>(GetTransientPackage()));
     FString Error;
     TestFalse(TEXT("Registry bound to 1.1 is refused"), Stale->LoadRegistry(Old, Error));
@@ -246,7 +246,7 @@ bool FGenesisMenuFlowTest::RunTest(const FString&)
     FGenesisMenuFlow Flow;
     FString Error;
     TestTrue(TEXT("Menu flow loads"), Flow.LoadFromFile(FGenesisMenuFlow::DefaultPath(), Error));
-    TestEqual(TEXT("16 nodes (CR-001: + STORY_SWIM, CHAPTER_CARD)"), Flow.Nodes.Num(), 16);
+    TestEqual(TEXT("17 nodes (CR-001: + STORY_SWIM, CHAPTER_CARD; 1.3: + PREGNANCY)"), Flow.Nodes.Num(), 17);
     for (const FString& E : Flow.Validate()) {
         AddError(TEXT("Menu graph: ") + E);
     }
@@ -268,7 +268,11 @@ bool FGenesisMenuFlowTest::RunTest(const FString&)
     TestFalse(TEXT("New life never skips the chapter card"), Flow.CanGo("IN_GAME"));
     TestTrue(TEXT("New life without pending story life -> STORY_START"), Flow.CanGo("STORY_START"));
     TestTrue(TEXT("-> CHAPTER_CARD"), Flow.Go("CHAPTER_CARD"));
-    TestTrue(TEXT("-> IN_GAME"), Flow.Go("IN_GAME"));
+    TestFalse(TEXT("The life does not skip the pregnancy"), Flow.CanGo("IN_GAME"));
+    TestTrue(TEXT("-> PREGNANCY"), Flow.Go("PREGNANCY"));
+    TestTrue(TEXT("Pregnancy -> pause"), Flow.Go("PAUSE_MENU"));
+    TestTrue(TEXT("Pause -> back into the pregnancy"), Flow.Go("PREGNANCY"));
+    TestTrue(TEXT("Birth -> IN_GAME"), Flow.Go("IN_GAME"));
     TestTrue(TEXT("-> PAUSE_MENU"), Flow.Go("PAUSE_MENU"));
     TestTrue(TEXT("-> SETTINGS"), Flow.Go("SETTINGS"));
     TestTrue(TEXT("Settings back to the pause menu"), Flow.Go("PAUSE_MENU"));

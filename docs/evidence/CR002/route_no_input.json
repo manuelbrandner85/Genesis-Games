@@ -1,0 +1,10 @@
+{
+  "test": "Genesis.Swim.RoutePIE",
+  "input": "none",
+  "result": "Own",
+  "total_s": 510.8,
+  "sections_s": {"W1": 99.1, "W2": 132.7, "W3": 82.2, "W4": 115.4, "W5": 71.2},
+  "sections_done": 5,
+  "cell_switches": 1,
+  "capacitation_rest": true
+}

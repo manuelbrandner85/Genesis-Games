@@ -21,7 +21,7 @@ namespace
     {
         UGenesisCinematicSubsystem* C = NewObject<UGenesisCinematicSubsystem>(NewObject<UGameInstance>(GetTransientPackage()));
         FString Error;
-        Test.TestTrue(TEXT("Scene registry (ScriptLock 1.2) loads"), C->LoadRegistry(UGenesisCinematicSubsystem::DefaultRegistryPath(), Error));
+        Test.TestTrue(TEXT("Scene registry (ScriptLock 1.3) loads"), C->LoadRegistry(UGenesisCinematicSubsystem::DefaultRegistryPath(), Error));
         return C;
     }
 
@@ -68,7 +68,7 @@ bool FGenesisSwimSegmentNoSkipTest::RunTest(const FString&)
     FGenesisSceneContract Wrong = SwimContract();
     Wrong.SceneID = TEXT("C03");
     Errors.Reset();
-    TestFalse(TEXT("Only C02 has a playable segment in ScriptLock 1.2"), Cine->Bind(Wrong, Errors));
+    TestFalse(TEXT("Only C02 has a playable segment in ScriptLock 1.3"), Cine->Bind(Wrong, Errors));
 
     FGenesisSceneContract Plain = SwimContract();
     Plain.GameplaySegmentID = NAME_None;
@@ -150,9 +150,9 @@ bool FGenesisSaveSchema3Test::RunTest(const FString&)
 
     FGenesisWorldState A;
     FString Error;
-    TestEqual(TEXT("Current schema is 3"), FGenesisWorldState::CurrentSchema, 3);
+    TestTrue(TEXT("Current schema is at least 3"), FGenesisWorldState::CurrentSchema >= 3);
     TestTrue(TEXT("Schema 2 loads"), FGenesisSaveStore::Load(Path, A, Error));
-    TestEqual(TEXT("Migrated to 3"), A.SchemaVersion, 3);
+    TestEqual(TEXT("Migrated to the current schema"), A.SchemaVersion, FGenesisWorldState::CurrentSchema);
     TestEqual(TEXT("Identity kept"), A.SoulID, FString(TEXT("SOUL-2")));
     TestEqual(TEXT("Life kept"), A.LifeID, FString(TEXT("LIFE-2")));
     TestEqual(TEXT("Data kept"), A.PlayerMoneyGE, 12);
@@ -172,14 +172,14 @@ bool FGenesisSaveSchema3Test::RunTest(const FString&)
     TestTrue(TEXT("Reload"), FGenesisSaveStore::Load(Path, C, Error));
     TestEqual(TEXT("Conception mode"), C.ConceptionMode, FName("Own"));
     TestEqual(TEXT("Story commits"), C.StoryStartCommits.Num(), 3);
-    TestEqual(TEXT("Schema"), C.SchemaVersion, 3);
+    TestEqual(TEXT("Schema"), C.SchemaVersion, FGenesisWorldState::CurrentSchema);
 
     // A file from a newer build is refused, never half-read.
-    const FString Newer = FString::Printf(TEXT("{\"schema\":4,\"sha1\":\"%s\",\"state\":%s}"), *Hash.ToString(), *Payload);
+    const FString Newer = FString::Printf(TEXT("{\"schema\":%d,\"sha1\":\"%s\",\"state\":%s}"), FGenesisWorldState::CurrentSchema + 1, *Hash.ToString(), *Payload);
     FFileHelper::SaveStringToFile(Newer, *Path, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
     IFileManager::Get().Delete(*(Path + TEXT(".bak")));
     FGenesisWorldState D;
-    TestFalse(TEXT("Schema 4 refused"), FGenesisSaveStore::Load(Path, D, Error));
+    TestFalse(TEXT("A newer schema is refused"), FGenesisSaveStore::Load(Path, D, Error));
     return true;
 }
 

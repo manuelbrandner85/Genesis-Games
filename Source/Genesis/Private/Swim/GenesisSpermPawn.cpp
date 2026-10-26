@@ -1,5 +1,4 @@
 #include "Swim/GenesisSpermPawn.h"
-#include "Swim/GenesisOviduct.h"
 #include "Camera/CameraComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -63,16 +62,23 @@ AGenesisSpermPawn::AGenesisSpermPawn()
     Lamp->SetRelativeLocation(FVector(-40.f, 0.f, 30.f));
     Lamp->SetIntensityUnits(ELightUnits::Candelas);
     Lamp->SetIntensity(30.f);
-    Lamp->SetAttenuationRadius(1400.f);
+    Lamp->SetAttenuationRadius(4500.f);                  // reaches the wall of the wide uterine cavity (W3)
     Lamp->SetCastShadows(false);
 }
 
 void AGenesisSpermPawn::PlaceAtStart()
 {
-    CourseS = FGenesisOviduct::StartS;
-    Heading = FGenesisOviduct::Tangent(CourseS);
+    PlaceAt(Course.StartS);
+}
+
+void AGenesisSpermPawn::PlaceAt(float S, const FVector& Offset)
+{
+    CourseS = S;
+    Heading = Course.Tangent(CourseS);
     Velocity = FVector::ZeroVector;
-    SetActorLocationAndRotation(FGenesisOviduct::Center(CourseS), Heading.Rotation());
+    bHasFinalGoal = false;
+    WallContacts = 0;
+    SetActorLocationAndRotation(Course.Center(CourseS) + Offset, Heading.Rotation());
 }
 
 void AGenesisSpermPawn::Tick(float DeltaTime)
@@ -82,38 +88,40 @@ void AGenesisSpermPawn::Tick(float DeltaTime)
         return;
     }
     FVector P = GetActorLocation();
-    CourseS = FGenesisOviduct::Project(P, CourseS);
+    CourseS = Course.Project(P, CourseS);
     if (bFrozen) {
         Velocity = FVector::ZeroVector;
         AnimateFlagellum(DeltaTime);
         return;
     }
 
-    // Steering: the player turns the heading; guidance (auto swim / after 120 s) pulls it towards
-    // a point ahead on the centre line, at the end straight to the oocyte.
+    // Steering: the player turns the heading; guidance (auto swim / after the free time) pulls it towards
+    // a point ahead on the centre line, at the end straight to the section's goal (oocyte, tube, os).
     const FVector Up = FMath::Abs(Heading.Z) > 0.95f ? FVector::ForwardVector : FVector::UpVector;
     const FVector Right = FVector::CrossProduct(Up, Heading).GetSafeNormal();
     FVector H = Heading;
     H = H.RotateAngleAxis(SteerInput.X * TurnYawDeg * DeltaTime, Up);
     H = H.RotateAngleAxis(-SteerInput.Y * TurnPitchDeg * DeltaTime, Right);
 
-    const FVector Upstream = FGenesisOviduct::Tangent(CourseS);
-    const float Ahead = FMath::Min(CourseS + 260.f, FGenesisOviduct::EggS);
-    const FVector Goal = FGenesisOviduct::EggS - CourseS < 400.f ? FGenesisOviduct::EggLocation() : FGenesisOviduct::Center(Ahead);
+    const FVector Upstream = Course.Tangent(CourseS);
+    const float Ahead = FMath::Min(CourseS + 260.f, Course.EndS);
+    const FVector EndGoal = bHasFinalGoal ? FinalGoal : Course.EndLocation();
+    const FVector Goal = Course.EndS - CourseS < 400.f ? EndGoal : Course.Center(Ahead);
     const FVector ToGoal = (Goal - P).GetSafeNormal();
     const float SteerAmount = FMath::Clamp(SteerInput.Size(), 0.f, 1.f);
     // Rheotaxis is real and passive: a cell that is not steered turns to swim against the flow.
+    // Without flow (W1-W3) a cell keeps its heading along the course (thigmotaxis along the wall).
     H = FMath::Lerp(H, Upstream, FMath::Clamp(RheotaxisRate * (1.f - SteerAmount) * DeltaTime, 0.f, 1.f));
     H = FMath::Lerp(H, ToGoal, FMath::Clamp(Guidance * 1.6f * DeltaTime, 0.f, 1.f));
     Heading = H.GetSafeNormal();
 
     const float Effort = FMath::Max(bBurstInput ? 1.f : BaseEffort, FMath::Lerp(BaseEffort, 1.f, Guidance));
-    const FVector Target = Heading * SwimSpeed * Effort + FGenesisOviduct::Flow(P, CourseS);
+    const FVector Target = Heading * SwimSpeed * SpeedFactor * Effort * MediumFactor * Course.Drag + Course.Flow(P, CourseS);
     Velocity += (Target - Velocity) * (1.f - FMath::Exp(-DeltaTime / ResponseSeconds));
     P += Velocity * DeltaTime;
-    CourseS = FGenesisOviduct::Project(P, CourseS);
+    CourseS = Course.Project(P, CourseS);
     FVector Normal;
-    if (FGenesisOviduct::Constrain(P, CourseS, 8.f, Normal)) {
+    if (Course.Constrain(P, CourseS, 8.f, Normal)) {
         // Along the wall: the outward part of the motion is taken away, the cell slides on.
         Velocity -= Normal * FMath::Min(0.f, FVector::DotProduct(Velocity, Normal));
         Heading = (Heading - Normal * FMath::Min(0.f, FVector::DotProduct(Heading, Normal)) * 1.2f).GetSafeNormal();

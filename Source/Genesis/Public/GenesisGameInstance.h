@@ -17,7 +17,10 @@ struct GENESIS_API FGenesisSlotInfo
     int32 Minute = 0;
     int32 MoneyGE = 0;
     int32 LifeNumber = 1;
+    FName PregnancyStage;               // S1..S10 while unborn, Born afterwards
+    float PregnancyDay = 0.f;
     FDateTime SavedAt;
+    bool IsUnborn() const { return !PregnancyStage.IsNone() && PregnancyStage != TEXT("Born"); }
 };
 
 /**
@@ -40,14 +43,19 @@ public:
     static const TCHAR* GameplayMap;
     static const TCHAR* MenuMap;
     static const TCHAR* SwimMap;
+    static const TCHAR* PregnancyMap;
 
     FString ActiveSlot = TEXT("Dev");
     bool bLoadSlotOnStart = false;
     bool bNewGamePendingSave = false;
     bool bBootSequenceShown = false;
 
+    /** New life: continues with the pregnancy (C02-E -> C03), the start save is written there. */
     void StartNewGame(const FString& Slot);
+    /** Opens the map the saved life is in: the pregnancy while unborn, the world after the birth. */
     void LoadSlotAndPlay(const FString& Slot);
+    /** End of the pregnancy (birth, C04): the life continues in the world map from the birth save. */
+    void ContinueAfterBirth();
     void ReturnToMainMenu();
 
     // --- Story start (CR-001): C00 -> C01 -> C02 with the swim map -> title / chapter card ----------

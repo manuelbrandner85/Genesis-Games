@@ -33,6 +33,8 @@ public:
     static constexpr bool DefaultReduceFlashes = true;
     UPROPERTY(Config) bool bReduceFlashes = DefaultReduceFlashes;
     UPROPERTY(Config) bool bAutoSwim = false;
+    /** CR-002 F3: the full route W1-W5 was experienced once on this profile; later lives may shorten W1-W4. */
+    UPROPERTY(Config) bool bSpermRouteSeen = false;
     /** Layout of the Genesis options in the ini. 2 (CR-001): flash reduction became the default, so
      *  an older ini that only carries the old default "off" is moved to "on" once. */
     UPROPERTY(Config) int32 GenesisOptionsVersion = 0;

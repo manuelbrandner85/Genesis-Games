@@ -1,7 +1,7 @@
 # Umsetzungsplan – CR-002 (Samenweg), CR-003 (Seelenaustritt) und Schwangerschaft
 
 **Grundlage:** ScriptLock 1.3 (GD-2026-10-26-02, SHA-256 `2a6de42b…7046`, über den Canon-Import abgelegt), Spielkonzept `design/SCHWANGERSCHAFT_KONZEPT.md` (P1–P6).
-**Status:** **ENTWURF – wartet auf Freigabe**, phasenweise wie bei CR-001. Jede Phase endet mit Belegen (Build, Tests, Bilder/Video).
+**Status:** Phase A + B **freigegeben** (GD-2026-10-26-03) und als Graubox umgesetzt, siehe „Umsetzung Phase A + B“. Phase C und D warten.
 **Stand 2026-10-26:** Dokumentationsregister an 1.3 gebunden (geändert nur C00, C01, C02). Das Laufzeitregister bleibt auf 1.2, bis Phase A den Code umstellt. Läuft parallel weiter: CR-001 Phase 3 (Look der Mikrowelt, Blender-Modelle; Samenzelle fertig, Eizelle im Rohbau).
 
 ## Phase A – Technik: Samenweg und Prolog-Anschluss (Code, Graubox)
@@ -30,6 +30,22 @@
 5. **Tests:** Stufenfolge, Aktionen nie vor ihrer Woche, Abkürzen schreibt Woche/Weltzeit konsistent fort, Speichern/Laden in jeder Stufe, keine zufällige Fehlgeburt im ersten Leben (P5).
 
 **Belege:** Build, Tests, PIE-Durchlauf S1→S10 mit Abkürzen.
+
+## Umsetzung Phase A + B (2026-10-26)
+
+| Bereich | Umsetzung | Beleg |
+|---|---|---|
+| Version | ScriptVersion 1.3 in Code, Verträgen und Laufzeitregister (identisch mit dem Doku-Register) | Tests Registry/Contract |
+| Prolog-Anschluss (CR-003) | Lichtpunkt formt sich am Ende des C00-Platzhalters und bleibt bis in den Lichtschlag | `FGenesisLightStrike::SoulPoint` |
+| Samenweg W1–W5 | `FGenesisSpermRoute`: fünf analytische Abschnitte, nacheinander in einer Karte (Graubox statt Streaming-Level) – Gerinnsel + saure Zonen, Schleim mit 8 Krypten, Gebärmutter mit Kontraktionswellen und zwei Eileiterabgängen, Engstelle mit Ruhe/Kapazitation (Zeitsprung) und danach Hyperaktivierung, Ampulle wie bisher | `route_no_input.json`: **8,5 min ohne Eingabe** (W1 99 s, W2 133 s, W3 82 s, W4 116 s, W5 71 s), Kapazitation ja, 1 Zellwechsel |
+| Kein Game Over (F4) | Krypta / falscher Eileiter / kein Vorankommen → eine andere Zelle desselben Abschnitts übernimmt | Tests RouteNoGameOverPIE, RouteWrongTubePIE |
+| Abkürzen (F3) | Profil-Merker nach dem ersten kompletten Weg; danach „Weg abkürzen“ im Pausenmenü (W1–W4), W5 bleibt spielbar | Test RouteNoGameOverPIE |
+| Schema 4 | Abschnitte des Wegs, abgekürzt ja/nein, Schwangerschaftsstufe/-tag, C03 gezeigt; Migration 3→4 | Test Save.Schema4Migration |
+| Schwangerschaft | `FGenesisPregnancy`: zehn Stufen, ~2,45 h Spielzeit, Wochenuhr (Tag + SSW), Aktionen erst ab dem biologisch möglichen Tag, Tritte spürt die Mutter erst ab ~SSW 20, Zeitraffer, Abkürzen und Speichern je Stufe, C03 ab ~SSW 30, C04 bei der Geburt (Platzhalter-Verträge), danach Geburts-Spielstand → Welt | Tests Pregnancy.Stages/ActionsByWeek/ShortenAndRestore/PIE, Menü-Route bis zur Welt |
+| Menüfluss | 17 Knoten: neu PREGNANCY; Kapitelkarte → Schwangerschaft; Fortsetzen/Laden öffnen die Schwangerschaft, solange das Kind ungeboren ist | Test Menu.FlowGraph, Menu.PIERoute |
+
+**Testlauf:** 42/42 grün (`docs/evidence/CR002/regression_phase_ab.txt` 41/42, der eine Fehler war ein Testfehler und ist nach Korrektur grün: `regression_swim_rerun.txt` 7/7).
+**Grenzen, ehrlich:** Graubox ohne Look. Die Belegbilder der Schwangerschaft sind fast schwarz und W3 ist zu dunkel – das Licht ist im Code korrigiert (Visualisierungslicht an der Kamera, größere Reichweite der Zellbeleuchtung), aber noch nicht im Bild nachgeprüft. Die Außenwelt der Schwangeren ist nur eine Textzeile (Phase C/D). Nach der Geburt geht es in die bisherige Testwelt (Flussdorf) als Platzhalter für die Kindheit. Bildrate nur im Editor gemessen.
 
 ## Phase C – Figuren des ersten Lebens (deine Entscheidung, P4)
 
