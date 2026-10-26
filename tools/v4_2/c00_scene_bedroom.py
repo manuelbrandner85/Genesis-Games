@@ -537,6 +537,14 @@ man.set_actor_location_and_rotation(ue(lying["P0"]), rot, False, True)
 body = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Body")
 body.set_update_animation_in_editor(True)
 body.override_animation_data(eal.load_asset(f"/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Liegen{SUF}"), False, True, 0.0, 0.0)
+# Regie 2026-10-26: softer age spots on forearms and hands (tools/v4_2/c00_skin_spots_*.py) - local child instances
+_soft = ROOT + "Saved/SkinWork/skin_spots_applied.json"
+if os.path.exists(_soft):
+    with open(_soft, encoding="utf8") as _f:
+        for _u in json.load(_f):
+            _mi = eal.load_asset(_u["mi"].split(".")[0])
+            if _mi:
+                body.set_material(_u["slot"], _mi)
 face = next(c for c in man.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == "Face")
 face.set_update_animation_in_editor(True)                 # Regie: the features of a dying man (c00_face_dying.py)
 face.override_animation_data(eal.load_asset(f"/Game/Genesis/Characters/C00/Posen/A_C00_Mann_Gesicht_Sterbend{SUF}"), False, True, 0.0, 0.0)
