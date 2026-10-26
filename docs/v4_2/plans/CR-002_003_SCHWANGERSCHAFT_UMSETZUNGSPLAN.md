@@ -45,7 +45,7 @@
 | Menüfluss | 17 Knoten: neu PREGNANCY; Kapitelkarte → Schwangerschaft; Fortsetzen/Laden öffnen die Schwangerschaft, solange das Kind ungeboren ist | Test Menu.FlowGraph, Menu.PIERoute |
 
 **Testlauf:** 42/42 grün (`docs/evidence/CR002/regression_phase_ab.txt` 41/42, der eine Fehler war ein Testfehler und ist nach Korrektur grün: `regression_swim_rerun.txt` 7/7).
-**Grenzen, ehrlich:** Graubox ohne Look. Die Belegbilder der Schwangerschaft sind fast schwarz und W3 ist zu dunkel – das Licht ist im Code korrigiert (Visualisierungslicht an der Kamera, größere Reichweite der Zellbeleuchtung), aber noch nicht im Bild nachgeprüft. Die Außenwelt der Schwangeren ist nur eine Textzeile (Phase C/D). Nach der Geburt geht es in die bisherige Testwelt (Flussdorf) als Platzhalter für die Kindheit. Bildrate nur im Editor gemessen.
+**Grenzen, ehrlich:** Graubox ohne Look. Das Graubox-Licht ist korrigiert und im Bild nachgeprüft (2026-10-26, `Genesis.Swim.RoutePIE` + `Genesis.Pregnancy.PIE` 2/2): Visualisierungslicht an der Kamera der Schwangerschaft; die Lampe der Samenzelle ohne Abstandsquadrat-Abfall (vorher war die eigene Zelle ~1000-mal heller als die Wände und die automatische Belichtung machte W1/W3 schwarz). Median-Helligkeit der Belegbilder: W1 0,33 · W2 0,51 · W3 0,16 · W4 0,59 · W5 0,47 · S1/S6 ≈ 0,8/0,64 (vorher W1/W3 = 0,0). Die Außenwelt der Schwangeren ist nur eine Textzeile (Phase C/D). Nach der Geburt geht es in die bisherige Testwelt (Flussdorf) als Platzhalter für die Kindheit. Bildrate nur im Editor gemessen.
 
 ## Phase C – Figuren des ersten Lebens (deine Entscheidung, P4)
 

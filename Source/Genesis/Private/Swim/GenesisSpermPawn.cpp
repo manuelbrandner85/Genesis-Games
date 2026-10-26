@@ -60,8 +60,11 @@ AGenesisSpermPawn::AGenesisSpermPawn()
     Lamp = CreateDefaultSubobject<UPointLightComponent>(TEXT("Lamp"));
     Lamp->SetupAttachment(Body);
     Lamp->SetRelativeLocation(FVector(-40.f, 0.f, 30.f));
-    Lamp->SetIntensityUnits(ELightUnits::Candelas);
-    Lamp->SetIntensity(30.f);
+    // Graybox: no inverse-square falloff. With it the own cell 50 uu away was ~1000x brighter than the walls
+    // and auto exposure turned W1/W3 black (measured: median luminance 0.0). A flat falloff lights near and far.
+    Lamp->bUseInverseSquaredFalloff = false;
+    Lamp->SetLightFalloffExponent(1.5f);
+    Lamp->SetIntensity(6.f);
     Lamp->SetAttenuationRadius(4500.f);                  // reaches the wall of the wide uterine cavity (W3)
     Lamp->SetCastShadows(false);
 }
