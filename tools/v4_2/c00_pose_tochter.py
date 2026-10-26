@@ -29,7 +29,7 @@ V = unreal.Vector
 ROOT = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
 
 SEAT_TOP = 48.0                                          # Unreal cm (Blender 0.48 m)
-PELVIS_WORLD = V(97.0, -48.0, SEAT_TOP + 10.0)           # sits slightly forward on the seat (seat centre x 102)
+PELVIS_WORLD = V(89.0, -48.0, SEAT_TOP + 10.0)           # sits forward on the seat (seat centre x 102): she holds his hand
 YAW = 90.0                                               # component +Y (face) -> world -X (toward the bed)
 FLOOR = 0.0
 
@@ -151,9 +151,16 @@ def to_cs(world):
 
 
 # ------------------------------------------------------------------ torso leaning toward the bed
-for b, deg in (("spine_01", 11), ("spine_02", 10), ("spine_03", 8), ("spine_04", 6), ("spine_05", 5)):
+for b, deg in (("spine_01", 16), ("spine_02", 15), ("spine_03", 11), ("spine_04", 7), ("spine_05", 4)):
     if b in cur:
         bend(b, X, deg, lambda: p("head").y)
+# reaching for his hand: the right shoulder blade slides forward (protraction ~16 deg at the clavicle), the upper
+# body turns a little into the reach
+if "clavicle_r" in cur:
+    bend("clavicle_r", Z, 20, lambda: p("upperarm_r").y)
+for b, deg in (("spine_03", 4), ("spine_04", 4), ("spine_05", 3)):
+    if b in cur:
+        bend(b, Z, deg, lambda: p("upperarm_r").y - p("upperarm_l").y)
 
 # ------------------------------------------------------------------ legs: thighs forward, shins down, feet flat
 for side, sx in (("l", 1), ("r", -1)):
@@ -220,6 +227,7 @@ def arm_ik(side, wrist_w, pole, d_t, p_t):
     L1, L2 = (E0 - S).length(), (H0 - E0).length()
     Wt = wrist_w
     d = min((Wt - S).length(), L1 + L2 - 0.5)
+    print("C00_TOCHTER_ARM", side, "need", round((Wt - S).length(), 1), "max", round(L1 + L2 - 0.5, 1))
     u = norm(Wt - S)
     Wt = S + u * d
     a1 = (L1 * L1 + d * d - L2 * L2) / (2 * d)
@@ -273,6 +281,65 @@ def curl(side, base_deg):
             bend(b, across, base_deg[k] * scale, lambda tip=tip: -p(tip).z)
 
 
+def curl_up(side, base_deg):
+    """palm up: fingers bend so that their tips rise (cupping under something)"""
+    for f, scale in (("index", 1.0), ("middle", 1.05), ("ring", 1.1), ("pinky", 1.15)):
+        for k, part in enumerate(("01", "02", "03")):
+            b = f"{f}_{part}_{side}"
+            if b not in cur or not children[b]:
+                continue
+            tip = children[b][0]
+            across = p(f"index_01_{side}") - p(f"pinky_01_{side}")
+            sg = 1.0 if base_deg[k] >= 0 else -1.0                  # negative: the tips go down (straighten)
+            bend(b, across, abs(base_deg[k]) * scale, lambda tip=tip, sg=sg: sg * p(tip).z)
+
+
+def thumb_over(side, target):
+    """thumb from the upturned palm over the edge of his hand onto its back: thumb_01 searched over two axes so the
+    thumb tip lands on target (component space), then the end joints bend gently onto the surface"""
+    t1, t2, t3 = f"thumb_01_{side}", f"thumb_02_{side}", f"thumb_03_{side}"
+    if t1 not in cur or t3 not in cur:
+        return
+    tip_b = children[t3][0] if children[t3] else t3
+    snap = {d: cur[d] for d in subtree(t1)}
+    ix = f"index_01_{side}"
+    across = norm(p(ix) - p(f"pinky_01_{side}"))
+    palm_n = norm((p(f"middle_01_{side}") - p(f"hand_{side}")).cross(p(ix) - p(f"pinky_01_{side}")))
+    ax3 = norm(across.cross(palm_n))
+    reach = (p(t1) - target).length()
+    tlen = (p(t2) - p(t1)).length() + (p(t3) - p(t2)).length() + (p(tip_b) - p(t3)).length()
+
+    def pose(a, b, c):
+        for d, t in snap.items():
+            cur[d] = t
+        rotate(t1, q_axis(across, a))
+        rotate(t1, q_axis(palm_n, b))
+        rotate(t1, q_axis(ax3, c))
+    best = None
+    for a in range(-120, 121, 10):                          # coarse, then fine around the best
+        for b in range(-90, 91, 10):
+            for c in range(-60, 61, 20):
+                pose(a, b, c)
+                e = (p(tip_b) - target).length()
+                if best is None or e < best[0]:
+                    best = (e, a, b, c)
+    _, A, B, C = best
+    for a in range(A - 10, A + 11, 2):
+        for b in range(B - 10, B + 11, 2):
+            for c in range(C - 20, C + 21, 4):
+                pose(a, b, c)
+                e = (p(tip_b) - target).length()
+                if e < best[0]:
+                    best = (e, a, b, c)
+    pose(*best[1:])
+    print("C00_TOCHTER_THUMB reach", round(reach, 1), "len", round(tlen, 1))
+    for tb, deg in ((t2, 8), (t3, 10)):                     # end joints settle onto his hand
+        if tb in cur and children[tb]:
+            tip = children[tb][0]
+            bend(tb, across, deg, lambda tip=tip: -p(tip).z)
+    print("C00_TOCHTER_THUMB err", round(best[0], 2), "cm", best[1:], "tip", [round(v, 1) for v in p(tip_b).to_tuple()])
+
+
 def thumb_alongside(side):
     """Regie 2026-10-25 ("Daumen sehr kurz, anatomisch falsch"): curled with the fingers, the thumb pointed down under
     the hand and read stubby. A resting thumb lies stretched beside the hand: a little abducted from the index finger
@@ -286,12 +353,21 @@ def thumb_alongside(side):
     bend(t1, across, 8, lambda: p(t3).z)                            # tip up, not into his hand / her thigh
 
 
-# her right hand onto the back of his hand: wrist behind his palm centre (toward her, +X), fingers across his hand
-d_r = norm(to_cs(m_palm + V(-1.0, 0.25, 0.0)) - to_cs(m_palm))
-wrist_r = to_cs(m_palm) - d_r * 6.0                       # first test: wrist 1-2 cm too high, the hand hovered
-E_r = arm_ik("r", wrist_r, V(-1.0, 0.0, -0.6), d_r, qinv(yaw_q).rotate_vector(V(0, 0, -1)))
-curl("r", (6, 9, 5))                                     # fingers lie over his fingers (a strong curl read as a claw)
-thumb_alongside("r")
+# her right hand HOLDS his hand (ScriptLock 00-B: "Die Hand des Mannes ruht in der Hand seiner Tochter"; Regie QA
+# 2026-10-26): palm up, her fingers slid under his palm from his little-finger side (they press into the soft down duvet,
+# which gets a matching dent in build_c00_bedroom_occupied.py), her thumb lies on the back of his hand - where it moves.
+m_c = (m_hand + m_mid) * 0.5                               # his palm centre (hand joint level)
+m_side = norm(m_pky - m_idx)                                # toward his little finger = toward her
+m_fing = norm(m_mid - m_hand)                               # his finger direction
+knuckle_w = m_c + V(0, 0, -3.8)                            # her finger roots under his palm centre, 3.8 cm below his hand joints
+m_side_h, m_fing_h = norm(V(m_side.x, m_side.y, 0)), norm(V(m_fing.x, m_fing.y, 0))   # his hand tilts with the duvet
+d_w = norm(m_side_h * -1.0 + m_fing_h * 0.15 + V(0, 0, -0.08))        # her fingers across under his palm, nearly level
+d_r = norm(to_cs(knuckle_w + d_w) - to_cs(knuckle_w))
+up_cs = qinv(yaw_q).rotate_vector(V(0, 0, 1))
+wrist_r = to_cs(knuckle_w) - d_r * 8.5
+E_r = arm_ik("r", wrist_r, V(-1.0, 0.0, -0.6), d_r, up_cs)
+curl_up("r", (-7, -7, -4))                                 # the rest pose curl would lift the tips into his palm: straighten flat
+thumb_over("r", to_cs(m_c + m_side_h * 0.8 + m_fing_h * 1.5 + V(0, 0, 1.9)))   # thumb over his little-finger edge onto the back of his hand
 # left hand on her left thigh, fingers toward the knee
 th_l, kn_l = p("thigh_l"), p("calf_l")
 wrist_l = th_l + (kn_l - th_l) * 0.45 + V(0, 0, 12.0)      # on the thigh (at +9 the hand sank into it)
@@ -354,6 +430,9 @@ out = {"note": "Unreal world cm / deg; actor of BP_MHC_C00_Tochter (tools/v4_2/c
        "location": list(actor_loc.to_tuple()), "yaw": YAW,
        "hand_r_world": list((actor_loc + yaw_q.rotate_vector(p("hand_r"))).to_tuple()),
        "man_hand_l_world": list(m_hand.to_tuple()),
+       # her finger and thumb joints in world space: the duvet dents under her fingers (build_c00_bedroom_occupied.py)
+       "hand_bones": {b: list((actor_loc + yaw_q.rotate_vector(p(b))).to_tuple()) for b in names
+                      if b.endswith("_r") and b.startswith(("hand", "index", "middle", "ring", "pinky", "thumb"))},
        "expected_world": {b: list((actor_loc + yaw_q.rotate_vector(p(b))).to_tuple())
                           for b in ("pelvis", "spine_05", "clavicle_r", "upperarm_r", "lowerarm_r", "hand_r", "calf_l", "foot_l")}}
 with open(ROOT + "docs/v4_2/C00_TOCHTER_SITZ.json", "w", encoding="utf8") as f:

@@ -502,6 +502,23 @@ for side in ("l", "r"):
         e, h = Vector(el["new"][0]), Vector(ha["new"][0])
         tip = h + (h - e).normalized() * 9.0
         _caps += [_cap(e, h, 4.0), _cap(h, tip, 3.0)]
+# the daughter's fingers under his hand (00-B grip, tools/v4_2/c00_pose_tochter.py -> C00_TOCHTER_SITZ.json): they press
+# into the duvet too (Unreal cm -> Blender m: x, -y, z)
+_sitz = os.path.join(ROOT, "docs", "v4_2", "C00_TOCHTER_SITZ.json")
+if os.path.exists(_sitz):
+    with open(_sitz, encoding="utf8") as _f:
+        _hb = json.load(_f).get("hand_bones", {})
+
+    def _b(n):
+        q = _hb.get(n)
+        return Vector((q[0] / 100, -q[1] / 100, q[2] / 100)) if q else None
+    for f in ("index", "middle", "ring", "pinky"):
+        pts = [_b(f"{f}_{k}_r") for k in ("01", "02", "03")]
+        pts = [q for q in pts if q is not None]
+        for qa, qb in zip(pts, pts[1:]):
+            _caps.append((qa, qb, 0.0095))
+    if _b("hand_r") and _b("middle_01_r"):
+        _caps.append((_b("hand_r"), _b("middle_01_r"), 0.018))
 FALL = 0.04
 for v in duv.data.vertices:
     w = duv.matrix_world @ v.co

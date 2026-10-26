@@ -4,6 +4,7 @@ Shot list 00-B (approved by the Game Director 2026-10-25): his hand in his daugh
 breathing; no forced sobbing. Built on the approved single-frame poses (A_C00_Mann_Liegen_Built,
 A_C00_Mann_Gesicht_Sterbend_Built, A_C00_Tochter_Sitzen_Built, A_C00_Tochter_Gesicht_00B_Built), every frame keyed:
 - her thumb strokes the back of his hand: three slow strokes (~3.2 s each, eased in/out), about the palm normal
+  (her palm faces up under his hand, so the thumb tip sweeps level across the back of his hand)
 - his breath: slow, heavy, ~6.5 s per breath with a longer exhale - shoulders rise a little (clavicles), the jaw
   opens a hair on the inhale (face rig curve); his spine stays as posed so face and body never part at the neck
 - her breath: calm, ~4.2 s, a gentle lift through the upper spine - applied identically to her body and face
@@ -147,6 +148,11 @@ for t in t_of:
             par = m_cs[m_parent[cl]].rotation
             # shoulders lift toward the head (component +Z when standing = toward the headboard when lying)
             f[cl] = rotate_local(m_loc[cl], par, q_axis(V(0, 1, 0), sx * 1.6 * b))
+            # the arm keeps its orientation: his hand lies in hers and on the duvet (a 1.6 deg arm swing moved the
+            # hand ~1.7 cm per breath); only the shoulder's few millimetres reach the hand
+            ua = f"upperarm_{side}"
+            if ua in m_loc:
+                f[ua] = rotate_local(m_loc[ua], m_cs[cl].rotation, q_axis(V(0, 1, 0), -sx * 1.6 * b))
     frames_mb.append(f)
     frames_mf.append(dict(mf))
     c = dict(mfc)
@@ -207,6 +213,12 @@ for t in t_of:
             # upper body lifts and opens a little on the inhale (extension about component X)
             spine_new[sb] = rotate_local(t_loc[sb], t_cs[t_parent[sb]].rotation, q_axis(X, -deg * br))
             f[sb] = spine_new[sb]
+    # the arms keep their orientation against the breathing spine: her hands rest on his hand and her thigh - without
+    # this the 1.15 deg chest lift slid her hand ~1 cm over his skin (only the shoulder lift, a few mm, remains)
+    tot = sum(deg for sb, deg in SPINE if sb in t_loc)
+    for ua in ("upperarm_r", "upperarm_l"):
+        if ua in t_loc:
+            f[ua] = rotate_local(t_loc[ua], t_cs[t_parent[ua]].rotation, q_axis(X, tot * br))
     frames_tb.append(f)
     g = dict(tf)
     for sb, tr in spine_new.items():
