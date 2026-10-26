@@ -1,0 +1,124 @@
+"""CR-001 Phase 3 (background Blender): look-check renders of the C02 micro assets.
+
+    blender -b ArtSource/Blender/C02/C02_Mikrowelt.blend -P tools/v4_2/c02_render_checks.py -- <shot> [<shot> ...]
+
+Shots: oozyte_nackt (egg + zona + polar body, brightfield focal plane), oozyte_spieler (the player's view into
+the cumulus, darkfield fluid), eileiter (fold relief), zygote, zweizell. Renders go to ArtSource/Blender/C02/_renders.
+Kept out of the interactive session: long Cycles renders blocked/crashed the MCP server there.
+"""
+import runpy
+import sys
+from pathlib import Path
+
+import bpy
+from mathutils import Vector
+
+ROOT = Path(__file__).resolve().parents[2]
+ld = runpy.run_path(str(ROOT / "tools/v4_2/c02_lookdev.py"), run_name="ld")
+OUT = ROOT / "ArtSource/Blender/C02/_renders"
+sc = bpy.context.scene
+
+
+def only(names):
+    for o in sc.objects:
+        o.hide_render = not any(o.name.startswith(n) for n in names) and o.type in ("MESH", "CURVE")
+
+
+def look_at(obj, target):
+    obj.rotation_euler = (Vector(target) - obj.location).to_track_quat("-Z", "Y").to_euler()
+
+
+def render(name, samples):
+    sc.cycles.samples = samples
+    sc.render.filepath = str(OUT / f"{name}.png")
+    bpy.ops.render.render(write_still=True)
+    print("RENDERED", name)
+
+
+def shot_oozyte_nackt():
+    only(["SM_C02_Oozyte", "SM_C02_Zona", "SM_C02_Polkoerper"])
+    cam = ld["setup"](mode="bright")
+    sc.render.resolution_x = sc.render.resolution_y = 1000
+    ld["frame"](cam, [sc.objects["SM_C02_Zona"]])
+    cam.data.ortho_scale = 200
+    ld["focal_plane"](cam, 0.0, 0.08)
+    render("oozyte_nackt_hell", 96)
+
+
+def shot_oozyte_spieler():
+    only(["SM_C02_Oozyte", "SM_C02_Zona", "SM_C02_Polkoerper", "C02_CUMULUS_Verteilung"])
+    cam = ld["setup"](mode="dark")
+    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    cam.data.type = "PERSP"
+    cam.data.lens = 24
+    cam.data.dof.use_dof = False
+    cam.data.clip_start, cam.data.clip_end = 0.5, 5000
+    cam.location = (-380, -120, 60)
+    look_at(cam, (0, 0, 0))
+    lamp = sc.objects["L_C02_Schraeglicht"]
+    lamp.location = (-300, -250, 250)
+    look_at(lamp, (0, 0, 0))
+    lamp.data.size = 200
+    lamp.data.energy = 330000.0                    # same radiance as the 60-unit light (energy scales with the area)
+    render("oozyte_spielersicht_dunkel", 96)
+
+
+def shot_named(name, objects, mode, scale, z=0.0, fstop=0.08):
+    only(objects)
+    cam = ld["setup"](mode=mode)
+    sc.render.resolution_x = sc.render.resolution_y = 1000
+    ld["frame"](cam, [sc.objects[o] for o in objects if o in sc.objects][:1])
+    cam.data.ortho_scale = scale
+    ld["focal_plane"](cam, z, fstop)
+    render(name, 96)
+
+
+def shot_eileiter():
+    only(["SM_C02_Eileiter"])
+    cam = ld["setup"](mode="dark")
+    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    cam.data.type = "PERSP"
+    cam.data.lens = 18
+    cam.data.dof.use_dof = False
+    cam.data.clip_start, cam.data.clip_end = 0.5, 20000
+    o = sc.objects["SM_C02_Eileiter"].location
+    cam.location = o + Vector((-20, -60, 30))      # inside the lumen at the segment start, looking along the tube (+X)
+    look_at(cam, o + Vector((1300, 30, -20)))
+    lamp = sc.objects["L_C02_Schraeglicht"]
+    lamp.location = o + Vector((40, 80, 120))      # the light travelling with the viewer (as the pawn's lamp in game)
+    look_at(lamp, o + Vector((700, 0, 0)))
+    lamp.data.size = 60
+    lamp.data.energy = float(__import__("os").environ.get("C02_LAMP", "1500000"))   # walls ~500 um away: measured
+    if __import__("os").environ.get("C02_PREVIEW"):
+        sc.render.resolution_x, sc.render.resolution_y = 480, 270
+        render("eileiter_vorschau_" + __import__("os").environ.get("C02_LAMP", "x"), 16)
+        return
+    render("eileiter_innen_dunkel", 128)
+
+
+def shot_spermium():
+    only(["SM_C02_Spermium_Pose"])
+    cam = ld["setup"](mode="bright")
+    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    ld["frame"](cam, [sc.objects["SM_C02_Spermium_Pose"]])
+    ld["focal_plane"](cam, 0.0, 0.5)
+    render("spermium_hell", 96)
+    cam.data.ortho_scale = 12.0
+    cam.location = sc.objects["SM_C02_Spermium_Pose"].matrix_world @ Vector((-2.5, 0, 50))
+    ld["focal_plane"](cam, cam.location.z - 50.0, 0.5)
+    render("spermium_kopf_hell", 96)
+
+
+SHOTS = {
+    "spermium": shot_spermium,
+    "oozyte_nackt": shot_oozyte_nackt,
+    "oozyte_spieler": shot_oozyte_spieler,
+    "eileiter": shot_eileiter,
+    "zygote": lambda: shot_named("zygote_hell", ["SM_C02_Zygote", "SM_C02_Zona_Z", "SM_C02_Vorkern", "SM_C02_Polkoerper_Z"], "bright", 200),
+    "zweizell": lambda: shot_named("zweizell_hell", ["SM_C02_Blastomere", "SM_C02_Zona_2Z", "SM_C02_Kern_2Z", "SM_C02_Polkoerper_2Z"], "bright", 200),
+}
+
+if __name__ == "__main__":
+    args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else list(SHOTS)
+    for a in args:
+        SHOTS[a]()

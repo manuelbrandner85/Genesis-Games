@@ -104,3 +104,14 @@ def optical_section(cam, center_z=0.0, thickness=24.0):
     """Like a microscope focal plane: only a slab around center_z is visible (ortho camera from +Z)."""
     cam.data.clip_start = max(0.05, cam.location.z - center_z - thickness / 2)
     cam.data.clip_end = cam.location.z - center_z + thickness / 2
+
+
+def focal_plane(cam, focus_z=0.0, fstop=0.02):
+    """Microscope-like optical section: sharp focal plane at focus_z, everything above/below blurs.
+    (Clipping the camera instead would cut the cell surfaces open and lose the volume inside.)"""
+    cam.data.clip_start = 0.05
+    cam.data.clip_end = 100000
+    cam.data.dof.use_dof = True
+    cam.data.dof.focus_distance = cam.location.z - focus_z
+    cam.data.dof.aperture_fstop = fstop
+    cam.data.dof.aperture_blades = 0

@@ -65,24 +65,37 @@ def mat_cytoplasm():
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    surf = principled(nt, (0.86, 0.84, 0.80), 1.37, 0.92, 0.12)
+    surf = principled(nt, (0.86, 0.84, 0.80), 1.04, 0.92, 0.12)       # IOR relative to the fluid (1.37/1.335, raised)
     tc = nt.nodes.new("ShaderNodeTexCoord")
     noise = nt.nodes.new("ShaderNodeTexNoise")              # granule density, ~1-3 um clusters
-    noise.inputs["Scale"].default_value = 0.35
+    noise.inputs["Scale"].default_value = 0.9           # granules and clusters of ~1 um
     noise.inputs["Detail"].default_value = 10.0
     noise.inputs["Roughness"].default_value = 0.7
     nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
     ramp = nt.nodes.new("ShaderNodeMapRange")
     ramp.inputs["From Min"].default_value = 0.42
     ramp.inputs["From Max"].default_value = 0.7
-    ramp.inputs["To Min"].default_value = 0.004
-    ramp.inputs["To Max"].default_value = 0.03
+    ramp.inputs["To Min"].default_value = 0.0008       # measured: higher densities turn the 115 um cell dark grey
+    ramp.inputs["To Max"].default_value = 0.009
     nt.links.new(noise.outputs["Fac"], ramp.inputs["Value"])
+    gran = nt.nodes.new("ShaderNodeTexVoronoi")                # organelles / yolk-like granules ~1 um
+    gran.inputs["Scale"].default_value = 0.55
+    nt.links.new(tc.outputs["Object"], gran.inputs["Vector"])
+    spot = nt.nodes.new("ShaderNodeMapRange")
+    spot.inputs["From Min"].default_value = 0.22
+    spot.inputs["From Max"].default_value = 0.08
+    spot.inputs["To Min"].default_value = 0.0
+    spot.inputs["To Max"].default_value = 0.05
+    nt.links.new(gran.outputs["Distance"], spot.inputs["Value"])
+    dens = nt.nodes.new("ShaderNodeMath")
+    dens.operation = "ADD"
+    nt.links.new(ramp.outputs["Result"], dens.inputs[0])
+    nt.links.new(spot.outputs["Result"], dens.inputs[1])
     vol = nt.nodes.new("ShaderNodeVolumePrincipled")
     vol.inputs["Color"].default_value = (0.82, 0.78, 0.70, 1)
     vol.inputs["Absorption Color"].default_value = (0.92, 0.88, 0.80, 1)
     vol.inputs["Anisotropy"].default_value = 0.6           # small organelles scatter forward
-    nt.links.new(ramp.outputs["Result"], vol.inputs["Density"])
+    nt.links.new(dens.outputs["Value"], vol.inputs["Density"])
     nt.links.new(surf.outputs["BSDF"], out.inputs["Surface"])
     nt.links.new(vol.outputs["Volume"], out.inputs["Volume"])
     return m
@@ -95,7 +108,7 @@ def mat_zona():
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    p = principled(nt, (0.93, 0.93, 0.91), 1.34, 0.97, 0.06)
+    p = principled(nt, (0.93, 0.93, 0.91), 1.015, 0.97, 0.06)          # zona 1.34 in fluid 1.335: nearly invisible in reality
     tc = nt.nodes.new("ShaderNodeTexCoord")
     wave = nt.nodes.new("ShaderNodeTexWave")                 # fibre network
     wave.wave_type = "RINGS"
@@ -127,15 +140,26 @@ def mat_cell():
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    p = principled(nt, (0.88, 0.86, 0.82), 1.365, 0.82, 0.16, sss=0.25, sss_radius=(2.0, 1.8, 1.5))
+    p = principled(nt, (0.92, 0.91, 0.88), 1.035, 0.96, 0.08)
     nt.links.new(p.outputs["BSDF"], out.inputs["Surface"])
+    cv = nt.nodes.new("ShaderNodeVolumePrincipled")
+    cv.inputs["Color"].default_value = (0.86, 0.84, 0.79, 1)
+    cv.inputs["Density"].default_value = 0.035
+    cv.inputs["Anisotropy"].default_value = 0.5
+    nt.links.new(cv.outputs["Volume"], out.inputs["Volume"])
     k = bpy.data.materials.get("M_C02_Zellkern") or bpy.data.materials.new("M_C02_Zellkern")
     k.use_nodes = True
     kt = k.node_tree
     kt.nodes.clear()
     ko = kt.nodes.new("ShaderNodeOutputMaterial")
-    kp = principled(kt, (0.46, 0.41, 0.34), 1.40, 0.10, 0.30, sss=0.90, sss_radius=(1.5, 1.2, 1.0))
+    kp = principled(kt, (0.9, 0.88, 0.84), 1.06, 0.97, 0.12)
     kt.links.new(kp.outputs["BSDF"], ko.inputs["Surface"])
+    kv = kt.nodes.new("ShaderNodeVolumePrincipled")              # chromatin: denser, slightly darker
+    kv.inputs["Color"].default_value = (0.7, 0.66, 0.6, 1)
+    kv.inputs["Density"].default_value = 0.22
+    kv.inputs["Absorption Color"].default_value = (0.75, 0.7, 0.62, 1)
+    kv.inputs["Anisotropy"].default_value = 0.3
+    kt.links.new(kv.outputs["Volume"], ko.inputs["Volume"])
     return m, k
 
 

@@ -31,7 +31,7 @@ namespace
         return R[FMath::Clamp(Stage, 0, 9)];
     }
 
-    UInstancedStaticMeshComponent* MakeInstances(AActor* Owner, const TCHAR* Name, UStaticMesh* Mesh)
+    UInstancedStaticMeshComponent* MakePregInstances(AActor* Owner, const TCHAR* Name, UStaticMesh* Mesh)
     {
         UInstancedStaticMeshComponent* C = Owner->CreateDefaultSubobject<UInstancedStaticMeshComponent>(Name);
         C->SetupAttachment(Owner->GetRootComponent());
@@ -41,7 +41,7 @@ namespace
         return C;
     }
 
-    UTextBlock* Text(UWidgetTree* Tree, UCanvasPanel* Root, int32 Size, const FAnchors& Anchor, const FVector2D& Align, const FVector2D& Pos)
+    UTextBlock* PregText(UWidgetTree* Tree, UCanvasPanel* Root, int32 Size, const FAnchors& Anchor, const FVector2D& Align, const FVector2D& Pos)
     {
         UTextBlock* T = Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
         FSlateFontInfo F = T->GetFont();
@@ -65,12 +65,12 @@ void UGenesisPregnancyHud::NativeOnInitialized()
     Super::NativeOnInitialized();
     UCanvasPanel* Root = WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(), TEXT("Root"));
     WidgetTree->RootWidget = Root;
-    HeaderText = Text(WidgetTree, Root, 22, FAnchors(0.f, 0.f), FVector2D(0.f, 0.f), FVector2D(40.f, 32.f));
-    FactsText = Text(WidgetTree, Root, 15, FAnchors(0.f, 0.f), FVector2D(0.f, 0.f), FVector2D(40.f, 66.f));
-    ActionsText = Text(WidgetTree, Root, 16, FAnchors(0.f, 1.f), FVector2D(0.f, 1.f), FVector2D(40.f, -40.f));
-    OutsideText = Text(WidgetTree, Root, 15, FAnchors(1.f, 1.f), FVector2D(1.f, 1.f), FVector2D(-40.f, -40.f));
+    HeaderText = PregText(WidgetTree, Root, 22, FAnchors(0.f, 0.f), FVector2D(0.f, 0.f), FVector2D(40.f, 32.f));
+    FactsText = PregText(WidgetTree, Root, 15, FAnchors(0.f, 0.f), FVector2D(0.f, 0.f), FVector2D(40.f, 66.f));
+    ActionsText = PregText(WidgetTree, Root, 16, FAnchors(0.f, 1.f), FVector2D(0.f, 1.f), FVector2D(40.f, -40.f));
+    OutsideText = PregText(WidgetTree, Root, 15, FAnchors(1.f, 1.f), FVector2D(1.f, 1.f), FVector2D(-40.f, -40.f));
     OutsideText->SetJustification(ETextJustify::Right);
-    CaptionText = Text(WidgetTree, Root, 20, FAnchors(0.5f, 0.45f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
+    CaptionText = PregText(WidgetTree, Root, 20, FAnchors(0.5f, 0.45f), FVector2D(0.5f, 0.5f), FVector2D(0.f, 0.f));
     CaptionText->SetJustification(ETextJustify::Center);
 }
 
@@ -146,10 +146,10 @@ AGenesisPregnancyDirector::AGenesisPregnancyDirector()
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Cube(TEXT("/Engine/BasicShapes/Cube.Cube"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-    Wall = MakeInstances(this, TEXT("Wall"), Cube.Object);
-    Cells = MakeInstances(this, TEXT("Cells"), Sphere.Object);
-    Body = MakeInstances(this, TEXT("Body"), Sphere.Object);
-    Cord = MakeInstances(this, TEXT("Cord"), Sphere.Object);
+    Wall = MakePregInstances(this, TEXT("Wall"), Cube.Object);
+    Cells = MakePregInstances(this, TEXT("Cells"), Sphere.Object);
+    Body = MakePregInstances(this, TEXT("Body"), Sphere.Object);
+    Cord = MakePregInstances(this, TEXT("Cord"), Sphere.Object);
     // Light that really reaches the uterus: daylight through belly wall and tissue, deep red, faint.
     BellyLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("BellyLight"));
     BellyLight->SetupAttachment(RootComponent);

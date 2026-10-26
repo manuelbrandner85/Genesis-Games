@@ -112,6 +112,7 @@ def build_mesh(name):
 
 
 def material(name, color, ior, transmission, rough, sss=0.0, grain=0.12):
+    """ior is relative to the surrounding fluid (n ~1.335), as the cell really swims in liquid."""
     m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
@@ -189,10 +190,10 @@ def head_material():
             nt.links.new(sep.outputs["X"], r.inputs["Value"])
         return r.outputs["Result"]
 
-    acro = material("M_C02_Spermium_Akrosom", (0.86, 0.85, 0.82), 1.38, 0.80, 0.18, sss=0.20, grain=0.06)
-    nucleus = material("M_C02_Spermium_Kern", (0.55, 0.49, 0.40), 1.43, 0.08, 0.28, sss=0.92, grain=0.40)
-    mid = material("M_C02_Spermium_Mittelstueck", (0.64, 0.59, 0.48), 1.40, 0.35, 0.32, sss=0.60)
-    tail = material("M_C02_Spermium_Schwanz", (0.76, 0.74, 0.69), 1.38, 0.45, 0.28, sss=0.50)
+    acro = material("M_C02_Spermium_Akrosom", (0.86, 0.85, 0.82), 1.04, 0.80, 0.18, sss=0.20, grain=0.06)
+    nucleus = material("M_C02_Spermium_Kern", (0.55, 0.49, 0.40), 1.08, 0.08, 0.28, sss=0.92, grain=0.40)
+    mid = material("M_C02_Spermium_Mittelstueck", (0.64, 0.59, 0.48), 1.05, 0.35, 0.32, sss=0.60)
+    tail = material("M_C02_Spermium_Schwanz", (0.76, 0.74, 0.69), 1.04, 0.45, 0.28, sss=0.50)
     groups = []
     for src in (acro, nucleus, mid, tail):
         g = nt.nodes.new("ShaderNodeGroup")

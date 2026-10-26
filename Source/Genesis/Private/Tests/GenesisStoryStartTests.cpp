@@ -202,10 +202,10 @@ bool FGenesisFlashDefaultTest::RunTest(const FString&)
     TestEqual(TEXT("Options layout 2"), UGenesisUserSettings::CurrentOptionsVersion, 2);
 
     // Reduced: no strike, only a soft fade; no frame may jump (60 fps).
-    const float Dt = 1.f / 60.f;
+    const float FrameDt = 1.f / 60.f;
     float MaxStep = 0.f;
     float Prev = 0.f;
-    for (float T = 0.f; T <= FGenesisLightStrike::Duration(true); T += Dt) {
+    for (float T = 0.f; T <= FGenesisLightStrike::Duration(true); T += FrameDt) {
         const float L = FGenesisLightStrike::WhiteLevel(T, true);
         MaxStep = FMath::Max(MaxStep, FMath::Abs(L - Prev));
         Prev = L;
@@ -216,7 +216,7 @@ bool FGenesisFlashDefaultTest::RunTest(const FString&)
     // Normal: exactly one pulse (one rise through 50 %), never a second flash.
     int32 Rises = 0;
     Prev = 0.f;
-    for (float T = 0.f; T <= FGenesisLightStrike::Duration(false) + 1.f; T += Dt) {
+    for (float T = 0.f; T <= FGenesisLightStrike::Duration(false) + 1.f; T += FrameDt) {
         const float L = FGenesisLightStrike::WhiteLevel(T, false);
         Rises += Prev < 0.5f && L >= 0.5f ? 1 : 0;
         Prev = L;

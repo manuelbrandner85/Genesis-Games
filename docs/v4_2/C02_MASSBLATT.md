@@ -2,6 +2,8 @@
 
 Grundlage für die Blender-Modelle; Look nach den abgenommenen Referenzen (GD-2026-10-25-04, GD-2026-10-26-01). Werte aus der Humanbiologie (WHO-Laborhandbuch 2021 für Spermien, Embryologie-Standardwerte); wo Spannweiten angegeben sind, nimmt das Modell den Mittelwert.
 
+**Brechzahlen:** Alle Zellen schwimmen in Flüssigkeit (n ≈ 1,335). In Blender/Unreal wird deshalb die **relative** Brechzahl verwendet (Zelle/Flüssigkeit, z. B. Kopf 1,42/1,335 ≈ 1,06), zur Sichtbarkeit ohne Mikroskopoptik leicht überhöht (≈ 1,5-fach). Absolute Werte in Luft lassen die Zellen wie Glaslinsen wirken – falsch.
+
 **Maßstab in den Werkzeugen:** 1 µm = 1 Unreal-Unit (1 uu) = 1 cm in Blender. Export aus Blender ohne Skalierung (FBX, Einheit cm) → in Unreal 1:1.
 
 ## Samenzelle (CHR_C02_SPERMIUM)
@@ -30,14 +32,14 @@ Grundlage für die Blender-Modelle; Look nach den abgenommenen Referenzen (GD-20
 | Teil | Maß | Hinweis |
 |---|---|---|
 | Vorkerne | 2 × ⌀ 22 µm, berühren sich in der Mitte | je 3–7 Nukleolen (⌀ 1–2 µm) an der Kontaktlinie |
-| Blastomeren (2-Zell) | 2 × ⌀ 88 µm | gleiches Gesamtvolumen wie die Zygote, je ein Kern ⌀ 15 µm |
+| Blastomeren (2-Zell) | 2 Ellipsoide je ca. 60 × 104 × 112 µm | von der Zona zusammengedrückt (innen ⌀ 123 µm), zusammen ≈ Volumen der Zygote, je ein Kern ⌀ 15 µm *(korrigiert: zwei Kugeln von 88 µm passen nicht in die Zona)* |
 | Zona | wie Eizelle | bleibt unverändert |
 
 ## Eileiter-Ampulle (ENV_C02_EILEITER_AMPULLE)
 | Teil | Maß | Hinweis |
 |---|---|---|
 | Lumen (Spielstrecke) | Radius 420–690 µm | wie `FGenesisOviduct::Radius` |
-| Schleimhautfalten | Höhe 80–250 µm, Dicke 20–40 µm, längs, verzweigt | Labyrinth zur Ampulle hin dichter |
+| Schleimhautfalten | 22 Hauptfalten, Höhe 140–320 µm, Dicke 40–80 µm, längs, verzweigt; dazwischen niedrige Nebenfalten (25–60 µm) | Labyrinth, freier Kanal ca. 0,2–0,4 mm *(angepasst nach dem Vergleich mit der abgenommenen Referenz: die erste Fassung mit 20–40 µm wirkte wie Klingen)* |
 | Epithelzellen | ⌀ ≈ 10 µm | Flimmer- und sekretorische Zellen |
 | Zilien | 8–10 µm lang, ⌀ 0,25 µm | nur als Oberflächen-Detail (Normal/Shader), keine Einzelgeometrie |
 | Strömung | ≈ 12 µm/s zum Uterus | wie im Spiel |
