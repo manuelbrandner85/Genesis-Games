@@ -13,4 +13,8 @@ Eigene Modelle (keine Fremdassets), gebaut per Skript nach `docs/v4_2/C02_MASSBL
 
 **Prüfung:** FBX-Rückimport misst Samenzelle 57,98 uu, Zona 155 uu, Eileiterstück 1400 uu. Brechzahlen relativ zur Flüssigkeit (siehe Maßblatt) – mit absoluten Werten in Luft wirkten die Zellen wie Glaslinsen (behoben).
 
-**Ehrliche Grenzen:** Die Volumen-Materialien (Zellplasma, Körnung) sind Blender-Prüfmaterialien; im Spiel entsteht der Look über durchscheinende Unreal-Materialien (nächster Schritt). Die Cumulus-Ansicht wirkt in Blender noch zu sehr wie Glasperlen, die Faltenkämme des Eileiters perspektivisch zahnartig. Status: Modelle **GENERATED_PREVIEW**, noch nicht in Unreal importiert, nicht abgenommen.
+**Nachbesserung (Regie 2026-10-26: „Cumuluszellen und Faltenkämme nachbessern“):**
+- Cumuluszellen: glatte, unregelmäßige Ovale statt Kugeln (großflächige Verformung), stärker streuendes Zellinneres und dichterer Kern, dazu die klare Gelmatrix (Hyaluronsäure) als feiner Dunst um die Eizelle (`SM_C02_CumulusMatrix`). Der frühere Glasperlen-Eindruck kam von Brechzahlen wie in Luft.
+- Eileiter: Die „Zahnspitzen“ waren die abgeschnittenen Enden des Teststücks – geprüft in einer Kette aus drei Stücken wie im Spiel sind sie weg. Die Falten sind jetzt an den Kämmen flacher und runder und neigen sich wie weiches Gewebe; die Neigung wird nach dem Anteil jeder Falte gemischt (vorher rissen Netzstellen, wo eine Seitenfalte in ihre Falte überging).
+
+**Ehrliche Grenzen:** Die Volumen-Materialien sind Blender-Prüfmaterialien; im Spiel entsteht der Look über durchscheinende Unreal-Materialien (nächster Schritt). Kerne der Cumuluszellen sind in der Spielersicht noch kaum zu sehen. Status: Modelle **GENERATED_PREVIEW**, noch nicht in Unreal importiert, nicht abgenommen.

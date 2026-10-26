@@ -6,6 +6,7 @@ Shots: oozyte_nackt (egg + zona + polar body, brightfield focal plane), oozyte_s
 the cumulus, darkfield fluid), eileiter (fold relief), zygote, zweizell. Renders go to ArtSource/Blender/C02/_renders.
 Kept out of the interactive session: long Cycles renders blocked/crashed the MCP server there.
 """
+import os
 import runpy
 import sys
 from pathlib import Path
@@ -29,6 +30,10 @@ def look_at(obj, target):
 
 
 def render(name, samples):
+    if os.environ.get("C02_FAST"):                 # quick preview: 30 % size, few samples
+        sc.render.resolution_percentage = 30
+        samples = 16
+        name += "_vorschau"
     sc.cycles.samples = samples
     sc.render.filepath = str(OUT / f"{name}.png")
     bpy.ops.render.render(write_still=True)
@@ -46,7 +51,7 @@ def shot_oozyte_nackt():
 
 
 def shot_oozyte_spieler():
-    only(["SM_C02_Oozyte", "SM_C02_Zona", "SM_C02_Polkoerper", "C02_CUMULUS_Verteilung"])
+    only(["SM_C02_Oozyte", "SM_C02_Zona", "SM_C02_Polkoerper", "C02_CUMULUS_Verteilung", "SM_C02_CumulusMatrix"])
     cam = ld["setup"](mode="dark")
     sc.render.resolution_x, sc.render.resolution_y = 1600, 900
     cam.data.type = "PERSP"
@@ -59,7 +64,7 @@ def shot_oozyte_spieler():
     lamp.location = (-300, -250, 250)
     look_at(lamp, (0, 0, 0))
     lamp.data.size = 200
-    lamp.data.energy = 330000.0                    # same radiance as the 60-unit light (energy scales with the area)
+    lamp.data.energy = 3500000.0                   # measured: cumulus ~400 um away, cells read at mid-grey
     render("oozyte_spielersicht_dunkel", 96)
 
 
@@ -75,6 +80,12 @@ def shot_named(name, objects, mode, scale, z=0.0, fstop=0.08):
 
 def shot_eileiter():
     only(["SM_C02_Eileiter"])
+    tube = sc.objects["SM_C02_Eileiter"]
+    if "Kette" not in tube.modifiers:              # chain three segments, as in the game: no cut ends in view
+        arr = tube.modifiers.new("Kette", "ARRAY")
+        arr.count = 3
+        arr.use_merge_vertices = True
+        arr.merge_threshold = 0.5
     cam = ld["setup"](mode="dark")
     sc.render.resolution_x, sc.render.resolution_y = 1600, 900
     cam.data.type = "PERSP"
@@ -82,11 +93,11 @@ def shot_eileiter():
     cam.data.dof.use_dof = False
     cam.data.clip_start, cam.data.clip_end = 0.5, 20000
     o = sc.objects["SM_C02_Eileiter"].location
-    cam.location = o + Vector((-20, -60, 30))      # inside the lumen at the segment start, looking along the tube (+X)
-    look_at(cam, o + Vector((1300, 30, -20)))
+    cam.location = o + Vector((1450, -60, 30))     # inside the middle segment, looking along the tube (+X)
+    look_at(cam, o + Vector((2900, 30, -20)))
     lamp = sc.objects["L_C02_Schraeglicht"]
-    lamp.location = o + Vector((40, 80, 120))      # the light travelling with the viewer (as the pawn's lamp in game)
-    look_at(lamp, o + Vector((700, 0, 0)))
+    lamp.location = o + Vector((1490, 80, 120))    # the light travelling with the viewer (as the pawn's lamp in game)
+    look_at(lamp, o + Vector((2200, 0, 0)))
     lamp.data.size = 60
     lamp.data.energy = float(__import__("os").environ.get("C02_LAMP", "1500000"))   # walls ~500 um away: measured
     if __import__("os").environ.get("C02_PREVIEW"):

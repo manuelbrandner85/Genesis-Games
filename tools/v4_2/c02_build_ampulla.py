@@ -31,7 +31,8 @@ def folds(seed=11):
             "meander": rnd.uniform(0.02, 0.06), "phase": rnd.uniform(0, 2 * math.pi), "waves": rnd.choice((1, 2)),
             "height": rnd.uniform(140.0, 320.0), "thick": rnd.uniform(40.0, 80.0),
             "hwaves": rnd.choice((1, 2, 3)), "hphase": rnd.uniform(0, 2 * math.pi),
-            "branches": [{"side": rnd.choice((-1, 1)), "x0": rnd.uniform(0, LENGTH), "span": rnd.uniform(300, 650),
+            "lean": rnd.uniform(-0.38, 0.38), "lwaves": rnd.choice((1, 2)), "lphase": rnd.uniform(0, 2 * math.pi),
+            "branches": [{"side": rnd.choice((-1, 1)), "x0": rnd.uniform(0, LENGTH), "span": rnd.uniform(450, 800),
                           "spread": rnd.uniform(50.0, 120.0), "height": rnd.uniform(0.45, 0.7)} for _ in range(rnd.randint(2, 4))],
         })
     for k in range(40):                                  # low secondary ridges
@@ -39,6 +40,7 @@ def folds(seed=11):
             "theta": rnd.uniform(0, 2 * math.pi), "meander": rnd.uniform(0.02, 0.05), "phase": rnd.uniform(0, 2 * math.pi),
             "waves": rnd.choice((1, 2, 3)), "height": rnd.uniform(25.0, 60.0), "thick": rnd.uniform(18.0, 30.0),
             "hwaves": rnd.choice((2, 3, 4)), "hphase": rnd.uniform(0, 2 * math.pi), "branches": [],
+            "lean": 0.0, "lwaves": 1, "lphase": 0.0,
         })
     return out
 
@@ -46,7 +48,7 @@ def folds(seed=11):
 def ridge(d_arc, thick):
     """Cross-section of one fold: a plate with a rounded crest and a broader base (1 at the centre line)."""
     a = abs(d_arc) / (thick * 0.5)
-    return (1.0 - a ** 2.2) ** 0.35 if a < 1.0 else 0.0
+    return (1.0 - a ** 3.0) ** 0.45 if a < 1.0 else 0.0           # flatter, rounder crest than a blade
 
 
 def wrap(a):
@@ -54,21 +56,31 @@ def wrap(a):
 
 
 def depth(theta, x, F):
-    """How far the mucosa reaches into the lumen at (theta, x): union (max) of all folds and side folds."""
-    best = 0.0
+    """How far the mucosa reaches into the lumen at (theta, x): union (max) of all folds and side folds.
+    Returns (depth, lean): lean of the fold that wins here - folds bend over to one side, as soft tissue does."""
+    best, wsum, lsum = 0.0, 0.0, 0.0
     u = 2 * math.pi * x / LENGTH                       # periodic along X -> tileable segment
     for f in F:
         c = f["theta"] + f["meander"] * math.sin(f["waves"] * u + f["phase"])
         h = f["height"] * (0.8 + 0.2 * math.sin(f["hwaves"] * u + f["hphase"]))
-        best = max(best, h * ridge(wrap(theta - c) * RADIUS, f["thick"]))
+        v = h * ridge(wrap(theta - c) * RADIUS, f["thick"])
+        fl = f["lean"] * math.sin(f["lwaves"] * u + f["lphase"])
+        best = max(best, v)
+        wsum += v * v
+        lsum += v * v * fl
         for b in f["branches"]:
             t = ((x - b["x0"]) % LENGTH) / b["span"]     # 0..1 over the branch, periodic
             if t > 1.0:
                 continue
             off = b["side"] * b["spread"] * math.sin(math.pi * t)       # leaves the fold and rejoins it
-            hb = h * b["height"] * math.sin(math.pi * t) ** 0.5
-            best = max(best, hb * ridge(wrap(theta - c) * RADIUS - off, f["thick"] * 0.8))
-    return best
+            hb = h * b["height"] * math.sin(math.pi * t) ** 0.8          # side folds rise and sink gently
+            v = hb * ridge(wrap(theta - c) * RADIUS - off, f["thick"] * 0.8)
+            best = max(best, v)
+            wsum += v * v
+            lsum += v * v * fl * 0.7
+    # lean blended by each fold's share: where a side fold merges into its fold the lean changes smoothly
+    # (winner-takes-all made the vertices jump sideways and tore the mesh)
+    return best, (lsum / wsum if wsum > 0.0 else 0.0)
 
 
 def build():
@@ -82,8 +94,10 @@ def build():
         row = []
         for j in range(SEG_THETA):
             th = 2 * math.pi * j / SEG_THETA
-            r = RADIUS - depth(th, x, F)
-            row.append(bm.verts.new((x, r * math.cos(th), r * math.sin(th))))
+            d, lean = depth(th, x, F)
+            r = RADIUS - d
+            tl = th + lean * (d / RADIUS) ** 1.5            # the higher the tissue, the further it leans over
+            row.append(bm.verts.new((x, r * math.cos(tl), r * math.sin(tl))))
         grid.append(row)
     for i in range(SEG_X):
         for j in range(SEG_THETA):

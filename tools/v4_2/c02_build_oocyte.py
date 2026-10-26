@@ -31,14 +31,14 @@ def col(name):
     return c
 
 
-def sphere(name, radius, subdiv=5, wobble=0.0, seed=0):
+def sphere(name, radius, subdiv=5, wobble=0.0, seed=0, freq=1.6):
     me = bpy.data.meshes.new(name)
     bm = bmesh.new()
     bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=radius)
     if wobble:
         off = Vector((seed * 13.1, seed * 7.7, seed * 3.3))
         for v in bm.verts:
-            n = Noise.noise((v.co / radius) * 1.6 + off)
+            n = Noise.noise((v.co / radius) * freq + off)
             v.co *= 1.0 + wobble * n
     bm.to_mesh(me)
     bm.free()
@@ -144,7 +144,7 @@ def mat_cell():
     nt.links.new(p.outputs["BSDF"], out.inputs["Surface"])
     cv = nt.nodes.new("ShaderNodeVolumePrincipled")
     cv.inputs["Color"].default_value = (0.86, 0.84, 0.79, 1)
-    cv.inputs["Density"].default_value = 0.035
+    cv.inputs["Density"].default_value = 0.09                  # measured: 0.035 left the cells nearly invisible
     cv.inputs["Anisotropy"].default_value = 0.5
     nt.links.new(cv.outputs["Volume"], out.inputs["Volume"])
     k = bpy.data.materials.get("M_C02_Zellkern") or bpy.data.materials.new("M_C02_Zellkern")
@@ -156,7 +156,7 @@ def mat_cell():
     kt.links.new(kp.outputs["BSDF"], ko.inputs["Surface"])
     kv = kt.nodes.new("ShaderNodeVolumePrincipled")              # chromatin: denser, slightly darker
     kv.inputs["Color"].default_value = (0.7, 0.66, 0.6, 1)
-    kv.inputs["Density"].default_value = 0.22
+    kv.inputs["Density"].default_value = 0.45
     kv.inputs["Absorption Color"].default_value = (0.75, 0.7, 0.62, 1)
     kv.inputs["Anisotropy"].default_value = 0.3
     kt.links.new(kv.outputs["Volume"], ko.inputs["Volume"])
@@ -164,8 +164,8 @@ def mat_cell():
 
 
 def cumulus_cell():
-    cell = sphere("SM_C02_CumulusZelle", R_CELL, 3, wobble=0.10, seed=3)
-    nuc = sphere("SM_C02_CumulusZelle_Kern", 2.5, 2, wobble=0.12, seed=5)
+    cell = sphere("SM_C02_CumulusZelle", R_CELL, 4, wobble=0.28, seed=3, freq=0.7)   # smooth irregular ovals, not spheres or lumps
+    nuc = sphere("SM_C02_CumulusZelle_Kern", 2.6, 3, wobble=0.15, seed=5)
     me = bpy.data.meshes.new("SM_C02_CumulusZelle_Geo")
     bm = bmesh.new()
     bm.from_mesh(cell)
@@ -259,6 +259,32 @@ def main():
     me.attributes.new("stretch", "FLOAT", "POINT").data.foreach_set("value", [st for *_, st in pts])
     dist = bpy.data.objects.new("C02_CUMULUS_Verteilung", me)
     c.objects.link(dist)
+    # The cumulus matrix: clear hyaluronan gel that holds the cells - a faint haze, densest near the zona.
+    gel = bpy.data.objects.new("SM_C02_CumulusMatrix", sphere("SM_C02_CumulusMatrix", 420.0, 4))
+    gm = bpy.data.materials.get("M_C02_CumulusMatrix") or bpy.data.materials.new("M_C02_CumulusMatrix")
+    gm.use_nodes = True
+    gt = gm.node_tree
+    gt.nodes.clear()
+    go = gt.nodes.new("ShaderNodeOutputMaterial")
+    gs = gt.nodes.new("ShaderNodeBsdfTransparent")              # no visible surface, only the volume
+    gv = gt.nodes.new("ShaderNodeVolumeScatter")
+    gv.inputs["Color"].default_value = (0.9, 0.92, 0.95, 1)
+    gv.inputs["Anisotropy"].default_value = 0.4
+    gtc = gt.nodes.new("ShaderNodeTexCoord")
+    glen = gt.nodes.new("ShaderNodeVectorMath")
+    glen.operation = "LENGTH"
+    gmap = gt.nodes.new("ShaderNodeMapRange")
+    gmap.inputs["From Min"].default_value = 80.0
+    gmap.inputs["From Max"].default_value = 420.0
+    gmap.inputs["To Min"].default_value = 0.0012
+    gmap.inputs["To Max"].default_value = 0.0
+    gt.links.new(gtc.outputs["Object"], glen.inputs[0])
+    gt.links.new(glen.outputs["Value"], gmap.inputs["Value"])
+    gt.links.new(gmap.outputs["Result"], gv.inputs["Density"])
+    gt.links.new(gs.outputs["BSDF"], go.inputs["Surface"])
+    gt.links.new(gv.outputs["Volume"], go.inputs["Volume"])
+    gel.data.materials.append(gm)
+    c.objects.link(gel)
     gn = dist.modifiers.new("Instanzen", "NODES")
     tree = bpy.data.node_groups.get("GN_C02_Cumulus") or bpy.data.node_groups.new("GN_C02_Cumulus", "GeometryNodeTree")
     tree.nodes.clear()
