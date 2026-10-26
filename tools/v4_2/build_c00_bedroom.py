@@ -227,8 +227,8 @@ for fx in (-0.19, 0.19):
         parts.append(cyl(f"SZ_NSLeg{fx}{fy}", 0.012, 0.06, (NX + fx, NY + fy, 0.03), "oak", r2=0.008))
 parts.append(cyl("SZ_LampBase", 0.065, 0.24, (NX + 0.10, NY + 0.06, 0.56 + 0.12), "ceramic", r2=0.045))
 parts.append(cyl("SZ_LampShade", 0.16, 0.20, (NX + 0.10, NY + 0.06, 0.80 + 0.10), "shade", r2=0.12, verts=48))
-# old picture frame on the nightstand, turned so the camera at the bed sees only its back (ScriptLock 1.2, 00-B).
-# CR-002 (draft, Game Director 2026-10-25): books instead of the photograph - set to True to restore it
+# old picture frame on the nightstand, turned so the camera at the bed sees only its back (ScriptLock 1.3, 00-B).
+# CR-004 (draft, Game Director 2026-10-25): books instead of the photograph - set to True to restore it
 NIGHTSTAND_PHOTO = False
 if NIGHTSTAND_PHOTO:
     fr_obj = box("SZ_PhotoFrame", (0.13, 0.018, 0.18), (NX - 0.11, NY - 0.06, 0.56 + 0.09), "frame", bevel=0.003,

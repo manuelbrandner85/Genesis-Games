@@ -409,7 +409,7 @@ def instance(slot):
 # ------------------------------------------------------------------ import (once) + level
 MESHES = f"{SET}/Meshes"
 if os.environ.get("GENESIS_SZ_REIMPORT") or not eal.list_assets(MESHES, recursive=False):
-    # QA 2026-10-25: meshes whose Blender objects were removed or renamed (old books, the CR-002 photo) stayed in the
+    # QA 2026-10-25: meshes whose Blender objects were removed or renamed (old books, the CR-004 photo) stayed in the
     # folder and were spawned again - clear the folder first (from an empty level, nothing references it then)
     les.new_level("/Temp/C00_ReimportEmpty")
     for _p in eal.list_assets(MESHES, recursive=False):
@@ -590,7 +590,9 @@ elif SHOT == "raum":
 elif SHOT == "00b":                                      # test 00-B: 85 mm on the held hands, near bed-edge height
     # from the foot end, ~90 cm before the hands: her forearm comes in from behind them (+x, +y), not in front
     # aimed between the hands and the old photo on the nightstand, so the focus pull (c00_seq_00b.py) lands in frame
-    cam_loc, target, focal = ue((0.25, -0.85, 1.00)), ue((0.42, 0.62, 0.74)), 85.0
+    # re-aimed 2026-10-26 (bed 2.10 m, man 5 cm lower, CR-004 books where the photo stood): between the held hands
+    # (~0.33, 0.40, 0.66) and the book stack (~0.67, 1.27, 0.62)
+    cam_loc, target, focal = ue((0.22, -0.78, 0.98)), ue((0.40, 0.62, 0.68)), 85.0
 elif SHOT == "nacht":                                    # QA: the nightstand close (books, glass, lamp, photo back)
     cam_loc, target, focal = ue((0.30, 0.70, 0.98)), ue((0.78, 1.30, 0.63)), 40.0
 elif SHOT == "stuhl":                                    # QA: chair, knitted throw, rug, radiator
@@ -611,7 +613,7 @@ fs = cc.focus_settings
 fs.focus_method = unreal.CameraFocusMethod.MANUAL
 fs.manual_focus_distance = (target - cam_loc).length()
 if SHOT == "00b":                                        # 00-B opens focused on the hands
-    fs.manual_focus_distance = (ue((0.36, 0.40, 0.77)) - cam_loc).length()
+    fs.manual_focus_distance = (ue((0.34, 0.40, 0.69)) - cam_loc).length()
 cc.set_editor_property("focus_settings", fs)
 les.save_current_level()
 out = ROOT + f"docs/evidence/V42/C00_Schlafzimmer_UE_{SHOT}.png"

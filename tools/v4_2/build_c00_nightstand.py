@@ -184,7 +184,7 @@ def book(key, w, h, t, origin, rot_deg, cover, hard, title, sub, title_mat, fron
 # ------------------------------------------------------------------ books: across the front, spines toward the room
 # (38 cm nightstand depth: 20 cm books lengthwise ran into the lamp and over the front edge - turned 90 deg, the spine
 # faces the room / foot end and the stack stays between the photo, the lamp and the front edge)
-# CR-002 (draft, Game Director 2026-10-25): the photograph is gone - the books lie where it stood (front left)
+# CR-004 (draft, Game Director 2026-10-25): the photograph is gone - the books lie where it stood (front left)
 SPINE_Y, CX = -0.170, -0.100
 z = TOP
 stack = (("0", 0.135, 0.205, 0.028, COVERS[0], True, "GENESIS", "Roman", M_FOIL, -2.0, None, None, 0.0),
@@ -252,7 +252,7 @@ def bbox(o):
 
 groups = {"books": [o for o in dc.objects if o.name.startswith("SZ_Book")], "glass": [glass, water], "medicine": [mb],
           "lamp": [bpy.data.objects["SZ_LampBase"]]}
-for n in ("SZ_PhotoFrame", "SZ_PhotoBack"):                    # CR-002: remove the photograph from an already built set
+for n in ("SZ_PhotoFrame", "SZ_PhotoBack"):                    # CR-004: remove the photograph from an already built set
     o = bpy.data.objects.get(n)
     if o:
         bpy.data.objects.remove(o, do_unlink=True)

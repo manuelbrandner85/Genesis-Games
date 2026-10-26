@@ -1,7 +1,7 @@
 """C00 (runs INSIDE the Unreal Editor): Level Sequence LS_C00_00B - shot 00-B (approved shot list, 2026-10-25).
 
 00-B, 18 s at 24 fps, 85 mm, static with a minimal drift: his hand in his daughter's hand, her thumb moves; focus pull
-to the old photograph on the nightstand (turned away - its content stays unseen, ScriptLock 00-B).
+to the book stack on the nightstand (CR-004 draft, Game Director 2026-10-25; ScriptLock 1.3 still names the photograph).
 Run after c00_scene_bedroom.py with GENESIS_SZ_SHOT=00b (that run leaves both figures, the shirt and SZ_Cam_00b in the
 saved level L_C00_Schlafzimmer) and c00_anim_00b.py (the 432-frame animations).
 - camera cut on SZ_Cam_00b; 1.5 cm drift toward the hands over the shot; manual focus on the hands, pulled to the
@@ -19,7 +19,8 @@ LEVEL = "/Game/Genesis/Sets/C00_Schlafzimmer/L_C00_Schlafzimmer"
 FOLDER, NAME = "/Game/Genesis/Cinematics/C00", "LS_C00_00B"
 POSEN = "/Game/Genesis/Characters/C00/Posen"
 FPS, END = 24, 432
-PHOTO = unreal.Vector(65.7, -131.0, 65.0)                 # back of the old frame on the nightstand (build_c00_bedroom.py)
+# focus target: the book stack on the nightstand (CR-004 draft, books instead of the photograph; build_c00_nightstand.py)
+PHOTO = unreal.Vector(67.0, -127.0, 62.5)
 DISPLAY = unreal.MovieSceneTimeUnit.DISPLAY_RATE
 
 les.load_level(LEVEL)
