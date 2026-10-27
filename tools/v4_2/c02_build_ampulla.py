@@ -88,13 +88,14 @@ def build():
     me = bpy.data.meshes.new("SM_C02_Eileiter")
     bm = bmesh.new()
     uv = bm.loops.layers.uv.new("UVMap")
-    grid = []
+    grid, depths = [], []
     for i in range(SEG_X + 1):
         x = LENGTH * i / SEG_X
         row = []
         for j in range(SEG_THETA):
             th = 2 * math.pi * j / SEG_THETA
             d, lean = depth(th, x, F)
+            depths.append(min(d / 320.0, 1.0))
             r = RADIUS - d
             tl = th + lean * (d / RADIUS) ** 1.5            # the higher the tissue, the further it leans over
             row.append(bm.verts.new((x, r * math.cos(tl), r * math.sin(tl))))
@@ -112,50 +113,115 @@ def build():
     bm.free()
     for p in me.polygons:
         p.use_smooth = True
+    # fold height as a vertex colour (0 = groove between the folds, 1 = high crest): the material darkens and
+    # reddens the deep, wet, less lit grooves; travels to Unreal with the FBX as vertex colour
+    att = me.color_attributes.new("Tiefe", "FLOAT_COLOR", "POINT")
+    for k, d in enumerate(depths):
+        att.data[k].color = (d, d, d, 1.0)
     return me
 
 
 def material():
-    """Mucosa: pale pink, moist, strong subsurface (light travels tens of um in the tissue); epithelial cells
-    (~10 um) and the cilia carpet as bump/roughness in object space."""
+    """Mucosa: moist, strong subsurface (light travels tens of um in the tissue). Three levels: fold height
+    (vertex colour: deep red grooves, pale crests) and wet/dry patches of the mucus film; ~10 um epithelial
+    cells, each either ciliated (matte, rough cilia carpet combed along the tube) or secretory (smooth, domed,
+    glossy); cilia tufts as bump. All in object space (no UV seams)."""
     m = bpy.data.materials.get("M_C02_Schleimhaut") or bpy.data.materials.new("M_C02_Schleimhaut")
     m.use_nodes = True
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     p = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    p.inputs["Base Color"].default_value = (0.80, 0.58, 0.56, 1)
     p.inputs["Subsurface Weight"].default_value = 0.85
     p.inputs["Subsurface Radius"].default_value = (40.0, 18.0, 12.0)
     p.inputs["Subsurface Scale"].default_value = 1.0
     p.inputs["IOR"].default_value = 1.38
-    p.inputs["Coat Weight"].default_value = 0.35           # the thin fluid film on the epithelium
-    p.inputs["Coat Roughness"].default_value = 0.06
+    p.inputs["Coat Roughness"].default_value = 0.05
+    L = nt.links.new
     tc = nt.nodes.new("ShaderNodeTexCoord")
-    cells = nt.nodes.new("ShaderNodeTexVoronoi")
-    cells.feature = "DISTANCE_TO_EDGE"
-    cells.inputs["Scale"].default_value = 0.1               # cells ~10 um
-    cilia = nt.nodes.new("ShaderNodeTexNoise")
-    cilia.inputs["Scale"].default_value = 3.0               # ~0.3 um tufts
-    cilia.inputs["Detail"].default_value = 10.0
-    mix = nt.nodes.new("ShaderNodeMath")
-    mix.operation = "MULTIPLY_ADD"
-    mix.inputs[1].default_value = 0.4
-    bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.35
-    bump.inputs["Distance"].default_value = 1.5
-    rough = nt.nodes.new("ShaderNodeMapRange")
-    rough.inputs["To Min"].default_value = 0.28
-    rough.inputs["To Max"].default_value = 0.55
-    for n in (cells, cilia):
-        nt.links.new(tc.outputs["Object"], n.inputs["Vector"])
-    nt.links.new(cilia.outputs["Fac"], mix.inputs[0])
-    nt.links.new(cells.outputs["Distance"], mix.inputs[2])
-    nt.links.new(mix.outputs[0], bump.inputs["Height"])
-    nt.links.new(cilia.outputs["Fac"], rough.inputs["Value"])
-    nt.links.new(rough.outputs["Result"], p.inputs["Roughness"])
-    nt.links.new(bump.outputs["Normal"], p.inputs["Normal"])
-    nt.links.new(p.outputs["BSDF"], out.inputs["Surface"])
+
+    def node(kind, **inputs):
+        n = nt.nodes.new(kind)
+        for k, v in inputs.items():
+            n.inputs[k].default_value = v
+        return n
+
+    def maprange(src, a, b, c, d):
+        n = node("ShaderNodeMapRange")
+        n.inputs["From Min"].default_value, n.inputs["From Max"].default_value = a, b
+        n.inputs["To Min"].default_value, n.inputs["To Max"].default_value = c, d
+        L(src, n.inputs["Value"])
+        return n.outputs["Result"]
+
+    def mix(fac, a, b, blend="MIX"):
+        """Colour mix; a/b are RGB tuples or sockets (Mix node colour sockets: inputs 6/7, output 2)."""
+        n = nt.nodes.new("ShaderNodeMix")
+        n.data_type = "RGBA"
+        n.blend_type = blend
+        if isinstance(fac, float):
+            n.inputs[0].default_value = fac
+        else:
+            L(fac, n.inputs[0])
+        for idx, v in ((6, a), (7, b)):
+            if isinstance(v, tuple):
+                n.inputs[idx].default_value = (*v, 1)
+            else:
+                L(v, n.inputs[idx])
+        return n.outputs[2]
+
+    # macro: fold height (vertex colour) - grooves deep red and dark, crests pale pink
+    depth = nt.nodes.new("ShaderNodeAttribute")
+    depth.attribute_name = "Tiefe"
+    crest = maprange(depth.outputs["Fac"], 0.0, 0.75, 0.0, 1.0)
+    # epithelium: one ~10 um Voronoi cell per epithelial cell; each cell is ciliated (~60 %) or secretory
+    cells = node("ShaderNodeTexVoronoi", Scale=0.1)
+    L(tc.outputs["Object"], cells.inputs["Vector"])
+    edge = node("ShaderNodeTexVoronoi", Scale=0.1)
+    edge.feature = "DISTANCE_TO_EDGE"
+    L(tc.outputs["Object"], edge.inputs["Vector"])
+    cid = nt.nodes.new("ShaderNodeSeparateColor")
+    L(cells.outputs["Color"], cid.inputs["Color"])
+    cil = maprange(cid.outputs["Red"], 0.38, 0.42, 0.0, 1.0)          # 1 = ciliated cell, 0 = secretory cell
+    # medium: large wet/dry and colour patches (~80-150 um) - mucus film thicker in places
+    patch = node("ShaderNodeTexNoise", Scale=0.008, Detail=3.0)
+    L(tc.outputs["Object"], patch.inputs["Vector"])
+    # micro: cilia carpet (~0.3 um tufts, combed along the tube by the beat) and the secretory cell dome
+    cmap = node("ShaderNodeMapping")
+    cmap.inputs["Scale"].default_value = (0.35, 1.0, 1.0)            # tufts stretched along X (flow direction)
+    L(tc.outputs["Object"], cmap.inputs["Vector"])
+    cilia = node("ShaderNodeTexNoise", Scale=3.2, Detail=12.0, Roughness=0.75)
+    L(cmap.outputs["Vector"], cilia.inputs["Vector"])
+    dome = maprange(edge.outputs["Distance"], 0.0, 0.5, 0.0, 1.0)
+
+    base = mix(crest, (0.56, 0.20, 0.24), (0.90, 0.66, 0.66))
+    base = mix(maprange(cid.outputs["Green"], 0.0, 1.0, 0.0, 0.35), base, (0.88, 0.62, 0.58))   # cell-to-cell tint
+    base = mix(0.06, base, cells.outputs["Color"], "MULTIPLY")      # faint per-cell value jitter
+    L(base, p.inputs["Base Color"])
+
+    # roughness: cilia carpet matte and rough, secretory domes smooth and glossy, thin film wetter on the crests
+    r_cil = maprange(cilia.outputs["Fac"], 0.3, 0.7, 0.42, 0.68)
+    rough = nt.nodes.new("ShaderNodeMix")                           # float mix: inputs 0/2/3, output 0
+    L(cil, rough.inputs[0])
+    rough.inputs[2].default_value = 0.18
+    L(r_cil, rough.inputs[3])
+    L(rough.outputs[0], p.inputs["Roughness"])
+    coat = maprange(patch.outputs["Fac"], 0.35, 0.65, 0.12, 0.6)
+    L(coat, p.inputs["Coat Weight"])
+
+    # height: cell borders as fine grooves, domed secretory cells, cilia tufts on ciliated cells
+    h_cil = node("ShaderNodeMath")
+    h_cil.operation = "MULTIPLY"
+    L(cilia.outputs["Fac"], h_cil.inputs[0])
+    L(cil, h_cil.inputs[1])
+    h = node("ShaderNodeMath")
+    h.operation = "MULTIPLY_ADD"
+    L(dome, h.inputs[0])
+    h.inputs[1].default_value = 0.6
+    L(h_cil.outputs[0], h.inputs[2])
+    bump = node("ShaderNodeBump", Strength=0.5, Distance=1.2)
+    L(h.outputs[0], bump.inputs["Height"])
+    L(bump.outputs["Normal"], p.inputs["Normal"])
+    L(p.outputs["BSDF"], out.inputs["Surface"])
     return m
 
 

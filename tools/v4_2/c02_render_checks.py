@@ -68,6 +68,25 @@ def shot_oozyte_spieler():
     render("oozyte_spielersicht_dunkel", 96)
 
 
+def shot_cumulus_nah():
+    """Close to the corona (as the cell approaching the oocyte sees it): single cells with their nuclei."""
+    only(["SM_C02_Oozyte", "SM_C02_Zona", "C02_CUMULUS_Verteilung", "SM_C02_CumulusMatrix"])
+    cam = ld["setup"](mode="dark")
+    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    cam.data.type = "PERSP"
+    cam.data.lens = 35
+    cam.data.dof.use_dof = False
+    cam.data.clip_start, cam.data.clip_end = 0.2, 3000
+    cam.location = (-150, -40, 30)
+    look_at(cam, (0, 0, 0))
+    lamp = sc.objects["L_C02_Schraeglicht"]
+    lamp.location = (-130, -90, 90)
+    look_at(lamp, (0, 0, 0))
+    lamp.data.size = 60
+    lamp.data.energy = 1.0e6                       # measured in the preview: 2.5e5 left the cloud dull grey
+    render("cumulus_nah_dunkel", 128)
+
+
 def shot_named(name, objects, mode, scale, z=0.0, fstop=0.08):
     only(objects)
     cam = ld["setup"](mode=mode)
@@ -120,7 +139,43 @@ def shot_spermium():
     render("spermium_kopf_hell", 96)
 
 
+
+def shot_spermium_dunkel():
+    """Dark field, as the player sees the cells in the fluid: oblique lamp, black background."""
+    only(["SM_C02_Spermium_Pose"])
+    cam = ld["setup"](mode="dark")
+    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    pose = sc.objects["SM_C02_Spermium_Pose"]
+    ld["frame"](cam, [pose])
+    ld["focal_plane"](cam, 0.0, 0.5)
+    lamp = sc.objects["L_C02_Schraeglicht"]
+    lamp.location = pose.matrix_world @ Vector((-10, -30, 25))
+    look_at(lamp, pose.matrix_world.translation)
+    lamp.data.size = 15
+    lamp.data.energy = float(os.environ.get("C02_SPERM_LAMP", "25000"))
+    render("spermium_dunkel", 96)
+    cam.data.ortho_scale = 12.0
+    cam.location = pose.matrix_world @ Vector((-2.5, 0, 50))
+    ld["focal_plane"](cam, cam.location.z - 50.0, 0.5)
+    render("spermium_kopf_dunkel", 96)
+
+
+def shot_oozyte_plasma():
+    """Close-up of the ooplasm (40 um field) to judge the granulation."""
+    only(["SM_C02_Oozyte", "SM_C02_Zona", "SM_C02_Polkoerper"])
+    cam = ld["setup"](mode="bright")
+    sc.render.resolution_x = sc.render.resolution_y = 1000
+    ld["frame"](cam, [sc.objects["SM_C02_Zona"]])
+    cam.data.ortho_scale = 40
+    cam.location.x += 45.0                               # towards the rim: plasma, membrane, perivitelline space, zona
+    ld["focal_plane"](cam, 0.0, 0.08)
+    render("oozyte_plasma_hell", 96)
+
+
 SHOTS = {
+    "spermium_dunkel": shot_spermium_dunkel,
+    "oozyte_plasma": shot_oozyte_plasma,
+    "cumulus_nah": shot_cumulus_nah,
     "spermium": shot_spermium,
     "oozyte_nackt": shot_oozyte_nackt,
     "oozyte_spieler": shot_oozyte_spieler,

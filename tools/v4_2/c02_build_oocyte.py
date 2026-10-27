@@ -75,27 +75,32 @@ def mat_cytoplasm():
     ramp = nt.nodes.new("ShaderNodeMapRange")
     ramp.inputs["From Min"].default_value = 0.42
     ramp.inputs["From Max"].default_value = 0.7
-    ramp.inputs["To Min"].default_value = 0.0008       # measured: higher densities turn the 115 um cell dark grey
-    ramp.inputs["To Max"].default_value = 0.009
+    ramp.inputs["To Min"].default_value = 0.0004       # measured: higher densities turn the 115 um cell dark grey;
+    ramp.inputs["To Max"].default_value = 0.004        # the haze was halved in favour of distinct granules
     nt.links.new(noise.outputs["Fac"], ramp.inputs["Value"])
-    gran = nt.nodes.new("ShaderNodeTexVoronoi")                # organelles / yolk-like granules ~1 um
-    gran.inputs["Scale"].default_value = 0.55
-    nt.links.new(tc.outputs["Object"], gran.inputs["Vector"])
-    spot = nt.nodes.new("ShaderNodeMapRange")
-    spot.inputs["From Min"].default_value = 0.22
-    spot.inputs["From Max"].default_value = 0.08
-    spot.inputs["To Min"].default_value = 0.0
-    spot.inputs["To Max"].default_value = 0.05
-    nt.links.new(gran.outputs["Distance"], spot.inputs["Value"])
-    dens = nt.nodes.new("ShaderNodeMath")
-    dens.operation = "ADD"
-    nt.links.new(ramp.outputs["Result"], dens.inputs[0])
-    nt.links.new(spot.outputs["Result"], dens.inputs[1])
+    # organelles as discrete, dense granules (two sizes: ~0.8 um and ~0.4 um). Small, tight spots keep the mean
+    # density low (the cell stays translucent) while each granule reads as a grain (0.05 was invisible)
+    dens = ramp
+    for scale, r_out, r_in, d_max in ((0.55, 0.14, 0.04, 2.6), (1.3, 0.12, 0.04, 1.6)):
+        gran = nt.nodes.new("ShaderNodeTexVoronoi")
+        gran.inputs["Scale"].default_value = scale
+        nt.links.new(tc.outputs["Object"], gran.inputs["Vector"])
+        spot = nt.nodes.new("ShaderNodeMapRange")
+        spot.inputs["From Min"].default_value = r_out
+        spot.inputs["From Max"].default_value = r_in
+        spot.inputs["To Min"].default_value = 0.0
+        spot.inputs["To Max"].default_value = d_max
+        nt.links.new(gran.outputs["Distance"], spot.inputs["Value"])
+        add = nt.nodes.new("ShaderNodeMath")
+        add.operation = "ADD"
+        nt.links.new(dens.outputs[0], add.inputs[0])
+        nt.links.new(spot.outputs["Result"], add.inputs[1])
+        dens = add
     vol = nt.nodes.new("ShaderNodeVolumePrincipled")
     vol.inputs["Color"].default_value = (0.82, 0.78, 0.70, 1)
     vol.inputs["Absorption Color"].default_value = (0.92, 0.88, 0.80, 1)
     vol.inputs["Anisotropy"].default_value = 0.6           # small organelles scatter forward
-    nt.links.new(dens.outputs["Value"], vol.inputs["Density"])
+    nt.links.new(dens.outputs[0], vol.inputs["Density"])
     nt.links.new(surf.outputs["BSDF"], out.inputs["Surface"])
     nt.links.new(vol.outputs["Volume"], out.inputs["Volume"])
     return m
@@ -140,12 +145,24 @@ def mat_cell():
     nt = m.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
-    p = principled(nt, (0.92, 0.91, 0.88), 1.035, 0.96, 0.08)
+    p = principled(nt, (0.92, 0.91, 0.88), 1.035, 0.96, 0.03)    # smooth membrane: thin rim highlights
     nt.links.new(p.outputs["BSDF"], out.inputs["Surface"])
+    # clear cytosol with sparse ~0.5-1 um granules (a uniform haze made the cells milky and hid the nucleus)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    gran = nt.nodes.new("ShaderNodeTexVoronoi")
+    gran.inputs["Scale"].default_value = 1.4
+    gran.inputs["Randomness"].default_value = 1.0
+    spot = nt.nodes.new("ShaderNodeMapRange")
+    spot.inputs["From Min"].default_value = 0.22
+    spot.inputs["From Max"].default_value = 0.06
+    spot.inputs["To Min"].default_value = 0.008
+    spot.inputs["To Max"].default_value = 0.5
+    nt.links.new(tc.outputs["Object"], gran.inputs["Vector"])
+    nt.links.new(gran.outputs["Distance"], spot.inputs["Value"])
     cv = nt.nodes.new("ShaderNodeVolumePrincipled")
     cv.inputs["Color"].default_value = (0.86, 0.84, 0.79, 1)
-    cv.inputs["Density"].default_value = 0.09                  # measured: 0.035 left the cells nearly invisible
     cv.inputs["Anisotropy"].default_value = 0.5
+    nt.links.new(spot.outputs["Result"], cv.inputs["Density"])
     nt.links.new(cv.outputs["Volume"], out.inputs["Volume"])
     k = bpy.data.materials.get("M_C02_Zellkern") or bpy.data.materials.new("M_C02_Zellkern")
     k.use_nodes = True
@@ -155,9 +172,21 @@ def mat_cell():
     kp = principled(kt, (0.9, 0.88, 0.84), 1.06, 0.97, 0.12)
     kt.links.new(kp.outputs["BSDF"], ko.inputs["Surface"])
     kv = kt.nodes.new("ShaderNodeVolumePrincipled")              # chromatin: denser, slightly darker
-    kv.inputs["Color"].default_value = (0.7, 0.66, 0.6, 1)
-    kv.inputs["Density"].default_value = 0.45
-    kv.inputs["Absorption Color"].default_value = (0.75, 0.7, 0.62, 1)
+    kv.inputs["Color"].default_value = (0.86, 0.8, 0.72, 1)     # scatters strongly: bright core in dark fluid,
+    # homogeneous density: a textured volume in 2500 instanced nuclei drove Cycles past 80 GB (measured); the
+    # clumped chromatin is a fine relief on the nuclear surface instead
+    kv.inputs["Density"].default_value = 2.2
+    ktc = kt.nodes.new("ShaderNodeTexCoord")
+    kn = kt.nodes.new("ShaderNodeTexNoise")
+    kn.inputs["Scale"].default_value = 1.8
+    kn.inputs["Detail"].default_value = 6.0
+    kt.links.new(ktc.outputs["Object"], kn.inputs["Vector"])
+    kb = kt.nodes.new("ShaderNodeBump")
+    kb.inputs["Strength"].default_value = 0.4
+    kb.inputs["Distance"].default_value = 0.15
+    kt.links.new(kn.outputs["Fac"], kb.inputs["Height"])
+    kt.links.new(kb.outputs["Normal"], kp.inputs["Normal"])
+    kv.inputs["Absorption Color"].default_value = (0.82, 0.76, 0.66, 1)
     kv.inputs["Anisotropy"].default_value = 0.3
     kt.links.new(kv.outputs["Volume"], ko.inputs["Volume"])
     return m, k
@@ -165,7 +194,7 @@ def mat_cell():
 
 def cumulus_cell():
     cell = sphere("SM_C02_CumulusZelle", R_CELL, 4, wobble=0.28, seed=3, freq=0.7)   # smooth irregular ovals, not spheres or lumps
-    nuc = sphere("SM_C02_CumulusZelle_Kern", 2.6, 3, wobble=0.15, seed=5)
+    nuc = sphere("SM_C02_CumulusZelle_Kern", 2.6, 4, wobble=0.15, seed=5)   # subdiv 3 showed facets in close-up
     me = bpy.data.meshes.new("SM_C02_CumulusZelle_Geo")
     bm = bmesh.new()
     bm.from_mesh(cell)
